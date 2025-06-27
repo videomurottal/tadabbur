@@ -826,7 +826,23 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
 <div id="pages"></div>
 
+  
+
 <script>
+
+  const urlParams = new URLSearchParams(window.location.search);
+const surah = parseInt(urlParams.get("surah") || "1");
+const ayah = parseInt(urlParams.get("ayat") || "1");
+
+fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json")
+  .then(res => res.json())
+  .then(pageMap => {
+    const key = `${surah}:${ayah}`;
+    const page = pageMap[key];
+    if (!page) return;
+
+    // lanjutkan proses buat font & tampilkan
+
 const fromSurah = 112, fromAyah = 1, toSurah = 114, toAyah = 6;
 
 const lastAyahOfSurah = { /* ...isi lengkap seperti sebelumnya... */ };
