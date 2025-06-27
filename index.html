@@ -919,15 +919,23 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 fetch("terjemah_wbw.json")
   .then(res => res.json())
   .then(wordData => {
-    const words = arabicText.split(" ");
+    const temp = document.createElement("div");
+temp.innerHTML = arabicText;
+const words = Array.from(temp.childNodes);
     const translations = (wordData[key] || "").split('|').map(w => w.trim());
 
     arabDiv.innerHTML = ""; // kosongkan dulu
 
-    words.forEach((word, i) => {
-      const span = document.createElement("span");
-      span.className = "word";
-      span.textContent = word;
+    words.forEach((node, i) => {
+  const span = document.createElement("span");
+  span.className = "word";
+
+  if (node.nodeType === 3) {
+    span.textContent = node.textContent.trim();
+  } else {
+    span.appendChild(node.cloneNode(true));
+  }
+
 
       const tooltip = document.createElement("div");
       tooltip.className = "translation";
