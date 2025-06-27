@@ -28,6 +28,37 @@
       color: #111;
     }
 
+.word {
+  display: inline-block;
+  position: relative;
+  margin: 0 0.1em;
+  cursor: pointer;
+}
+
+.word:hover {
+  background-color: #f7eacb;
+  border-radius: 6px;
+}
+
+.translation {
+  position: absolute;
+  bottom: -2.4em;
+  font-size: 0.45em;
+  font-family: sans-serif;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.3em 0.6em;
+  white-space: nowrap;
+  display: none;
+  z-index: 10;
+  color: #444;
+}
+
+.word.active .translation {
+  display: block;
+}
+
      #install-notif {
     position: fixed;
     top: 50%;
@@ -591,6 +622,8 @@
   </style>
 </head>
 <body>
+
+<div id="output" class="arabic"></div>
 
  <script>
   const params = new URLSearchParams(window.location.search);
@@ -2411,5 +2444,66 @@ document.getElementById('clear-cache-btn').onclick = async function() {
 };
 </script>
 
+
+<script>
+let activeWord = null;
+let timeoutId = null;
+
+Promise.all([
+  fetch('quran.json').then(res => res.json()),
+  fetch('terjemah_wbw.json').then(res => res.json())
+]).then(([quranData, translations]) => {
+  const ayahKey = "1:1"; // Ganti ke ayat manapun, misal "2:3"
+  const arabicText = quranData[ayahKey];
+  const terjemahText = translations[ayahKey];
+
+  const arabicWords = arabicText.trim().split(/\s+/);
+  const translateWords = terjemahText.trim().split('|').map(t => t.trim());
+
+  // Cek kecocokan
+  if (arabicWords.length !== translateWords.length) {
+    console.warn(`⚠️ Jumlah tidak cocok untuk ayat ${ayahKey}: ${arabicWords.length} Arab, ${translateWords.length} terjemah.`);
+  }
+
+  const output = document.getElementById('output');
+  output.innerHTML = ''; // kosongkan dulu
+
+  arabicWords.forEach((word, i) => {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = word;
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'translation';
+    tooltip.textContent = translateWords[i] || '[?]';
+
+    span.appendChild(tooltip);
+
+    span.addEventListener("click", () => {
+      if (span === activeWord) {
+        span.classList.remove("active");
+        clearTimeout(timeoutId);
+        activeWord = null;
+        return;
+      }
+
+      document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+      span.classList.add("active");
+      activeWord = span;
+
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        span.classList.remove("active");
+        activeWord = null;
+      }, 6000);
+    });
+
+    output.appendChild(span);
+    output.appendChild(document.createTextNode(" "));
+  });
+});
+</script>
+
+  
 </body>
 </html>
