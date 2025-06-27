@@ -9,7 +9,7 @@ exports.handler = async function (event) {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
-  const owner = "tafsirnetlifyapp"; // Ganti sesuai akunmu
+  const owner = "tafsirnetlifyapp"; // Ganti sesuai akunmu ya
   const repo = "quran";       // Ganti sesuai repo
   const path = `data/${username}.json`;
 
