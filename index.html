@@ -13,14 +13,10 @@
   <title>Al-Qur'an Digital Tadabbur</title>
   <style>
     @font-face {
-    font-family: 'QCF_P001';
-    src: url('https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/fonts/QCF_P001.TTF') format('truetype');
-  }
-  .arabic {
-    font-family: 'QCF_P001', serif;
-    font-size: 2.5em;
-    direction: rtl;
-  }
+      font-family: 'Madina';
+      src: url('madina.woff2') format('woff2');
+      font-display: block;
+    }
 
     body {
       font-family: sans-serif;
@@ -330,12 +326,12 @@
 }
 
     .arabic {
-  font-size: 2.2em;
-  text-align: right;
-  direction: rtl;
-  margin-top: 1.5em;
-}
-
+      font-family: 'Madina', serif;
+      font-size: 2.2em;
+      text-align: right;
+      direction: rtl;
+      margin-top: 1.5em;
+    }
 
     .translation {
       font-size: 0.95em;
@@ -597,21 +593,6 @@
 <body>
 
  <script>
-
-
-const style = document.createElement("style");
-style.innerHTML = `
-  @font-face {
-    font-family: '${fontName}';
-    src: url('${fontUrl}') format('truetype');
-  }
-  .arabic {
-    font-family: '${fontName}', serif !important;
-  }
-`;
-document.head.appendChild(style);
-
-   
   const params = new URLSearchParams(window.location.search);
   const hasParams = params.has("surah") && params.has("ayat");
 
@@ -884,66 +865,6 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 .then(([quranData, xmlText]) => {
   let arabicText = "(Teks Arab tidak ditemukan)";
 
-
-const params = new URLSearchParams(window.location.search);
-const surah = parseInt(params.get("surah") || "1");
-const ayah = parseInt(params.get("ayat") || "1");
-const key = `${surah}:${ayah}`;
-
-Promise.all([
-  fetch("https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/mushafmadinah.json").then(res => res.json()),
-  fetch("https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/indonesian_complex_v1.0.xml").then(res => res.text()),
-  fetch("https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/ayah_page_map.json").then(res => res.json())
-])
-.then(([quranData, xmlText, pageMap]) => {
-  // Tentukan font halaman
-  const page = pageMap[key];
-  const fontName = `QCF_P${String(page).padStart(3, '0')}`;
-  const fontUrl = `https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/fonts/${fontName}.TTF`;
-
-  // Inject font sesuai halaman
-  const style = document.createElement("style");
-  style.innerHTML = `
-    @font-face {
-      font-family: '${fontName}';
-      src: url('${fontUrl}') format('truetype');
-    }
-    .arabic {
-      font-family: '${fontName}', serif !important;
-      font-size: 2.2em;
-      direction: rtl;
-      text-align: right;
-      margin-top: 1em;
-    }
-  `;
-  document.head.appendChild(style);
-
-  // Ambil teks glyph dari mushafmadinah.json
-  const surahObj = quranData[surah];
-  const ayahObj = surahObj?.text?.find(v => parseInt(v.verseNumber) === ayah);
-  const arabicText = ayahObj?.text || "(Ayat tidak ditemukan)";
-
-  // Tampilkan ayat
-  const arabDiv = document.createElement("div");
-  arabDiv.className = "arabic";
-  arabDiv.textContent = arabicText;
-  document.getElementById("result").innerHTML = "";
-  document.getElementById("result").appendChild(arabDiv);
-
-  // Proses XML untuk terjemah per kata
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-  const wordElements = xmlDoc.querySelectorAll(`aya[sura='${surah}'][aya='${ayah}'] word`);
-
-  wordElements.forEach(w => {
-    const arab = w.getAttribute("text_uthmani");
-    const indo = w.getAttribute("indonesian");
-    console.log(`${arab} → ${indo}`);
-    // Anda bisa tampilkan ini dengan tooltip atau tabel
-  });
-});
-
-
   // Loop ke seluruh entri quranData
   for (const entry of quranData) {
     for (const key in entry) {
@@ -961,11 +882,7 @@ Promise.all([
   arabicText += ` \u06dd${toArabicNumber(ayat)}`;
   arabicText = wrapRasmSymbols(arabicText);
 
-      const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
       document.getElementById("result").innerHTML = '';
-      document.getElementById("result").appendChild(arabDiv);
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
@@ -2490,43 +2407,5 @@ document.getElementById('clear-cache-btn').onclick = async function() {
 };
 </script>
 
-
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const surah = parseInt(params.get("surah") || "1");
-  const ayah = parseInt(params.get("ayat") || "1");
-  const key = `${surah}:${ayah}`;
-
-  Promise.all([
-    fetch("https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/ayah_page_map.json").then(r => r.json()),
-    fetch("https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/mushafmadinah.json").then(r => r.json())
-  ]).then(([map, mushaf]) => {
-    const page = map[key];
-    const fontName = `QCF_P${String(page).padStart(3, '0')}`;
-    const fontUrl = `https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/fonts/${fontName}.TTF`;
-
-    const style = document.createElement("style");
-    style.innerHTML = `
-      @font-face {
-        font-family: '${fontName}';
-        src: url('${fontUrl}') format('truetype');
-      }
-      .arabic {
-        font-family: '${fontName}', serif !important;
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Ambil ayat dari mushafmadinah.json
-    const ayat = mushaf[surah]?.text?.find(v => parseInt(v.verseNumber) === ayah)?.text || "(ayat tidak ditemukan)";
-    const arabicDiv = document.createElement("div");
-    arabicDiv.className = "arabic";
-    arabicDiv.textContent = ayat;
-
-    document.getElementById("result")?.appendChild(arabicDiv);
-  });
-</script>
-
-  
 </body>
 </html>
