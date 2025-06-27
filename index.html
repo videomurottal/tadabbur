@@ -690,7 +690,7 @@
   <script>
     const surahSelect = document.getElementById("surah");
     const ayatSelect = document.getElementById("ayat");
-
+    
     const surahData = [
       ["Al-Fatihah", 7], ["Al-Baqarah", 286], ["Ali 'Imran", 200], ["An-Nisa'", 176],
       ["Al-Ma'idah", 120], ["Al-An'am", 165], ["Al-A'raf", 206], ["Al-Anfal", 75],
@@ -1248,10 +1248,6 @@ searchBtn.className = "search-dropbtn";
 searchBtn.onclick = openSearch;
 translationDiv.appendChild(searchBtn);
 
-
-
-
-
 const notifSpan = document.createElement("span");
 notifSpan.id = "bookmark-notif";
 notifSpan.style.display = "none";
@@ -1329,47 +1325,16 @@ navDiv.appendChild(playAudioBtn);
 
   const select = document.createElement("select");
   const qaris = [
-    { name: "Al-Husary", id: "Husary_64kbps" },
-    { name: "Al-Husary Mujawwad", id: "Husary_Mujawwad_64kbps" },
-    { name: "Ali Jaber", id: "Ali_Jaber_64kbps" },
-    { name: "Abdurrahman As-Sudais", id: "Abdurrahmaan_As-Sudais_64kbps" },
-    { name: "Al-Minshawy Murattal", id: "Minshawy_Murattal_128kbps" },
-    { name: "Al-Minshawy Teacher", id: "Minshawy_Teacher_128kbps" },
-    { name: "Yaser Salamah", id: "Yaser_Salamah_128kbps" },
-    { name: "Sa'ad Al-Ghamidi", id: "Ghamadi_40kbps" },
-    { name: "Yaser Ad-Dausary", id: "Yasser_Ad-Dussary_128kbps" },
-    { name: "Abu Bakar Ash-Shaatree", id: "Abu_Bakr_Ash-Shaatree_64kbps" },
-    { name: "Misyari Alafasy", id: "Alafasy_64kbps" },
-    { name: "Mostafa Ismail", id: "Mostafa_Ismail_128kbps" },
-    { name: "Abdul Basith", id: "AbdulSamad_64kbps" },
-    { name: "Muhammad Ayyoub", id: "Muhammad_Ayyoub_64kbps" },
-    { name: "Al-Tablaway", id: "Mohammad_al_Tablaway_64kbps" },
-    { name: "Khaleefa AtTunaiji", id: "tunaiji_64kbps" },
-    { name: "Al-Banna", id: "Banna_32kbps" },
-    { name: "Ibrahim Akhdar", id: "Ibrahim_Akhdar_32kbps" },
-    { name: "English Walk", id: "English_Walk" },
-    { name: "Bosnian Korkut", id: "Bosnian_Korkut_128kbps" },
-    { name: "Khan Urdu", id: "ur.khan_46kbs" },
-    { name: "Al-Husary Qasr", id: "husary_qasr_64kbps" },
-    { name: "Al-Hussary Teacher", id: "Hussary.teacher_64kbps" },
-    { name: "Ali Hudhaify", id: "Hudhaify_64kbps" },
-    { name: "Su'ud As-Syuraim", id: "Saood_ash-Shuraym_64kbps" },
-    { name: "Al-Minshawy Mujawwad", id: "Minshawy_Mujawwad_64kbps" },
-    { name: "Ayman Sowaid", id: "Ayman_Sowaid_64kbps" },
-    { name: "Maher Al-Muaiqly", id: "Maher_AlMuaiqly_64kbps" },
-    { name: "Naser Al-Qatami", id: "Nasser_Alqatami_128kbps" },
-    { name: "Muhammad Jibreel", id: "Muhammad_Jibreel_64kbps" },
-    { name: "Ahmed Al-Ajamy", id: "Ahmed_ibn_Ali_al-Ajamy_64kbps" },
-    { name: "Ali Basfar", id: "Abdullah_Basfar_64kbps" },
-    { name: "Abdul Basith Murattal", id: "Abdul_Basit_Murattal_64kbps" },
-    { name: "Hani Ar-Rifai", id: "Hani_Rifai_192kbps" },
-    { name: "Abdul Muhsin Al-Qasim", id: "Muhsin_Al_Qasim_192kbps" },
-    { name: "Fares Abbad", id: "Fares_Abbad_64kbps" },
-    { name: "Al-Juhani", id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps" },
-    { name: "Ad-Dousary Warsh", id: "warsh_dossary_128kbps" },
-    { name: "Al-Husary Warsh", id: "warsh_husary_64kbps" },
-    { name: "Yasin Warsh", id: "warsh_yassin_64kbps" }
-  ];
+    { name: "Abdul Basit Murattal", id: "Abdul_Basit_Murattal_64kbps" },
+    { name: "Abdullaah 3awwaad Al-Juhaynee", id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps" },
+    { name: "Abdullah Basfar", id: "Abdullah_Basfar_64kbps" },
+    { name: "Abdullah Matroud", id: "Abdullah_Matroud_128kbps" },
+    { name: "Abdurrahmaan As-Sudais", id: "Abdurrahmaan_As-Sudais_64kbps" },
+    { name: "Abu Bakr Ash-Shaatree", id: "Abu_Bakr_Ash-Shaatree_64kbps" },
+    { name: "Sahih Intnl Ibrahim Walk", id: "Sahih_Intnl_Ibrahim_Walk_192kbps" },
+    { name: "Warsh Ibrahim Aldosary", id: "warsh_ibrahim_aldosary_128kbps" },
+    { name: "Warsh Yassin Al-Jazaery", id: "warsh_yassin_al_jazaery_64kbps" }
+    ];
 
   const savedQari = localStorage.getItem("lastQari") || "";
   qaris.forEach(qari => {
@@ -1401,7 +1366,7 @@ navDiv.appendChild(playAudioBtn);
       function playAudioForAyah(qariId) {
   const surahStr = String(surah).padStart(3, '0');
 const ayahStr = String(ayat).padStart(3, '0');
-const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
+const url = `https://github.com/dickymiswardi/tadabbur/raw/refs/heads/main/audio/${qariId}/${surahStr}/${surahStr}${ayahStr}.mp3`;
 
   const container = document.getElementById("audio-player-container");
   container.style.display = "block";
@@ -1424,7 +1389,6 @@ if (repeat > 1) {
     });
   }, 300);
 }
-
   // Autoplay toggle
   const toggleWrap = document.createElement("label");
   toggleWrap.className = "autoplay-toggle";
@@ -2411,7 +2375,6 @@ background:#FFFCFB; border:2.5px solid #41ab5d; padding:1em 2em; border-radius:8
   </button>
 </div>
 
-
   <script>
 async function checkVersionAndShowClear() {
   try {
@@ -2448,5 +2411,6 @@ document.getElementById('clear-cache-btn').onclick = async function() {
 };
 </script>
 
+  
 </body>
 </html>
