@@ -925,45 +925,37 @@ fetch("terjemah_wbw.json")
     arabDiv.innerHTML = ""; // kosongkan dulu
 
     words.forEach((word, i) => {
-  const span = document.createElement("span");
-  span.className = "word";
-  span.textContent = word;
+      const span = document.createElement("span");
+      span.className = "word";
+      span.textContent = word;
 
-  // Buat tooltip terjemah
-  const tooltip = document.createElement("div");
-  tooltip.className = "translation";
-  tooltip.textContent = translations[i] || "";
-  span.appendChild(tooltip);
+      const tooltip = document.createElement("div");
+      tooltip.className = "translation";
+      tooltip.textContent = translations[i] || "";
 
-  // Buat URL audio per kata
+      span.appendChild(tooltip);
+
+      span.addEventListener("click", () => {
+  document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+  span.classList.add("active");
+
+  clearTimeout(window.ttTimeout);
+  window.ttTimeout = setTimeout(() => {
+    span.classList.remove("active");
+  }, 5000);
+
+  // 🔊 Putar audio perkata
   const pad = n => String(n).padStart(3, '0');
   const audioUrl = `https://verses.quran.com/wbw/${pad(surah)}_${pad(ayat)}_${pad(i + 1)}.mp3`;
-
-  // Tambahkan audio element
   const audio = new Audio(audioUrl);
-
-  // Event klik: tampilkan tooltip + putar audio
-  span.addEventListener("click", () => {
-    // Tooltip aktif
-    document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-    span.classList.add("active");
-
-    clearTimeout(window.ttTimeout);
-    window.ttTimeout = setTimeout(() => {
-      span.classList.remove("active");
-    }, 5000);
-
-    // Putar audio
-    audio.currentTime = 0;
-    audio.play().catch(err => {
-      console.warn("🔇 Audio gagal diputar:", err);
-    });
-  });
-
-  arabDiv.appendChild(span);
-  arabDiv.appendChild(document.createTextNode(" "));
+  audio.play().catch(err => console.warn("Gagal memutar audio:", err));
 });
 
+
+      arabDiv.appendChild(span);
+      arabDiv.appendChild(document.createTextNode(" "));
+    });
+  });
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
