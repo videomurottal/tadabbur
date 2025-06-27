@@ -854,7 +854,7 @@ fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/
           data.verse.words.forEach(word => {
             const span = document.createElement("span");
             span.className = "word";
-            span.innerText = word.code_v1 || word.text;
+            span.innerText = word.code_v1 ?? "";
 
             const trans = document.createElement("div");
             trans.className = "translation";
