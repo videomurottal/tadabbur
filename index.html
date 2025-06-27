@@ -623,8 +623,6 @@
 </head>
 <body>
 
-<div id="output" class="arabic"></div>
-
  <script>
   const params = new URLSearchParams(window.location.search);
   const hasParams = params.has("surah") && params.has("ayat");
@@ -917,7 +915,40 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
+      const key = `${surah}:${ayat}`;
+fetch("terjemah_wbw.json")
+  .then(res => res.json())
+  .then(wordData => {
+    const words = arabicText.split(" ");
+    const translations = wordData[key] || [];
+
+    arabDiv.innerHTML = ""; // kosongkan dulu
+
+    words.forEach((word, i) => {
+      const span = document.createElement("span");
+      span.className = "word";
+      span.textContent = word;
+
+      const tooltip = document.createElement("div");
+      tooltip.className = "translation";
+      tooltip.textContent = translations[i] || "";
+
+      span.appendChild(tooltip);
+
+      span.addEventListener("click", () => {
+        document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+        span.classList.add("active");
+
+        clearTimeout(window.ttTimeout);
+        window.ttTimeout = setTimeout(() => {
+          span.classList.remove("active");
+        }, 5000);
+      });
+
+      arabDiv.appendChild(span);
+      arabDiv.appendChild(document.createTextNode(" "));
+    });
+  });
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
