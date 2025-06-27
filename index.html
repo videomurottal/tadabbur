@@ -830,9 +830,14 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
 <script>
 
-  const urlParams = new URLSearchParams(window.location.search);
+const urlParams = new URLSearchParams(window.location.search);
 const surah = parseInt(urlParams.get("surah") || "1");
 const ayah = parseInt(urlParams.get("ayat") || "1");
+let originalUnicode = "";
+let activeWord = null;
+let timeoutId = null;
+
+  
 
 fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json")
   .then(res => res.json())
