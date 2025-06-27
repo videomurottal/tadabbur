@@ -920,7 +920,7 @@ fetch("terjemah_wbw.json")
   .then(res => res.json())
   .then(wordData => {
     const words = arabicText.split(" ");
-    const translations = wordData[key] || [];
+    const translations = (wordData[key] || "").split('|').map(w => w.trim());
 
     arabDiv.innerHTML = ""; // kosongkan dulu
 
