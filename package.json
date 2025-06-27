@@ -1,0 +1,14 @@
+{
+  "name": "quran",
+  "version": "1.0.0",
+  "description": "Sync Quran data to GitHub via Netlify Functions",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo Build complete"
+  },
+  "author": "Dicky Miswardi",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^20.0.0"
+  }
+}
