@@ -770,6 +770,176 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 </div>
   <!-- BATAS TAMBAHAN -->
 
+
+  <!-- Ganti hasil dari quran.json dengan Mushaf Otomatis -->
+<style>
+  .page-container {
+    font-size: 2.5em;
+    line-height: 1.6;
+    text-align: justify;
+    user-select: text;
+    margin: 2em auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: none;
+    word-spacing: 0.2em;
+    max-width: 700px;
+  }
+
+  .word {
+    display: inline-block;
+    position: relative;
+    margin: 0 0.1em;
+    cursor: pointer;
+  }
+
+  .word:hover {
+    background-color: #f7eacb;
+    border-radius: 6px;
+  }
+
+  .translation {
+    position: absolute;
+    bottom: -2.4em;
+    font-size: 0.45em;
+    font-family: sans-serif;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.3em 0.6em;
+    white-space: nowrap;
+    display: none;
+    z-index: 10;
+    color: #444;
+  }
+
+  .word.active .translation {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .page-container {
+      font-size: 1.5em;
+    }
+  }
+</style>
+
+<div id="pages"></div>
+
+<script>
+const fromSurah = 112, fromAyah = 1, toSurah = 114, toAyah = 6;
+
+const lastAyahOfSurah = { /* ...isi lengkap seperti sebelumnya... */ };
+
+const generateAyahKeys = (fromSurah, fromAyah, toSurah, toAyah) => {
+  const keys = [];
+  for (let s = fromSurah; s <= toSurah; s++) {
+    const start = s === fromSurah ? fromAyah : 1;
+    const end = s === toSurah ? toAyah : lastAyahOfSurah[s];
+    for (let i = start; i <= end; i++) keys.push(`${s}:${i}`);
+  }
+  return keys;
+};
+
+const ayahKeys = generateAyahKeys(fromSurah, fromAyah, toSurah, toAyah);
+let originalUnicode = "";
+let activeWord = null;
+let timeoutId = null;
+
+fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json")
+  .then(res => res.json())
+  .then(pageMap => {
+    const pages = {};
+    ayahKeys.forEach(key => {
+      const page = pageMap[key];
+      if (!pages[page]) pages[page] = [];
+      pages[page].push(key);
+    });
+
+    Object.entries(pages).forEach(([page, keys]) => {
+      const fontName = `QCF_P${String(page).padStart(3, '0')}`;
+      const fontUrl = `https://raw.githubusercontent.com/dickymiswardi/quran/refs/heads/main/fonts/${fontName}.TTF`;
+
+      const style = document.createElement("style");
+      style.innerText = `@font-face {
+        font-family: '${fontName}';
+        src: url('${fontUrl}') format('truetype');
+        font-display: swap;
+      }`;
+      document.head.appendChild(style);
+
+      const container = document.createElement("div");
+      container.id = `page-${page}`;
+      container.className = "page-container";
+      container.style.fontFamily = fontName;
+      document.getElementById("pages").appendChild(container);
+
+      document.fonts.load(`1em '${fontName}'`).then(() => {
+        Promise.all(keys.map(key =>
+          fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`)
+            .then(r => r.json())
+        )).then(results => {
+          results.forEach(data => {
+            const line = document.createElement("div");
+            data.verse.words.forEach(word => {
+              const span = document.createElement("span");
+              span.className = "word";
+              span.innerText = word.code_v1 || word.text;
+
+              const trans = document.createElement("div");
+              trans.className = "translation";
+              trans.innerText = word.translation?.text || "-";
+              span.appendChild(trans);
+
+              span.addEventListener("click", () => {
+                if (span === activeWord) {
+                  span.classList.remove("active");
+                  clearTimeout(timeoutId);
+                  activeWord = null;
+                  return;
+                }
+                document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+                span.classList.add("active");
+                activeWord = span;
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                  span.classList.remove("active");
+                  activeWord = null;
+                }, 7000);
+              });
+
+              line.appendChild(span);
+              line.appendChild(document.createTextNode(" "));
+            });
+            container.appendChild(line);
+          });
+          container.style.display = "block";
+          requestAnimationFrame(() => container.style.opacity = "1");
+        });
+      });
+    });
+
+    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
+      .then(res => res.text())
+      .then(xml => {
+        const doc = new DOMParser().parseFromString(xml, "text/xml");
+        ayahKeys.forEach(key => {
+          const [s, a] = key.split(":");
+          const aya = doc.querySelector(`sura[index="${s}"] > aya[index="${a}"]`);
+          if (aya) originalUnicode += aya.getAttribute("text") + ` (${a}) `;
+        });
+      });
+  });
+
+document.addEventListener("copy", e => {
+  if (originalUnicode) {
+    e.preventDefault();
+    e.clipboardData.setData("text/plain", originalUnicode.trim());
+  }
+});
+</script>
+
+
   <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
   </div>
