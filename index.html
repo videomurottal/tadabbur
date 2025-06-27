@@ -843,20 +843,6 @@ fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/
 
     // lanjutkan proses buat font & tampilkan
 
-const fromSurah = 112, fromAyah = 1, toSurah = 114, toAyah = 6;
-
-const lastAyahOfSurah = { /* ...isi lengkap seperti sebelumnya... */ };
-
-const generateAyahKeys = (fromSurah, fromAyah, toSurah, toAyah) => {
-  const keys = [];
-  for (let s = fromSurah; s <= toSurah; s++) {
-    const start = s === fromSurah ? fromAyah : 1;
-    const end = s === toSurah ? toAyah : lastAyahOfSurah[s];
-    for (let i = start; i <= end; i++) keys.push(`${s}:${i}`);
-  }
-  return keys;
-};
-
 const ayahKeys = generateAyahKeys(fromSurah, fromAyah, toSurah, toAyah);
 let originalUnicode = "";
 let activeWord = null;
