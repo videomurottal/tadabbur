@@ -908,7 +908,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   fetch("https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/ayah_page_map.json").then(res => res.json())
 ])
 
-.then(([quranData, xmlText]) => {
+.then(([quranData, xmlText, pageMap]) => {
   let arabicText = "(Teks Arab tidak ditemukan)";
 
   const surahObj = quranData[surah]?.[surah];
