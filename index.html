@@ -40,7 +40,7 @@
   border-radius: 6px;
 }
 
-.translation {
+.tooltip-translation {
   position: absolute;
   bottom: -2.4em;
   font-size: 0.45em;
@@ -55,7 +55,7 @@
   color: #444;
 }
 
-.word.active .translation {
+.word.active .tooltip-translation {
   display: block;
 }
 
@@ -936,7 +936,7 @@ const words = cleanedText.trim().split(/\s+/);
       span.textContent = word;
 
       const tooltip = document.createElement("div");
-      tooltip.className = "translation";
+      tooltip.className = "tooltip-translation";
       tooltip.textContent = translations[i] || "";
 
       span.appendChild(tooltip);
