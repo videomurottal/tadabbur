@@ -43,22 +43,22 @@
     .tooltip-translation {
   position: absolute;
   bottom: -2.4em;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0; /* default: mulai dari kiri */
+  max-width: 80vw; /* tidak lebih lebar dari layar HP */
   font-size: 0.55em;
-  background: #fffdf7;
+  background: #fffefc;
   border: 1px solid #54403b;
   border-radius: 4px;
   padding: 0.3em 0.6em;
-  white-space: nowrap; /* ✅ tidak lompat baris */
+  white-space: nowrap; /* satu baris */
   display: none;
   z-index: 10;
   color: #444;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  max-width: 90vw; /* ✅ biar tetap responsif */
   overflow: hidden;
   text-overflow: ellipsis;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+
 
 
 
@@ -981,6 +981,27 @@ const words = cleanedText.trim().split(/\s+/);
     }
   }, 0);
 });
+
+setTimeout(() => {
+  const tooltipEl = span.querySelector('.tooltip-translation');
+  if (!tooltipEl) return;
+
+  // Reset dulu posisinya
+  tooltipEl.style.left = '0';
+
+  const rect = tooltipEl.getBoundingClientRect();
+  const overflowRight = rect.right > window.innerWidth;
+  const overflowLeft = rect.left < 0;
+
+  if (overflowRight) {
+    const shift = rect.right - window.innerWidth + 8; // 8px buffer
+    tooltipEl.style.left = `-${shift}px`;
+  } else if (overflowLeft) {
+    tooltipEl.style.left = `${Math.abs(rect.left) + 8}px`;
+  }
+}, 0);
+
+      
       arabDiv.appendChild(span);
       arabDiv.appendChild(document.createTextNode(" "));
     });
