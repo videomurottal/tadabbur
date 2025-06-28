@@ -4,6 +4,7 @@ self.addEventListener('install', event => {
       return cache.addAll([
         './',
         './index.html',
+        './quran_uthmani_quran_com.json',
         './quran.json',
         './indonesian_complex_v1.0.xml',
         './quran.xml',
@@ -35,6 +36,7 @@ self.addEventListener('fetch', event => {
   }
 
   const dataFiles = [
+    './quran_uthmani_quran_com.json',
     './quran.json',
     './indonesian_complex_v1.0.xml',
     './quran.xml',
