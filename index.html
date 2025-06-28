@@ -919,43 +919,42 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 fetch("terjemah_wbw.json")
   .then(res => res.json())
   .then(wordData => {
-    const words = arabicText.split(" ");
-    const translations = (wordData[key] || "").split('|').map(w => w.trim());
+    const words = arabicText.split(" ");  // split dulu
+const translations = (wordData[key] || "").split('|').map(w => w.trim());
 
-    arabDiv.innerHTML = ""; // kosongkan dulu
+arabDiv.innerHTML = ""; // kosongkan dulu
 
-    words.forEach((word, i) => {
-      const span = document.createElement("span");
-      span.className = "word";
-      span.innerHTML = word;
+words.forEach((rawWord, i) => {
+  const word = wrapRasmSymbols(rawWord); // baru bungkus rasm untuk kata individual
+  const span = document.createElement("span");
+  span.className = "word";
+  span.innerHTML = word;
 
-      const tooltip = document.createElement("div");
-      tooltip.className = "translation";
-      tooltip.textContent = translations[i] || "";
+  const tooltip = document.createElement("div");
+  tooltip.className = "translation";
+  tooltip.textContent = translations[i] || "";
 
-      span.appendChild(tooltip);
+  span.appendChild(tooltip);
 
-      span.addEventListener("click", () => {
-  document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-  span.classList.add("active");
+  // Event klik untuk audio, tetap
+  span.addEventListener("click", () => {
+    document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+    span.classList.add("active");
 
-  clearTimeout(window.ttTimeout);
-  window.ttTimeout = setTimeout(() => {
-    span.classList.remove("active");
-  }, 5000);
+    clearTimeout(window.ttTimeout);
+    window.ttTimeout = setTimeout(() => {
+      span.classList.remove("active");
+    }, 5000);
 
-  // 🔊 Putar audio perkata
-  const pad = n => String(n).padStart(3, '0');
-  const audioUrl = `https://verses.quran.com/wbw/${pad(surah)}_${pad(ayat)}_${pad(i + 1)}.mp3`;
-  const audio = new Audio(audioUrl);
-  audio.play().catch(err => console.warn("Gagal memutar audio:", err));
-});
-
-
-      arabDiv.appendChild(span);
-      arabDiv.appendChild(document.createTextNode(" "));
-    });
+    const pad = n => String(n).padStart(3, '0');
+    const audioUrl = `https://verses.quran.com/wbw/${pad(surah)}_${pad(ayat)}_${pad(i + 1)}.mp3`;
+    const audio = new Audio(audioUrl);
+    audio.play().catch(err => console.warn("Gagal memutar audio:", err));
   });
+
+  arabDiv.appendChild(span);
+  arabDiv.appendChild(document.createTextNode(" "));
+});
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
