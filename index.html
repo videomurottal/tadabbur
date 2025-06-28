@@ -927,7 +927,7 @@ fetch("terjemah_wbw.json")
     words.forEach((word, i) => {
       const span = document.createElement("span");
       span.className = "word";
-      span.textContent = word;
+      span.innerHTML = word;
 
       const tooltip = document.createElement("div");
       tooltip.className = "translation";
