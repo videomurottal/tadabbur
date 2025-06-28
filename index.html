@@ -39,24 +39,25 @@
   background-color: #f7eacb;
   border-radius: 6px;
 }
-
-    .tooltip-translation {
+.tooltip-translation {
   position: absolute;
   bottom: -2.4em;
-  left: 0; /* default: mulai dari kiri */
-  max-width: 80vw; /* tidak lebih lebar dari layar HP */
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 90vw;
   font-size: 0.55em;
   background: #fffefc;
   border: 1px solid #54403b;
   border-radius: 4px;
   padding: 0.3em 0.6em;
-  white-space: nowrap; /* satu baris */
+  white-space: nowrap;
   display: none;
   z-index: 10;
   color: #444;
   overflow: hidden;
   text-overflow: ellipsis;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  pointer-events: none;
 }
 
 
@@ -1000,6 +1001,30 @@ setTimeout(() => {
     tooltipEl.style.left = `${Math.abs(rect.left) + 8}px`;
   }
 }, 0);
+
+      setTimeout(() => {
+  const tooltipEl = span.querySelector('.tooltip-translation');
+  if (!tooltipEl) return;
+
+  // Reset posisi
+  tooltipEl.style.left = '50%';
+  tooltipEl.style.transform = 'translateX(-50%)';
+
+  const rect = tooltipEl.getBoundingClientRect();
+
+  // Koreksi jika tetap keluar kanan
+  if (rect.right > window.innerWidth) {
+    const overshoot = rect.right - window.innerWidth + 8;
+    tooltipEl.style.transform = `translateX(calc(-50% - ${overshoot}px))`;
+  }
+
+  // Koreksi jika tetap keluar kiri
+  if (rect.left < 0) {
+    const overshoot = Math.abs(rect.left) + 8;
+    tooltipEl.style.transform = `translateX(calc(-50% + ${overshoot}px))`;
+  }
+}, 0);
+
 
       
       arabDiv.appendChild(span);
