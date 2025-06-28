@@ -856,6 +856,36 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
 
+    function wrapRasmSymbols(text) {
+  // Tangani kasus khusus "ً ۢ ا" → "ًا<sup>ۢ</sup>"
+  text = text.replace(/ً\s*ۢ\s*ا/g, function () {
+    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
+  });
+
+  // Hapus ۢ jika muncul tepat setelah ن (huruf nun)
+  text = text.replace(/ن\s*ۢ/g, 'ن');
+
+  // Bungkus simbol-simbol rasm dengan <sup>
+  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
+    if (match === 'ۢ' || match === 'ۭ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    }
+  });
+}
+    function getNextAyah(surah, ayah) {
+      if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
+      const lastAyah = surahAyahCount[surah];
+      if (ayah < lastAyah) return { surah, ayah: ayah + 1 };
+      return { surah: surah + 1, ayah: 1 };
+    }
+
+    function getPrevAyah(surah, ayah) {
+      if (surah === 1 && ayah === 1) return null;
+      if (ayah > 1) return { surah, ayah: ayah - 1 };
+      return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
+    }
     
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
@@ -870,13 +900,14 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    const apiURL = `mushafmadinah.json`; // ganti dari versi API lama
-
-    Promise.all([
-  fetch("mushafmadinah.json").then(res => res.json())
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-  fetch("ayah_page_map.json").then(res => res.json())
+    const apiURL = `https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/mushafmadinah.json`; // ganti dari versi API lama
+    
+  Promise.all([
+  fetch("https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/mushafmadinah.json").then(res => res.json()),
+  fetch("indonesian_complex_v1.0.xml").then(res => res.text()),
+  fetch("https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/ayah_page_map.json").then(res => res.json())
 ])
+
 .then(([quranData, xmlText]) => {
   let arabicText = "(Teks Arab tidak ditemukan)";
 
