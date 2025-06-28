@@ -919,38 +919,15 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 fetch("terjemah_wbw.json")
   .then(res => res.json())
   .then(wordData => {
-    const temp = document.createElement("div");
-temp.innerHTML = arabicText;
-const words = [];
-temp.childNodes.forEach(node => {
-  if (node.nodeType === 3) {
-    // Pisahkan kata-kata dari text node
-    node.textContent.trim().split(/\s+/).forEach(word => {
-      if (word) {
-        const textNode = document.createTextNode(word);
-        words.push(textNode);
-      }
-    });
-  } else if (node.nodeType === 1) {
-    // Jika elemen HTML (sup, span, dll)
-    words.push(node);
-  }
-});
-
+    const words = arabicText.split(" ");
     const translations = (wordData[key] || "").split('|').map(w => w.trim());
 
     arabDiv.innerHTML = ""; // kosongkan dulu
 
-    words.forEach((node, i) => {
-  const span = document.createElement("span");
-  span.className = "word";
-
-  if (node.nodeType === 3) {
-    span.textContent = node.textContent.trim();
-  } else {
-    span.appendChild(node.cloneNode(true));
-  }
-
+    words.forEach((word, i) => {
+      const span = document.createElement("span");
+      span.className = "word";
+      span.textContent = word;
 
       const tooltip = document.createElement("div");
       tooltip.className = "translation";
