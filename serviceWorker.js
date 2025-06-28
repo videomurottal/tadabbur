@@ -5,7 +5,7 @@ self.addEventListener('install', event => {
         './',
         './index.html',
         './quran_uthmani_quran_com.json',
-        './quran.json',
+        './terjemah_wbw_77429.json',
         './indonesian_complex_v1.0.xml',
         './quran.xml',
         './TerjemahID.xml',
@@ -37,7 +37,7 @@ self.addEventListener('fetch', event => {
 
   const dataFiles = [
     './quran_uthmani_quran_com.json',
-    './quran.json',
+    './terjemah_wbw_77429.json',
     './indonesian_complex_v1.0.xml',
     './quran.xml',
     './TerjemahID.xml',
