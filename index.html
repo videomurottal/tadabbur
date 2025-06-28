@@ -39,21 +39,24 @@
   background-color: #f7eacb;
   border-radius: 6px;
 }
-
-.tooltip-translation {
+    .tooltip-translation {
   position: absolute;
   bottom: -2.4em;
+  left: 0; /* default kiri */
+  max-width: 200px;
   font-size: 0.5em;
-  font-family: sans-serif;
   background: #fffdf7;
   border: 1px solid #54403b;
   border-radius: 4px;
   padding: 0.3em 0.6em;
-  white-space: nowrap;
+  white-space: normal;
   display: none;
   z-index: 10;
   color: #444;
+  word-wrap: break-word;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+
 
 .word.active .tooltip-translation {
   display: block;
@@ -955,9 +958,25 @@ const words = cleanedText.trim().split(/\s+/);
   const audioUrl = `https://verses.quran.com/wbw/${pad(surah)}_${pad(ayat)}_${pad(i + 1)}.mp3`;
   const audio = new Audio(audioUrl);
   audio.play().catch(err => console.warn("Gagal memutar audio:", err));
+
+// ✅ PERBAIKAN TOOLTIP: geser jika keluar layar
+  setTimeout(() => {
+    const tooltipEl = span.querySelector('.tooltip-translation');
+    if (!tooltipEl) return;
+
+    const rect = tooltipEl.getBoundingClientRect();
+    const overflowRight = rect.right > window.innerWidth;
+    const overflowLeft = rect.left < 0;
+
+    if (overflowRight) {
+      tooltipEl.style.left = `-${rect.width}px`; // geser ke kiri
+    } else if (overflowLeft) {
+      tooltipEl.style.left = `0`; // tetap mulai dari kiri
+    } else {
+      tooltipEl.style.left = ""; // reset jika aman
+    }
+  }, 0);
 });
-
-
       arabDiv.appendChild(span);
       arabDiv.appendChild(document.createTextNode(" "));
     });
