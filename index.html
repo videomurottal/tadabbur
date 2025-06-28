@@ -913,66 +913,72 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   arabicText += ` \u06dd${toArabicNumber(ayat)}`;
   arabicText = wrapRasmSymbols(arabicText);
 
-      const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
-      const key = `${surah}:${ayat}`;
+      // Tambahkan simbol ayat (۝) di akhir dan bungkus rasm
+arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+arabicText = wrapRasmSymbols(arabicText);
+
+const arabDiv = document.createElement('div');
+arabDiv.className = 'arabic';
+const key = `${surah}:${ayat}`;
+
 fetch("terjemah_wbw.json")
   .then(res => res.json())
   .then(wordData => {
-    const cleanedText = arabicText
-  const rawFragments = arabicText.trim().split(/\s+/);
-const cleanedFragments = rawFragments.filter(f => !f.startsWith("<sup")); // hanya kata
+    const fragments = arabicText.trim().split(/\s+/);
+    const translations = (wordData[key] || "").split('|').map(w => w.trim());
 
-const translations = (wordData[key] || "").split('|').map(w => w.trim());
+    arabDiv.innerHTML = "";
+    let wordIndex = 0;
 
-let wordIndex = 0;
-arabDiv.innerHTML = "";
+    fragments.forEach(fragment => {
+      if (fragment.includes("<sup")) {
+        // Tampilkan simbol rasm
+        const rasmSpan = document.createElement("span");
+        rasmSpan.innerHTML = fragment;
+        arabDiv.appendChild(rasmSpan);
+        arabDiv.appendChild(document.createTextNode(" "));
+      } else {
+        // Kata Arab utama
+        const span = document.createElement("span");
+        span.className = "word";
+        span.textContent = fragment;
 
-rawFragments.forEach(fragment => {
-  if (fragment.startsWith("<sup")) {
-    // Tampilkan simbol rasm tapi tidak diberi tooltip
-    const rasmSpan = document.createElement("span");
-    rasmSpan.innerHTML = fragment;
-    arabDiv.appendChild(rasmSpan);
-    arabDiv.appendChild(document.createTextNode(" "));
-    return;
-  }
+        const tooltip = document.createElement("div");
+        tooltip.className = "translation";
+        tooltip.textContent = translations[wordIndex] || "";
 
-  // Tampilkan kata Arab + tooltip
-  const span = document.createElement("span");
-  span.className = "word";
-  span.textContent = fragment;
+        span.appendChild(tooltip);
 
-  const tooltip = document.createElement("div");
-  tooltip.className = "translation";
-  tooltip.textContent = translations[wordIndex] || "";
+        span.addEventListener("click", () => {
+          document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+          span.classList.add("active");
 
-  span.appendChild(tooltip);
+          clearTimeout(window.ttTimeout);
+          window.ttTimeout = setTimeout(() => {
+            span.classList.remove("active");
+          }, 5000);
 
-  span.addEventListener("click", () => {
-    document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-    span.classList.add("active");
+          const pad = n => String(n).padStart(3, '0');
+          const audioUrl = `https://verses.quran.com/wbw/${pad(surah)}_${pad(ayat)}_${pad(wordIndex + 1)}.mp3`;
+          const audio = new Audio(audioUrl);
+          audio.play().catch(err => console.warn("Gagal memutar audio:", err));
+        });
 
-    clearTimeout(window.ttTimeout);
-    window.ttTimeout = setTimeout(() => {
-      span.classList.remove("active");
-    }, 5000);
+        arabDiv.appendChild(span);
+        arabDiv.appendChild(document.createTextNode(" "));
+        wordIndex++; // hanya dihitung jika kata, bukan simbol
+      }
+    });
 
-    const pad = n => String(n).padStart(3, '0');
-    const audioUrl = `https://verses.quran.com/wbw/${pad(surah)}_${pad(ayat)}_${pad(wordIndex + 1)}.mp3`;
-    new Audio(audioUrl).play().catch(() => {});
+    document.getElementById("result").innerHTML = '';
+    document.getElementById("result").appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    
+    // Lanjutkan pemrosesan tafsir, dll...
   });
 
-  arabDiv.appendChild(span);
-  arabDiv.appendChild(document.createTextNode(" "));
-  wordIndex++;
-});
-
-      document.getElementById("result").innerHTML = '';
-      document.getElementById("result").appendChild(arabDiv);
-
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
       // Buat peta footnoteNumber ke posisi Surah & Ayat
 const footnoteMap = {};
