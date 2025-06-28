@@ -2457,6 +2457,9 @@ fetch("https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/terjemah_wb
     perkataMap = data;
   });
 
+let activeWord = null;
+let timeoutId;
+
 function renderPerKata(teksArab, surah, ayah) {
   const key = `${surah}:${ayah}`;
   const artiRaw = perkataMap[key];
@@ -2470,48 +2473,71 @@ function renderPerKata(teksArab, surah, ayah) {
     return teksArab;
   }
 
-  return kataList
-    .map((kata, i) => `<span class=\"word\" onclick=\"showMeaning(this, '${artiList[i]}')\">${kata}</span>`) 
-    .join(" ");
-}
+  return kataList.map((kata, i) => {
+    const span = document.createElement("span");
+    span.className = "word";
+    span.innerText = kata;
 
-function showMeaning(el, arti) {
-  const tooltip = document.createElement("div");
-  tooltip.className = "word-tooltip";
-  tooltip.textContent = arti;
+    const trans = document.createElement("div");
+    trans.className = "translation";
+    trans.innerText = artiList[i] || "-";
+    span.appendChild(trans);
 
-  const rect = el.getBoundingClientRect();
-  tooltip.style.top = `${rect.top + window.scrollY - 35}px`;
-  tooltip.style.left = `${rect.left + window.scrollX}px`;
+    span.addEventListener("click", () => {
+      if (span === activeWord) {
+        span.classList.remove("active");
+        clearTimeout(timeoutId);
+        activeWord = null;
+        return;
+      }
+      document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+      span.classList.add("active");
+      activeWord = span;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        span.classList.remove("active");
+        activeWord = null;
+      }, 7000);
+    });
 
-  document.body.appendChild(tooltip);
-
-  setTimeout(() => tooltip.remove(), 2000);
+    return span.outerHTML + " ";
+  }).join("");
 }
 </script>
 
 <style>
 .word {
+  display: inline-block;
+  position: relative;
+  margin: 0 0.1em;
   cursor: pointer;
-  padding: 0 0.1em;
-  transition: background-color 0.2s;
-  border-bottom: 1px dotted #999;
 }
+
 .word:hover {
-  background-color: #fff7cc;
-  border-radius: 4px;
+  background-color: #f7eacb;
+  border-radius: 6px;
 }
-.word-tooltip {
+
+.translation {
   position: absolute;
-  background: #000;
-  color: #fff;
-  padding: 4px 8px;
+  bottom: -2.4em;
+  font-size: 0.45em;
+  font-family: sans-serif;
+  background: #fff;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 0.85em;
+  padding: 0.3em 0.6em;
   white-space: nowrap;
-  z-index: 99999;
+  display: none;
+  z-index: 10;
+  color: #444;
+}
+
+.word.active .translation {
+  display: block;
 }
 </style>
+
   
 </body>
 </html>
