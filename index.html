@@ -28,6 +28,17 @@
       color: #111;
     }
 
+    .clickable-word {
+  cursor: pointer;
+  padding: 0 0.2em;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.clickable-word:hover {
+  background-color: #eef5f5;
+}
+
      #install-notif {
     position: fixed;
     top: 50%;
@@ -860,12 +871,34 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
     Promise.all([
   fetch("quran_uthmani_quran_com.json").then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+  fetch("indonesian_complex_v1.0.xml").then(res => res.text()),
+  fetch("https://raw.githubusercontent.com/tafsirnetlifyapp/quran/refs/heads/main/terjemah_wbw_7749.json").then(res => res.json())
 ])
-.then(([quranData, xmlText]) => {
+.then(([quranData, xmlText, wbwData]) => {
 // Loop ke seluruh entri quranData
   const ayahKey = `${surah}:${ayat}`;
 let arabicText = quranData[ayahKey] || "(Teks Arab tidak ditemukan)";
+const wbw = wbwData[ayahKey] || [];
+
+let arabicWords = arabicText.split("|").map(w => w.trim());
+
+// ⛔ Daftar simbol yang tidak boleh diklik
+const blocked = ['ۛ','ۖ','ۚ','ۗ','ۙ','ۘ','ۜ','ۢ','ۭ','ۢ'];
+
+let arabicHTML = '';
+let wordIndex = 0;
+
+for (const word of arabicWords) {
+  if (blocked.includes(word) || word === '') {
+    arabicHTML += ` <sup class="rasm-symbol">${word}</sup> `;
+  } else {
+    const translation = wbw[wordIndex] || "(?)";
+    arabicHTML += `<span class="clickable-word" title="${translation}">${word}</span> `;
+    wordIndex++;
+  }
+}
+
+arabicHTML += ` <sup class="rasm-symbol">\u06dd${toArabicNumber(ayat)}</sup>`;
 
       // Tambahkan simbol ayat
   arabicText += ` \u06dd${toArabicNumber(ayat)}`;
