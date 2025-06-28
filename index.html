@@ -1375,6 +1375,27 @@ navDiv.appendChild(playAudioBtn);
   document.body.appendChild(overlay);
 }
 
+  function tryPlayAudio(audioElement, retries = 10, delay = 2000) {
+  let attempt = 0;
+
+  function attemptPlay() {
+    audioElement.play()
+      .then(() => console.log("✅ Audio berhasil diputar"))
+      .catch(err => {
+        console.warn("❌ Gagal play (percobaan ke-" + (attempt + 1) + "):", err);
+        attempt++;
+        if (attempt < retries) {
+          setTimeout(attemptPlay, delay);
+        } else {
+          console.error("🚫 Gagal play audio setelah 10x percobaan.");
+        }
+      });
+  }
+
+  attemptPlay();
+}
+
+
       function playAudioForAyah(qariId) {
   const surahStr = String(surah).padStart(3, '0');
 const ayahStr = String(ayat).padStart(3, '0');
@@ -1444,9 +1465,14 @@ repeatSelect.onchange = () => {
   // Jika audio sudah ada, maka langsung ulang dari awal
   if (audio) {
     audio.currentTime = 0;
-    audio.play().catch(() => {
-      console.warn("Autoplay dicegah oleh browser");
-    });
+    const autoplayOn = localStorage.getItem("autoplay") === "true";
+if (autoplayOn) {
+  tryPlayAudio(audio);
+} else {
+  audio.play().catch(err => {
+    console.warn("Autoplay tidak diizinkan:", err);
+  });
+}
   }
 };
 
@@ -1464,7 +1490,11 @@ audio.onended = () => {
     // Ulang ayat
     playedTimes++;
     audio.currentTime = 0;
-    audio.play();
+    if (autoplayOn) {
+  tryPlayAudio(audio);
+} else {
+  audio.play();
+}
   } else {
     // Reset ulang
     playedTimes = 1;
