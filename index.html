@@ -2473,7 +2473,9 @@ function renderPerKata(teksArab, surah, ayah) {
     return teksArab;
   }
 
-  return kataList.map((kata, i) => {
+  const wrapper = document.createElement("div");
+
+  kataList.forEach((kata, i) => {
     const span = document.createElement("span");
     span.className = "word";
     span.innerText = kata;
@@ -2500,8 +2502,11 @@ function renderPerKata(teksArab, surah, ayah) {
       }, 7000);
     });
 
-    return span.outerHTML + " ";
-  }).join("");
+    wrapper.appendChild(span);
+    wrapper.appendChild(document.createTextNode(" "));
+  });
+
+  return wrapper;
 }
 </script>
 
