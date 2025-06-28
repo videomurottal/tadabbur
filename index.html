@@ -929,28 +929,30 @@ document.getElementById("result").innerHTML = '';
 document.getElementById("result").appendChild(arabDiv);
 
 // Tambahkan event klik tooltip terjemah
-document.querySelectorAll(".clickable-word").forEach(span => {
-  span.addEventListener("click", () => {
-    // Hapus aktif dari semua kata
-    document.querySelectorAll(".clickable-word").forEach(w => w.classList.remove("active"));
-    span.classList.add("active");
+// ✅ Tambahkan event klik audio & tooltip SETELAH elemen dimasukkan ke DOM
+requestAnimationFrame(() => {
+  document.querySelectorAll(".clickable-word").forEach(span => {
+    span.addEventListener("click", () => {
+      // Hapus aktif dari semua kata
+      document.querySelectorAll(".clickable-word").forEach(w => w.classList.remove("active"));
+      span.classList.add("active");
 
-    // Putar audio dari atribut data
-    const audioUrl = span.dataset.audio;
-    if (audioUrl) {
-      console.log("▶️ Memutar:", audioUrl);
-      const audio = new Audio(audioUrl);
-      audio.play().catch(err => console.error("Gagal memutar audio:", err));
-    }
+      // 🔊 Putar audio dari atribut data
+      const audioUrl = span.dataset.audio;
+      if (audioUrl) {
+        console.log("▶️ Memutar:", audioUrl);
+        const audio = new Audio(audioUrl);
+        audio.play().catch(err => console.error("🔇 Gagal memutar audio:", err));
+      }
 
-    // Hilangkan tooltip setelah 5 detik
-    clearTimeout(window.ttTimeout);
-    window.ttTimeout = setTimeout(() => {
-      span.classList.remove("active");
-    }, 5000);
+      // ⏱ Hilangkan tooltip setelah 5 detik
+      clearTimeout(window.ttTimeout);
+      window.ttTimeout = setTimeout(() => {
+        span.classList.remove("active");
+      }, 5000);
+    });
   });
 });
-
 
 
 
