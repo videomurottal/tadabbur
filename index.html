@@ -28,45 +28,6 @@
       color: #111;
     }
 
-.word {
-  display: inline-block;
-  position: relative;
-  margin: 0 0.1em;
-  cursor: pointer;
-}
-
-.word:hover {
-  background-color: #f7eacb;
-  border-radius: 6px;
-}
-.tooltip-translation {
-  position: absolute;
-  bottom: -2.4em;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 90vw;
-  font-size: 0.55em;
-  background: #fffefc;
-  border: 1px solid #54403b;
-  border-radius: 4px;
-  padding: 0.3em 0.6em;
-  white-space: nowrap;
-  display: none;
-  z-index: 10;
-  color: #444;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  pointer-events: none;
-}
-
-
-
-
-.word.active .tooltip-translation {
-  display: block;
-}
-
      #install-notif {
     position: fixed;
     top: 50%;
@@ -923,114 +884,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      const key = `${surah}:${ayat}`;
-fetch("terjemah_wbw.json")
-  .then(res => res.json())
-  .then(wordData => {
-    const cleanedText = arabicText
-  .replace(/<sup.*?<\/sup>/g, '') // hilangkan semua simbol rasm HTML
-  .replace(/\u06dd\d+/g, '')      // hilangkan ۝ dan nomor ayat
-  .replace(/[۝]/g, '')            // buang simbol ۝ tersisa
-
-const words = cleanedText.trim().split(/\s+/);
-
-    const translations = (wordData[key] || "").split('|').map(w => w.trim());
-
-    arabDiv.innerHTML = ""; // kosongkan dulu
-
-    words.forEach((word, i) => {
-      const span = document.createElement("span");
-      span.className = "word";
-      span.textContent = word;
-
-      const tooltip = document.createElement("div");
-      tooltip.className = "tooltip-translation";
-      tooltip.textContent = translations[i] || "";
-
-      span.appendChild(tooltip);
-
-      span.addEventListener("click", () => {
-  document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-  span.classList.add("active");
-
-  clearTimeout(window.ttTimeout);
-  window.ttTimeout = setTimeout(() => {
-    span.classList.remove("active");
-  }, 5000);
-
-  // 🔊 Putar audio perkata
-  const pad = n => String(n).padStart(3, '0');
-  const audioUrl = `https://verses.quran.com/wbw/${pad(surah)}_${pad(ayat)}_${pad(i + 1)}.mp3`;
-  const audio = new Audio(audioUrl);
-  audio.play().catch(err => console.warn("Gagal memutar audio:", err));
-
-// ✅ PERBAIKAN TOOLTIP: geser jika keluar layar
-  setTimeout(() => {
-    const tooltipEl = span.querySelector('.tooltip-translation');
-    if (!tooltipEl) return;
-
-    const rect = tooltipEl.getBoundingClientRect();
-    const overflowRight = rect.right > window.innerWidth;
-    const overflowLeft = rect.left < 0;
-
-    if (overflowRight) {
-      tooltipEl.style.left = `-${rect.width}px`; // geser ke kiri
-    } else if (overflowLeft) {
-      tooltipEl.style.left = `0`; // tetap mulai dari kiri
-    } else {
-      tooltipEl.style.left = ""; // reset jika aman
-    }
-  }, 0);
-});
-
-setTimeout(() => {
-  const tooltipEl = span.querySelector('.tooltip-translation');
-  if (!tooltipEl) return;
-
-  // Reset dulu posisinya
-  tooltipEl.style.left = '0';
-
-  const rect = tooltipEl.getBoundingClientRect();
-  const overflowRight = rect.right > window.innerWidth;
-  const overflowLeft = rect.left < 0;
-
-  if (overflowRight) {
-    const shift = rect.right - window.innerWidth + 8; // 8px buffer
-    tooltipEl.style.left = `-${shift}px`;
-  } else if (overflowLeft) {
-    tooltipEl.style.left = `${Math.abs(rect.left) + 8}px`;
-  }
-}, 0);
-
-      setTimeout(() => {
-  const tooltipEl = span.querySelector('.tooltip-translation');
-  if (!tooltipEl) return;
-
-  // Reset posisi
-  tooltipEl.style.left = '50%';
-  tooltipEl.style.transform = 'translateX(-50%)';
-
-  const rect = tooltipEl.getBoundingClientRect();
-
-  // Koreksi jika tetap keluar kanan
-  if (rect.right > window.innerWidth) {
-    const overshoot = rect.right - window.innerWidth + 8;
-    tooltipEl.style.transform = `translateX(calc(-50% - ${overshoot}px))`;
-  }
-
-  // Koreksi jika tetap keluar kiri
-  if (rect.left < 0) {
-    const overshoot = Math.abs(rect.left) + 8;
-    tooltipEl.style.transform = `translateX(calc(-50% + ${overshoot}px))`;
-  }
-}, 0);
-
-
-      
-      arabDiv.appendChild(span);
-      arabDiv.appendChild(document.createTextNode(" "));
-    });
-  });
+      arabDiv.innerHTML = arabicText;
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
@@ -1471,16 +1325,38 @@ navDiv.appendChild(playAudioBtn);
 
   const select = document.createElement("select");
   const qaris = [
-    { name: "Abdul Basit Murattal", id: "Abdul_Basit_Murattal_64kbps" },
-    { name: "Abdullaah 3awwaad Al-Juhaynee", id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps" },
-    { name: "Abdullah Basfar", id: "Abdullah_Basfar_64kbps" },
-    { name: "Abdullah Matroud", id: "Abdullah_Matroud_128kbps" },
-    { name: "Abdurrahmaan As-Sudais", id: "Abdurrahmaan_As-Sudais_64kbps" },
-    { name: "Abu Bakr Ash-Shaatree", id: "Abu_Bakr_Ash-Shaatree_64kbps" },
-    { name: "Sahih Intnl Ibrahim Walk", id: "Sahih_Intnl_Ibrahim_Walk_192kbps" },
-    { name: "Warsh Ibrahim Aldosary", id: "warsh_ibrahim_aldosary_128kbps" },
-    { name: "Warsh Yassin Al-Jazaery", id: "warsh_yassin_al_jazaery_64kbps" }
-    ];
+  { name: "Abdul Basit Murattal", id: "Abdul_Basit_Murattal_64kbps" },
+  { name: "Abdul Basit Mujawwad", id: "Abdul_Basit_Mujawwad_128kbps" },
+  { name: "Abdullaah 3awwaad Al-Juhaynee", id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps" },
+  { name: "Abdullah Basfar", id: "Abdullah_Basfar_64kbps" },
+  { name: "Abdullah Matroud", id: "Abdullah_Matroud_128kbps" },
+  { name: "Abdurrahmaan As-Sudais", id: "Abdurrahmaan_As-Sudais_64kbps" },
+  { name: "Abu Bakr Ash-Shaatree", id: "Abu_Bakr_Ash-Shaatree_64kbps" },
+  { name: "Ahmed Neana", id: "Ahmed_Neana_128kbps" },
+  { name: "Akram Al-Alaqimy", id: "Akram_AlAlaqimy_128kbps" },
+  { name: "Alafasy", id: "Alafasy_64kbps" },
+  { name: "Ali Jaber", id: "Ali_Jaber_64kbps" },
+  { name: "aziz alili", id: "aziz_alili_128kbps" },
+  { name: "Fares Abbad", id: "Fares_Abbad_64kbps" },
+  { name: "Ghamadi", id: "Ghamadi_40kbps" },
+  { name: "Hani Rifai", id: "Hani_Rifai_64kbps" },
+  { name: "Hudhaify", id: "Hudhaify_64kbps" },
+  { name: "Husary", id: "Husary_64kbps" },
+  { name: "Husary Mujawwad", id: "Husary_Mujawwad_64kbps" },
+  { name: "Ibrahim Akhdar", id: "Ibrahim_Akhdar_32kbps" },
+  { name: "khalefa al tunaiji", id: "khalefa_al_tunaiji_64kbps" },
+  { name: "Maher AlMuaiqly", id: "Maher_AlMuaiqly_64kbps" },
+  { name: "mahmoud ali al banna", id: "mahmoud_ali_al_banna_32kbps" },
+  { name: "Minshawy Mujawwad", id: "Minshawy_Mujawwad_64kbps" },
+  { name: "Muhammad Ayyoub", id: "Muhammad_Ayyoub_64kbps" },
+  { name: "Sahih Intnl Ibrahim Walk", id: "Sahih_Intnl_Ibrahim_Walk_192kbps" },
+  { name: "Saood ash-Shuraym", id: "Saood_ash-Shuraym_64kbps" },
+  { name: "warsh Abdul Basit", id: "warsh_Abdul_Basit_128kbps" },
+  { name: "warsh ibrahim aldosary", id: "warsh_ibrahim_aldosary_128kbps" },
+  { name: "warsh yassin al jazaery", id: "warsh_yassin_al_jazaery_64kbps" },
+  { name: "Yasser Ad-Dussary", id: "Yasser_Ad-Dussary_128kbps" },
+  { name: "ahmed ibn ali al ajamy", id: "ahmed_ibn_ali_al_ajamy_128kbps" }
+  ];
 
   const savedQari = localStorage.getItem("lastQari") || "";
   qaris.forEach(qari => {
@@ -2524,7 +2400,7 @@ background:#FFFCFB; border:2.5px solid #41ab5d; padding:1em 2em; border-radius:8
   <script>
 async function checkVersionAndShowClear() {
   try {
-    const response = await fetch('./notifupdateversion.json', { cache: 'no-store' });
+    const response = await fetch('./version.json', { cache: 'no-store' });
     const data = await response.json();
     const serverVersion = data.version;
     const localVersion = localStorage.getItem('quranAppVersion');
@@ -2555,66 +2431,6 @@ document.getElementById('clear-cache-btn').onclick = async function() {
     console.error('❌ Gagal hapus cache', e);
   }
 };
-</script>
-
-
-<script>
-let activeWord = null;
-let timeoutId = null;
-
-Promise.all([
-  fetch('quran.json').then(res => res.json()),
-  fetch('terjemah_wbw.json').then(res => res.json())
-]).then(([quranData, translations]) => {
-  const ayahKey = "1:1"; // Ganti ke ayat manapun, misal "2:3"
-  const arabicText = quranData[ayahKey];
-  const terjemahText = translations[ayahKey];
-
-  const arabicWords = arabicText.trim().split(/\s+/);
-  const translateWords = terjemahText.trim().split('|').map(t => t.trim());
-
-  // Cek kecocokan
-  if (arabicWords.length !== translateWords.length) {
-    console.warn(`⚠️ Jumlah tidak cocok untuk ayat ${ayahKey}: ${arabicWords.length} Arab, ${translateWords.length} terjemah.`);
-  }
-
-  const output = document.getElementById('output');
-  output.innerHTML = ''; // kosongkan dulu
-
-  arabicWords.forEach((word, i) => {
-    const span = document.createElement('span');
-    span.className = 'word';
-    span.textContent = word;
-
-    const tooltip = document.createElement('div');
-    tooltip.className = 'translation';
-    tooltip.textContent = translateWords[i] || '[?]';
-
-    span.appendChild(tooltip);
-
-    span.addEventListener("click", () => {
-      if (span === activeWord) {
-        span.classList.remove("active");
-        clearTimeout(timeoutId);
-        activeWord = null;
-        return;
-      }
-
-      document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-      span.classList.add("active");
-      activeWord = span;
-
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        span.classList.remove("active");
-        activeWord = null;
-      }, 6000);
-    });
-
-    output.appendChild(span);
-    output.appendChild(document.createTextNode(" "));
-  });
-});
 </script>
 
   
