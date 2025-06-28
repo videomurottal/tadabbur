@@ -919,7 +919,13 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 fetch("terjemah_wbw.json")
   .then(res => res.json())
   .then(wordData => {
-    const words = arabicText.split(" ");
+    const cleanedText = arabicText
+  .replace(/<sup.*?<\/sup>/g, '') // hilangkan semua simbol rasm HTML
+  .replace(/\u06dd\d+/g, '')      // hilangkan ۝ dan nomor ayat
+  .replace(/[۝]/g, '')            // buang simbol ۝ tersisa
+
+const words = cleanedText.trim().split(/\s+/);
+
     const translations = (wordData[key] || "").split('|').map(w => w.trim());
 
     arabDiv.innerHTML = ""; // kosongkan dulu
