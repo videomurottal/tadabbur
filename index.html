@@ -29,23 +29,33 @@
     }
 
     .clickable-word {
+  display: inline-block;
+  position: relative;
+  margin: 0 0.15em;
   cursor: pointer;
-  padding: 0 0.25em;
-  transition: background 0.2s ease;
-  border-radius: 4px;
 }
 
 .clickable-word:hover {
-  background-color: #eef5f5;
+  background-color: #f7eacb;
+  border-radius: 6px;
 }
 
-.word-bubble {
-  animation: fadeIn 0.2s ease-in;
+.word-translation {
+  position: absolute;
+  bottom: -2.4em;
+  font-size: 0.45em;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.3em 0.6em;
+  white-space: nowrap;
+  display: none;
+  z-index: 10;
+  color: #444;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+.clickable-word.active .word-translation {
+  display: block;
 }
 
 
@@ -887,11 +897,11 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 .then(([quranData, xmlText, wbwData]) => {
 // Loop ke seluruh entri quranData
   const ayahKey = `${surah}:${ayat}`;
-let arabicText = quranData[ayahKey] || "(Teks Arab tidak ditemukan)";
-const arabicWords = arabicText.split("|").map(w => w.trim());
+const arabicText = quranData[ayahKey] || "(Teks Arab tidak ditemukan)";
 const wbw = wbwData[ayahKey] || [];
 const blocked = ['ۛ','ۖ','ۚ','ۗ','ۙ','ۘ','ۜ','ۢ','ۭ'];
 
+const arabicWords = arabicText.split("|").map(w => w.trim());
 let arabicHTML = '';
 let wordIndex = 0;
 
@@ -900,55 +910,32 @@ arabicWords.forEach(word => {
     arabicHTML += ` <sup class="rasm-symbol">${word}</sup> `;
   } else {
     const translation = wbw[wordIndex] || "(?)";
-    arabicHTML += `<span class="clickable-word" data-translate="${translation}">${word}</span> `;
+    arabicHTML += `<span class="clickable-word" data-translate="${translation}">${word}<div class="word-translation">${translation}</div></span> `;
     wordIndex++;
   }
 });
 
 arabicHTML += ` <sup class="rasm-symbol">\u06dd${toArabicNumber(ayat)}</sup>`;
 
+const arabDiv = document.createElement('div');
+arabDiv.className = 'arabic';
+arabDiv.innerHTML = arabicHTML;
+document.getElementById("result").innerHTML = '';
+document.getElementById("result").appendChild(arabDiv);
 
-      // Tambahkan simbol ayat
-  arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-  arabicText = wrapRasmSymbols(arabicText);
-
-      const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
-
+// Tambahkan event klik tooltip terjemah
 document.querySelectorAll(".clickable-word").forEach(span => {
   span.addEventListener("click", () => {
-    const meaning = span.dataset.translate;
+    document.querySelectorAll(".clickable-word").forEach(w => w.classList.remove("active"));
     span.classList.add("active");
-
-    const bubble = document.createElement("div");
-    bubble.textContent = meaning;
-    bubble.style.position = "absolute";
-    bubble.style.background = "#fff";
-    bubble.style.border = "1px solid #ccc";
-    bubble.style.padding = "0.4em 0.6em";
-    bubble.style.borderRadius = "6px";
-    bubble.style.top = (span.offsetTop - 36) + "px";
-    bubble.style.left = span.offsetLeft + "px";
-    bubble.style.zIndex = 9999;
-    bubble.style.fontSize = "0.9em";
-    bubble.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-    bubble.className = "word-bubble";
-
-    document.body.appendChild(bubble);
 
     clearTimeout(window.ttTimeout);
     window.ttTimeout = setTimeout(() => {
-      bubble.remove();
       span.classList.remove("active");
-    }, 4000);
+    }, 5000);
   });
 });
 
-
-  
-      document.getElementById("result").innerHTML = '';
-      document.getElementById("result").appendChild(arabDiv);
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
