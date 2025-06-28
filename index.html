@@ -2488,6 +2488,15 @@ function showMeaning(el, arti) {
 
   setTimeout(() => tooltip.remove(), 2000);
 }
+
+  function showMeaning(el, arti) {
+  console.log("Kata diklik:", el.innerText, "→", arti); // DEBUG
+  const tooltip = document.createElement("div");
+  tooltip.className = "word-tooltip";
+  tooltip.textContent = arti;
+  ...
+}
+
 </script>
 
 <style>
