@@ -910,7 +910,12 @@ arabicWords.forEach(word => {
     arabicHTML += ` <sup class="rasm-symbol">${word}</sup> `;
   } else {
     const translation = wbw[wordIndex] || "(?)";
-    arabicHTML += `<span class="clickable-word" data-translate="${translation}">${word}<div class="word-translation">${translation}</div></span> `;
+    const audioUrl = `https://verses.quran.com/wbw/${String(surah).padStart(3, '0')}_${String(ayat).padStart(3, '0')}_${wordIndex + 1}.mp3`;
+arabicHTML += `
+  <span class="clickable-word" data-translate="${translation}" data-audio="${audioUrl}">
+    ${word}
+    <div class="word-translation">${translation}</div>
+  </span> `;
     wordIndex++;
   }
 });
@@ -925,16 +930,27 @@ document.getElementById("result").appendChild(arabDiv);
 
 // Tambahkan event klik tooltip terjemah
 document.querySelectorAll(".clickable-word").forEach(span => {
+  document.querySelectorAll(".clickable-word").forEach(span => {
   span.addEventListener("click", () => {
+    // Hapus aktif dari semua kata
     document.querySelectorAll(".clickable-word").forEach(w => w.classList.remove("active"));
     span.classList.add("active");
 
+    // Putar audio dari atribut data
+    const audioUrl = span.dataset.audio;
+    if (audioUrl) {
+      const audio = new Audio(audioUrl);
+      audio.play().catch(err => console.error("Gagal memutar audio:", err));
+    }
+
+    // Hilangkan bubble setelah 5 detik
     clearTimeout(window.ttTimeout);
     window.ttTimeout = setTimeout(() => {
       span.classList.remove("active");
     }, 5000);
   });
 });
+
 
 
       const parser = new DOMParser();
