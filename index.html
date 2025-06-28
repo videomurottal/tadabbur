@@ -930,52 +930,10 @@ const words = cleanedText.trim().split(/\s+/);
 
     arabDiv.innerHTML = ""; // kosongkan dulu
 
-    const rawFragments = arabicText.trim().split(/\s+/); // termasuk <sup>
-const translations = (wordData[key] || "").split('|').map(w => w.trim());
-let wordIndex = 0;
-
-arabDiv.innerHTML = "";
-
-rawFragments.forEach(fragment => {
-  // Jika fragment adalah simbol rasm (dibungkus <sup>...</sup>)
-  if (fragment.includes("<sup")) {
-    const wrapper = document.createElement("span");
-    wrapper.innerHTML = fragment;
-    arabDiv.appendChild(wrapper);
-    arabDiv.appendChild(document.createTextNode(" "));
-    return;
-  }
-
-  // Kata Arab utama (diberi tooltip)
-  const span = document.createElement("span");
-  span.className = "word";
-  span.textContent = fragment;
-
-  const tooltip = document.createElement("div");
-  tooltip.className = "translation";
-  tooltip.textContent = translations[wordIndex] || "";
-  span.appendChild(tooltip);
-
-  span.addEventListener("click", () => {
-    document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-    span.classList.add("active");
-
-    clearTimeout(window.ttTimeout);
-    window.ttTimeout = setTimeout(() => {
-      span.classList.remove("active");
-    }, 5000);
-
-    const pad = n => String(n).padStart(3, '0');
-    const audioUrl = `https://verses.quran.com/wbw/${pad(surah)}_${pad(ayat)}_${pad(wordIndex + 1)}.mp3`;
-    const audio = new Audio(audioUrl);
-    audio.play().catch(err => console.warn("Gagal memutar audio:", err));
-  });
-
-  arabDiv.appendChild(span);
-  arabDiv.appendChild(document.createTextNode(" "));
-  wordIndex++;
-});
-
+    words.forEach((word, i) => {
+      const span = document.createElement("span");
+      span.className = "word";
+      span.textContent = word;
 
       const tooltip = document.createElement("div");
       tooltip.className = "translation";
