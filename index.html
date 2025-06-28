@@ -28,6 +28,38 @@
       color: #111;
     }
 
+    .clickable-word {
+  cursor: pointer;
+  padding: 0 0.3em;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-word:hover {
+  background-color: #e6f7ff;
+  color: #017b8b;
+}
+
+.clickable-word.selected {
+  background-color: #d0f0ff;
+  font-weight: bold;
+  color: #005e6a;
+  border: 1px solid #0099aa;
+}
+
+.tooltip-popup {
+  position: absolute;
+  background: #ffffff;
+  border: 1px solid #017b8b;
+  padding: 0.6em 1em;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-size: 0.85em;
+  max-width: 320px;
+  z-index: 9999;
+}
+
+
      #install-notif {
     position: fixed;
     top: 50%;
@@ -860,8 +892,10 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
     Promise.all([
   fetch("quran.json").then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+  fetch("indonesian_complex_v1.0.xml").then(res => res.text()),
+  fetch("terjemah_wbw.json").then(res => res.json()) // ✅ tambahkan baris ini
 ])
+
 .then(([quranData, xmlText]) => {
   let arabicText = "(Teks Arab tidak ditemukan)";
 
@@ -884,7 +918,22 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.innerHTML = renderPerKata(arabicText, surah, ayat);
+      const key = `${surah}:${ayat}`;
+const translationWords = wbwData[key]?.split('|').map(w => w.trim()) || [];
+
+const arabicWords = arabicText.replace(/\u06dd.*/, '') // hilangkan simbol akhir ayat
+                              .trim()
+                              .split(/\s+/); // pisah berdasarkan spasi
+
+let html = '';
+arabicWords.forEach((word, i) => {
+  const translation = translationWords[i] || '-';
+  html += `<span class="clickable-word" data-meaning="${translation}">${word}</span> `;
+});
+html += `<span class="ayah-number">\u06dd${toArabicNumber(ayat)}</span>`; // tambahkan simbol ayat kembali
+
+arabDiv.innerHTML = html;
+
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
@@ -2448,101 +2497,42 @@ document.getElementById('clear-cache-btn').onclick = async function() {
 };
 </script>
 
-<!-- Tambahkan ke dalam <head> atau sebelum </body> -->
 <script>
-let perkataMap = {};
-fetch("https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/terjemah_wbw.json")
-  .then(res => res.json())
-  .then(data => {
-    perkataMap = data;
+document.querySelectorAll('.clickable-word').forEach(span => {
+  span.addEventListener('click', e => {
+    e.stopPropagation();
+
+    const meaning = span.getAttribute('data-meaning');
+    if (!meaning) return;
+
+    // Hapus popup lama dan selected lainnya
+    document.querySelectorAll('.tooltip-popup').forEach(el => el.remove());
+    document.querySelectorAll('.clickable-word').forEach(w => w.classList.remove('selected'));
+
+    // Tambahkan kelas selected
+    span.classList.add('selected');
+
+    // Buat popup
+    const popup = document.createElement('div');
+    popup.className = 'tooltip-popup';
+    popup.textContent = meaning;
+    document.body.appendChild(popup);
+
+    const rect = span.getBoundingClientRect();
+    popup.style.top = `${rect.top + window.scrollY - 40}px`;
+    popup.style.left = `${rect.left + window.scrollX}px`;
+
+    // Tutup jika klik di luar
+    setTimeout(() => {
+      document.addEventListener('click', function closePopup() {
+        popup.remove();
+        span.classList.remove('selected');
+        document.removeEventListener('click', closePopup);
+      }, { once: true });
+    }, 10);
   });
+});
 
-let activeWord = null;
-let timeoutId;
-
-function renderPerKata(teksArab, surah, ayah) {
-  const key = `${surah}:${ayah}`;
-  const artiRaw = perkataMap[key];
-  if (!artiRaw) return teksArab;
-
-  const artiList = artiRaw.split("|").map(s => s.trim());
-  const kataList = teksArab.split(" ");
-
-  if (artiList.length !== kataList.length) {
-    console.warn(`Mismatch kata vs arti: ${key}`);
-    return teksArab;
-  }
-
-  const wrapper = document.createElement("div");
-
-  kataList.forEach((kata, i) => {
-    const span = document.createElement("span");
-    span.className = "word";
-    span.innerText = kata;
-
-    const trans = document.createElement("div");
-    trans.className = "translation";
-    trans.innerText = artiList[i] || "-";
-    span.appendChild(trans);
-
-    span.addEventListener("click", () => {
-      if (span === activeWord) {
-        span.classList.remove("active");
-        clearTimeout(timeoutId);
-        activeWord = null;
-        return;
-      }
-      document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-      span.classList.add("active");
-      activeWord = span;
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        span.classList.remove("active");
-        activeWord = null;
-      }, 7000);
-    });
-
-    wrapper.appendChild(span);
-    wrapper.appendChild(document.createTextNode(" "));
-  });
-
-  return wrapper;
-}
 </script>
-
-<style>
-.word {
-  display: inline-block;
-  position: relative;
-  margin: 0 0.1em;
-  cursor: pointer;
-}
-
-.word:hover {
-  background-color: #f7eacb;
-  border-radius: 6px;
-}
-
-.translation {
-  position: absolute;
-  bottom: -2.4em;
-  font-size: 0.45em;
-  font-family: sans-serif;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 0.3em 0.6em;
-  white-space: nowrap;
-  display: none;
-  z-index: 10;
-  color: #444;
-}
-
-.word.active .translation {
-  display: block;
-}
-</style>
-
-  
 </body>
 </html>
