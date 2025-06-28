@@ -919,8 +919,8 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 fetch("terjemah_wbw.json")
   .then(res => res.json())
   .then(wordData => {
-    const words = arabicText.split(" ");
-    const translations = (wordData[key] || "").split('|').map(w => w.trim());
+    const wordsRaw = arabicText.split(" ");
+const words = wordsRaw.map(wrapRasmSymbols);
 
     arabDiv.innerHTML = ""; // kosongkan dulu
 
