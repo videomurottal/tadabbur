@@ -37,21 +37,21 @@
 
 .word:hover {
   background-color: #f7eacb;
-  border-radius: 3px;
+  border-radius: 6px;
 }
 
 .translation {
   position: absolute;
-  bottom: -1em;
-  font-size: 0.05em;
+  bottom: -2.4em;
+  font-size: 0.45em;
   font-family: sans-serif;
   background: #fff;
   border: 1px solid #ccc;
-  border-radius: 2px;
-  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  padding: 0.3em 0.6em;
   white-space: nowrap;
   display: none;
-  z-index: 5;
+  z-index: 10;
   color: #444;
 }
 
@@ -865,15 +865,12 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   // Hapus ۢ jika muncul tepat setelah ن (huruf nun)
   text = text.replace(/ن\s*ۢ/g, 'ن');
 
-  // Bungkus simbol-simbol rasm dengan <sup>
-  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
-    if (match === 'ۢ' || match === 'ۭ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
-    }
-  });
-}
+ // Bungkus simbol-simbol rasm dalam <span> agar tidak dihitung saat split
+return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
+  const className = (match === 'ۢ' || match === 'ۭ') ? 'rasm-symbol rasm-symbol-special' : 'rasm-symbol';
+  return '<span class="' + className + '" aria-hidden="true">' + match + '</span>';
+});
+
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
       const lastAyah = surahAyahCount[surah];
