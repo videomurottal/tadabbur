@@ -859,24 +859,15 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     const apiURL = `quran.json`; // ganti dari versi API lama
 
     Promise.all([
-  fetch("quran.json").then(res => res.json()),
+  fetch("quran_uthmani_quran_com.json").then(res => res.json()),
   fetch("indonesian_complex_v1.0.xml").then(res => res.text())
 ])
 .then(([quranData, xmlText]) => {
   let arabicText = "(Teks Arab tidak ditemukan)";
 
   // Loop ke seluruh entri quranData
-  for (const entry of quranData) {
-    for (const key in entry) {
-      const surahObj = entry[key];
-      if (parseInt(surahObj.chapterNumber) === surah) {
-        const verseObj = surahObj.text.find(v => parseInt(v.verseNumber) === ayat);
-        if (verseObj) {
-          arabicText = verseObj.text;
-        }
-      }
-    }
-  }
+  const ayahKey = `${surah}:${ayat}`;
+let arabicText = quranData[ayahKey] || "(Teks Arab tidak ditemukan)";
 
       // Tambahkan simbol ayat
   arabicText += ` \u06dd${toArabicNumber(ayat)}`;
