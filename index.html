@@ -2471,7 +2471,7 @@ function renderPerKata(teksArab, surah, ayah) {
   }
 
   return kataList
-    .map((kata, i) => `<span class="word" onclick="showMeaning(this, '${artiList[i]}')">${kata}</span>`) 
+    .map((kata, i) => `<span class=\"word\" onclick=\"showMeaning(this, '${artiList[i]}')\">${kata}</span>`) 
     .join(" ");
 }
 
@@ -2488,15 +2488,6 @@ function showMeaning(el, arti) {
 
   setTimeout(() => tooltip.remove(), 2000);
 }
-
-  function showMeaning(el, arti) {
-  console.log("Kata diklik:", el.innerText, "→", arti); // DEBUG
-  const tooltip = document.createElement("div");
-  tooltip.className = "word-tooltip";
-  tooltip.textContent = arti;
-  ...
-}
-
 </script>
 
 <style>
@@ -2504,20 +2495,21 @@ function showMeaning(el, arti) {
   cursor: pointer;
   padding: 0 0.1em;
   transition: background-color 0.2s;
+  border-bottom: 1px dotted #999;
 }
 .word:hover {
-  background-color: #fffae6;
+  background-color: #fff7cc;
   border-radius: 4px;
 }
 .word-tooltip {
   position: absolute;
-  background: #333;
+  background: #000;
   color: #fff;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.85em;
   white-space: nowrap;
-  z-index: 10000;
+  z-index: 99999;
 }
 </style>
   
