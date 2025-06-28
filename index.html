@@ -884,7 +884,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
+      arabDiv.innerHTML = renderPerKata(arabicText, surah, ayat);
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
@@ -2448,5 +2448,69 @@ document.getElementById('clear-cache-btn').onclick = async function() {
 };
 </script>
 
+<!-- Tambahkan ke dalam <head> atau sebelum </body> -->
+<script>
+let perkataMap = {};
+fetch("https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/terjemah_wbw.json")
+  .then(res => res.json())
+  .then(data => {
+    perkataMap = data;
+  });
+
+function renderPerKata(teksArab, surah, ayah) {
+  const key = `${surah}:${ayah}`;
+  const artiRaw = perkataMap[key];
+  if (!artiRaw) return teksArab;
+
+  const artiList = artiRaw.split("|").map(s => s.trim());
+  const kataList = teksArab.split(" ");
+
+  if (artiList.length !== kataList.length) {
+    console.warn(`Mismatch kata vs arti: ${key}`);
+    return teksArab;
+  }
+
+  return kataList
+    .map((kata, i) => `<span class="word" onclick="showMeaning(this, '${artiList[i]}')">${kata}</span>`) 
+    .join(" ");
+}
+
+function showMeaning(el, arti) {
+  const tooltip = document.createElement("div");
+  tooltip.className = "word-tooltip";
+  tooltip.textContent = arti;
+
+  const rect = el.getBoundingClientRect();
+  tooltip.style.top = `${rect.top + window.scrollY - 35}px`;
+  tooltip.style.left = `${rect.left + window.scrollX}px`;
+
+  document.body.appendChild(tooltip);
+
+  setTimeout(() => tooltip.remove(), 2000);
+}
+</script>
+
+<style>
+.word {
+  cursor: pointer;
+  padding: 0 0.1em;
+  transition: background-color 0.2s;
+}
+.word:hover {
+  background-color: #fffae6;
+  border-radius: 4px;
+}
+.word-tooltip {
+  position: absolute;
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  white-space: nowrap;
+  z-index: 10000;
+}
+</style>
+  
 </body>
 </html>
