@@ -927,7 +927,7 @@ const words = wordsRaw.map(wrapRasmSymbols);
     words.forEach((word, i) => {
       const span = document.createElement("span");
       span.className = "word";
-      span.textContent = word;
+      span.innerHTML = word;
 
       const tooltip = document.createElement("div");
       tooltip.className = "translation";
