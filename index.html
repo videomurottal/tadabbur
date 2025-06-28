@@ -911,26 +911,6 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
       // Tambahkan simbol ayat
   arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-const rawWords = arabicText.split(" ");
-
-const words = rawWords.map(word => wrapRasmSymbols(word));
-
-arabDiv.innerHTML = ""; // kosongkan dulu
-
-words.forEach((word, i) => {
-  const span = document.createElement("span");
-  span.className = "word";
-  span.innerHTML = word;  // ⬅️ ini wajib pakai innerHTML
-
-  const tooltip = document.createElement("div");
-  tooltip.className = "translation";
-  tooltip.textContent = translations[i] || "";
-
-  span.appendChild(tooltip);
-  arabDiv.appendChild(span);
-  arabDiv.appendChild(document.createTextNode(" "));
-});
-
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
@@ -938,16 +918,22 @@ words.forEach((word, i) => {
 fetch("terjemah_wbw.json")
   .then(res => res.json())
   .then(wordData => {
+
+wordsRaw.forEach((originalWord, i) => {
+  const word = originalWord.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, '<sup class="rasm-symbol">$1</sup>');
     
-const words = wordsRaw.map(wrapRasmSymbols);
+const translations = (wordData[key] || "").split("|").map(w => w.trim());
 
     arabDiv.innerHTML = ""; // kosongkan dulu
 
-    
-
+    words.forEach((word, i) => {
+      const span = document.createElement("span");
+  span.className = "word";
+  span.innerHTML = word;
+      
       const tooltip = document.createElement("div");
-      tooltip.className = "translation";
-      tooltip.textContent = translations[i] || "";
+  tooltip.className = "translation";
+  tooltip.textContent = translations[i] || "";
 
       span.appendChild(tooltip);
 
@@ -967,7 +953,7 @@ const words = wordsRaw.map(wrapRasmSymbols);
   audio.play().catch(err => console.warn("Gagal memutar audio:", err));
 });
 
-
+      span.appendChild(tooltip);
       arabDiv.appendChild(span);
       arabDiv.appendChild(document.createTextNode(" "));
     });
@@ -2531,7 +2517,7 @@ Promise.all([
     tooltip.className = 'translation';
     tooltip.textContent = translateWords[i] || '[?]';
 
-    span.appendChild(tooltip);
+    
 
     span.addEventListener("click", () => {
       if (span === activeWord) {
