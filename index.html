@@ -863,9 +863,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   fetch("indonesian_complex_v1.0.xml").then(res => res.text())
 ])
 .then(([quranData, xmlText]) => {
-  let arabicText = "(Teks Arab tidak ditemukan)";
-
-  // Loop ke seluruh entri quranData
+// Loop ke seluruh entri quranData
   const ayahKey = `${surah}:${ayat}`;
 let arabicText = quranData[ayahKey] || "(Teks Arab tidak ditemukan)";
 
