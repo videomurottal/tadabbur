@@ -899,7 +899,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   const ayahKey = `${surah}:${ayat}`;
 const arabicText = quranData[ayahKey] || "(Teks Arab tidak ditemukan)";
 const wbw = (wbwData[ayahKey] || "").split("|").map(w => w.trim());
-const blocked = ['ۛ','ۖ','ۚ','ۗ','ۙ','ۘ','ۜ','ۢ','ۭ'];
+const blocked = ['۞','ۛ','ۖ','ۚ','ۗ','ۙ','ۘ','ۜ','ۢ','ۭ','ۢ'];
 
 const arabicWords = arabicText.split("|").map(w => w.trim());
 let arabicHTML = '';
