@@ -921,7 +921,22 @@ fetch("terjemah_wbw.json")
   .then(wordData => {
     const temp = document.createElement("div");
 temp.innerHTML = arabicText;
-const words = Array.from(temp.childNodes);
+const words = [];
+temp.childNodes.forEach(node => {
+  if (node.nodeType === 3) {
+    // Pisahkan kata-kata dari text node
+    node.textContent.trim().split(/\s+/).forEach(word => {
+      if (word) {
+        const textNode = document.createTextNode(word);
+        words.push(textNode);
+      }
+    });
+  } else if (node.nodeType === 1) {
+    // Jika elemen HTML (sup, span, dll)
+    words.push(node);
+  }
+});
+
     const translations = (wordData[key] || "").split('|').map(w => w.trim());
 
     arabDiv.innerHTML = ""; // kosongkan dulu
