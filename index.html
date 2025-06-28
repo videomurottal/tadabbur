@@ -893,10 +893,10 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     Promise.all([
   fetch("quran.json").then(res => res.json()),
   fetch("indonesian_complex_v1.0.xml").then(res => res.text()),
-  fetch("terjemah_wbw.json").then(res => res.json()) // ✅ tambahkan baris ini
+  fetch("https://raw.githubusercontent.com/tafsirnetlifyapp/quran/refs/heads/main/terjemah_wbw.json").then(res => res.json()) // ✅ tambahkan baris ini
 ])
 
-.then(([quranData, xmlText]) => {
+.then(([quranData, xmlText, wbwData]) => {
   let arabicText = "(Teks Arab tidak ditemukan)";
 
   // Loop ke seluruh entri quranData
