@@ -917,7 +917,7 @@ let arabicText = verseObj?.text || "(Teks tidak ditemukan)";
 const ayahKey = `${surah}:${ayat}`;
 const page = pageMap[ayahKey];
 const fontId = `QCF_P${String(page).padStart(3, '0')}`;
-const fontUrl = `https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/fonts/${fontId}.TTF`;
+const fontUrl = `https://github.com/dickymiswardi/quran/raw/refs/heads/main/fonts/${fontId}.TTF`;
 
 if (!document.getElementById("font-style-" + fontId)) {
   const style = document.createElement("style");
