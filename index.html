@@ -856,24 +856,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
 
-    function wrapRasmSymbols(text) {
-  // Tangani kasus khusus "ً ۢ ا" → "ًا<sup>ۢ</sup>"
-  text = text.replace(/ً\s*ۢ\s*ا/g, function () {
-    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
-  });
-
-  // Hapus ۢ jika muncul tepat setelah ن (huruf nun)
-  text = text.replace(/ن\s*ۢ/g, 'ن');
-
-  // Bungkus simbol-simbol rasm dengan <sup>
-  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
-    if (match === 'ۢ' || match === 'ۭ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
-    }
-  });
-}
+    
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
       const lastAyah = surahAyahCount[surah];
@@ -887,33 +870,45 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    const apiURL = `quran.json`; // ganti dari versi API lama
+    const apiURL = `mushafmadinah.json`; // ganti dari versi API lama
 
     Promise.all([
-  fetch("quran.json").then(res => res.json()),
+  fetch("mushafmadinah.json").then(res => res.json())
   fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+  fetch("ayah_page_map.json").then(res => res.json())
 ])
 .then(([quranData, xmlText]) => {
   let arabicText = "(Teks Arab tidak ditemukan)";
 
-  // Loop ke seluruh entri quranData
-  for (const entry of quranData) {
-    for (const key in entry) {
-      const surahObj = entry[key];
-      if (parseInt(surahObj.chapterNumber) === surah) {
-        const verseObj = surahObj.text.find(v => parseInt(v.verseNumber) === ayat);
-        if (verseObj) {
-          arabicText = verseObj.text;
-        }
-      }
+  const surahObj = quranData[surah]?.[surah];
+const verseObj = surahObj?.text?.find(v => parseInt(v.verseNumber) === ayat);
+let arabicText = verseObj?.text || "(Teks tidak ditemukan)";
+const ayahKey = `${surah}:${ayat}`;
+const page = pageMap[ayahKey];
+const fontId = `QCF_P${String(page).padStart(3, '0')}`;
+const fontUrl = `https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/fonts/${fontId}.TTF`;
+
+if (!document.getElementById("font-style-" + fontId)) {
+  const style = document.createElement("style");
+  style.id = "font-style-" + fontId;
+  style.innerHTML = `
+    @font-face {
+      font-family: '${fontId}';
+      src: url('${fontUrl}');
     }
-  }
+    .page-${page} {
+      font-family: '${fontId}';
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 
       // Tambahkan simbol ayat
   arabicText += ` \u06dd${toArabicNumber(ayat)}`;
 
       const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
+      arabDiv.className = `arabic page-${page}`;
       const key = `${surah}:${ayat}`;
 fetch("terjemah_wbw.json")
   .then(res => res.json())
