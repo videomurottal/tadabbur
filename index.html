@@ -910,12 +910,7 @@ arabicWords.forEach(word => {
     arabicHTML += ` <sup class="rasm-symbol">${word}</sup> `;
   } else {
     const translation = wbw[wordIndex] || "(?)";
-    const audioUrl = `https://verses.quran.com/wbw/${String(surah).padStart(3, '0')}_${String(ayat).padStart(3, '0')}_${wordIndex + 1}.mp3`;
-arabicHTML += `
-  <span class="clickable-word" data-translate="${translation}" data-audio="${audioUrl}">
-    ${word}
-    <div class="word-translation">${translation}</div>
-  </span> `;
+    arabicHTML += `<span class="clickable-word" data-translate="${translation}" data-word-index="${wordIndex + 1}">${word}<div class="word-translation">${translation}</div></span> `;
     wordIndex++;
   }
 });
@@ -929,34 +924,27 @@ document.getElementById("result").innerHTML = '';
 document.getElementById("result").appendChild(arabDiv);
 
 // Tambahkan event klik tooltip terjemah
-// ✅ Tambahkan event klik audio & tooltip SETELAH elemen dimasukkan ke DOM
-requestAnimationFrame(() => {
-  document.querySelectorAll(".clickable-word").forEach(span => {
-    span.addEventListener("click", () => {
-      // Hapus aktif dari semua kata
-      document.querySelectorAll(".clickable-word").forEach(w => w.classList.remove("active"));
-      span.classList.add("active");
+const audio = new Audio();
 
-      // 🔊 Putar audio dari atribut data
-      const audioUrl = span.dataset.audio;
-      if (audioUrl) {
-        console.log("▶️ Memutar:", audioUrl);
-        const audio = new Audio();
-audio.src = audioUrl;
-audio.autoplay = true;
-audio.play().then(() => {
-  console.log("🔊 Diputar:", audioUrl);
-}).catch(err => {
-  console.error("🔇 Gagal memutar audio:", err);
-});
+document.querySelectorAll(".clickable-word").forEach(span => {
+  span.addEventListener("click", () => {
+    document.querySelectorAll(".clickable-word").forEach(w => w.classList.remove("active"));
+    span.classList.add("active");
 
+    // 🔊 Putar audio
+    const wordIndex = span.dataset.wordIndex;
+    const surahStr = String(surah).padStart(3, "0");
+    const ayatStr = String(ayat).padStart(3, "0");
+    const wordStr = String(wordIndex).padStart(3, "0");
+    const audioUrl = `https://verses.quran.com/wbw/${surahStr}_${ayatStr}_${wordStr}.mp3`;
 
-      // ⏱ Hilangkan tooltip setelah 5 detik
-      clearTimeout(window.ttTimeout);
-      window.ttTimeout = setTimeout(() => {
-        span.classList.remove("active");
-      }, 5000);
-    });
+    audio.src = audioUrl;
+    audio.play().catch(e => console.warn("Audio gagal diputar:", e));
+
+    clearTimeout(window.ttTimeout);
+    window.ttTimeout = setTimeout(() => {
+      span.classList.remove("active");
+    }, 5000);
   });
 });
 
