@@ -16,6 +16,32 @@
       text-align: center;
     }
 
+
+.scale-handle-fluid,
+.scale-handle-fixed {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  z-index: 10;
+}
+
+.scale-handle-fluid {
+  background: #666;
+  border-radius: 50%;
+  bottom: -8px;
+  left: -8px;
+  cursor: nwse-resize;
+}
+
+.scale-handle-fixed {
+  background: #00aaff;
+  border-radius: 2px;
+  bottom: -8px;
+  right: -8px;
+  cursor: nwse-resize;
+}
+
+    
     .ayah-text {
   text-align: center;
   width: 100%;
@@ -352,9 +378,72 @@ innerTrans.innerHTML = "Artinya: " + kalimat;
 // ✅ Tambahkan innerTrans ke translationDiv
 translationDiv.appendChild(innerTrans);
 
+    // 🔵🔷 Tambah handle resize ke terjemahan
+const transFluid = document.createElement("div");
+transFluid.className = "scale-handle-fluid";
+
+const transFixed = document.createElement("div");
+transFixed.className = "scale-handle-fixed";
+
+translationDiv.appendChild(transFluid);
+translationDiv.appendChild(transFixed);
+
+
 // ✅ Tambahkan ke container utama
 container.appendChild(translationDiv);
 } // ✅ <— tambahkan ini untuk menutup if (translationText)
+
+  setTimeout(() => {
+  const auto = translationDiv.querySelector(".auto-scale");
+
+  // 🔷 Resize FIXED (font ikut proporsional)
+  transFixed.onmousedown = e => {
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = translationDiv.offsetWidth, startH = translationDiv.offsetHeight;
+    const startFont = parseFloat(getComputedStyle(auto).fontSize);
+
+    const resize = e2 => {
+      const newW = Math.max(150, startW + (e2.clientX - startX));
+      const newH = Math.max(80, startH + (e2.clientY - startY));
+      const scale = Math.min(newW / startW, newH / startH);
+      translationDiv.style.width = newW + "px";
+      translationDiv.style.height = newH + "px";
+      auto.style.fontSize = (startFont * scale).toFixed(2) + "px";
+    };
+
+    const stop = () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stop);
+    };
+
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stop);
+  };
+
+  // 🔵 Resize FLUID (box saja)
+  transFluid.onmousedown = e => {
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = translationDiv.offsetWidth, startH = translationDiv.offsetHeight;
+
+    const resize = e2 => {
+      const newW = Math.max(150, startW + (e2.clientX - startX));
+      const newH = Math.max(80, startH + (e2.clientY - startY));
+      translationDiv.style.width = newW + "px";
+      translationDiv.style.height = newH + "px";
+    };
+
+    const stop = () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stop);
+    };
+
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stop);
+  };
+}, 0);
+
 
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
