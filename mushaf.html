@@ -4,59 +4,30 @@
   <meta charset="UTF-8">
   <title>Mushaf Otomatis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic&display=swap" rel="stylesheet">
   <style>
     body {
       background: #fefcf8;
       padding: 1em;
-      font-family: 'Noto Sans Arabic', sans-serif;
+      font-family: sans-serif;
       direction: rtl;
     }
 
     h2 {
       text-align: center;
-      font-weight: bold;
-      margin-bottom: 1em;
     }
 
     .controls {
       display: flex;
       justify-content: center;
-      align-items: center;
       gap: 1em;
       flex-wrap: wrap;
-      margin: 2em auto 1em;
-      direction: ltr;
-      background: #fff;
-      padding: 1em 1.5em;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      max-width: fit-content;
+      margin: 1em auto;
+      direction: ltr; /* agar select dan tombol urut dari kiri ke kanan */
     }
 
     select, button {
       font-size: 1em;
-      padding: 0.6em 1em;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background-color: #fdfaf3;
-      font-family: 'Noto Sans Arabic', sans-serif;
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-
-    select:hover, button:hover {
-      border-color: #bba45d;
-      background-color: #f7f1df;
-    }
-
-    button {
-      background-color: #e5dcbd;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background-color: #d7cba8;
+      padding: 0.5em;
     }
 
     .page-container {
@@ -112,15 +83,15 @@
 </head>
 <body>
 
-<h2>Al-Qur'an Dinamis</h2>
+<h2 id="title">Al-Qur'an Dinamis</h2>
 
 <div class="controls">
   <select id="surahSelect">
-    <option value="">Surah</option>
+    <option value="">Pilih Surah</option>
   </select>
 
   <select id="ayahSelect">
-    <option value="">Ayat</option>
+    <option value="">Pilih Ayat</option>
   </select>
 
   <button id="loadBtn">Proses</button>
@@ -159,7 +130,7 @@ for (let s = 1; s <= 114; s++) {
 }
 
 surahSelect.addEventListener("change", () => {
-  ayahSelect.innerHTML = `<option value="">Ayat</option>`;
+  ayahSelect.innerHTML = `<option value="">Pilih Ayat</option>`;
   const s = parseInt(surahSelect.value);
   if (!s || !lastAyahOfSurah[s]) return;
   for (let i = 1; i <= lastAyahOfSurah[s]; i++) {
@@ -177,7 +148,7 @@ loadBtn.addEventListener("click", async () => {
   const ayah = ayahSelect.value;
   if (!surah || !ayah) return alert("Pilih surah dan ayat terlebih dahulu!");
 
-  pagesDiv.innerHTML = "";
+  pagesDiv.innerHTML = ""; // Kosongkan halaman
 
   const ayahKey = `${surah}:${ayah}`;
 
@@ -216,6 +187,7 @@ loadBtn.addEventListener("click", async () => {
     trans.className = "translation";
     trans.innerText = word.translation?.text || "-";
 
+    // Sembunyikan tooltip simbol
     if (word.translation?.text && !/^[\u06dd\u06de\u06e9\u06e0\u06e5\u06e6]+$/.test(word.text)) {
       span.appendChild(trans);
     }
@@ -244,6 +216,7 @@ loadBtn.addEventListener("click", async () => {
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
 
+  // Ambil teks unicode dari XML
   const xml = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
     .then(r => r.text());
   const doc = new DOMParser().parseFromString(xml, "text/xml");
