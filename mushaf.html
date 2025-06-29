@@ -393,21 +393,26 @@ const translationText = result.verse.translations?.[0]?.text;
 const surahName = surahNames[surah] || `Surah ${surah}`;
 
   if (translationText) {
-  const translationDiv = document.createElement("div");
-  translationDiv.className = "ayah-translation draggable resizable";
-  translationDiv.setAttribute("contenteditable", "true");
+ const translationDiv = document.createElement("div");
+translationDiv.className = "ayah-translation draggable resizable";
+translationDiv.setAttribute("contenteditable", "true");
 
-  const akhir = ` <strong>(${surahName}: ${ayah})</strong>`;
-  const kalimat = /[.!؟]$/.test(translationText.trim())
-    ? translationText.trim().replace(/([.!؟])$/, `$1${akhir}`)
-    : translationText.trim() + akhir;
+const akhir = ` <strong>(${surahName}: ${ayah})</strong>`;
+const kalimat = /[.!؟]$/.test(translationText.trim())
+  ? translationText.trim().replace(/([.!؟])$/, `$1${akhir}`)
+  : translationText.trim() + akhir;
 
-  const innerTrans = document.createElement("div");
+// ✅ Bungkus ke dalam auto-scale
+const innerTrans = document.createElement("div");
 innerTrans.className = "auto-scale";
-innerTrans.innerHTML = "Artinya: " + kalimat; // ✅ fix ini
+innerTrans.innerHTML = "Artinya: " + kalimat;
 
+// ✅ Tambahkan innerTrans ke translationDiv
 translationDiv.appendChild(innerTrans);
+
+// ✅ Tambahkan ke container utama
 container.appendChild(translationDiv);
+
 
 
   container.style.display = "block";
