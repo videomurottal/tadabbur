@@ -26,26 +26,11 @@
   resize: both;
   overflow: auto;
   min-width: 150px;
-  min-height: 100px;
-  max-width: 100%;
-  max-height: 100%;
-  padding: 0.5em;
+  min-height: 80px;
+  padding: 1em;
   box-sizing: border-box;
-  position: absolute;
-  border: 1px dashed #aaa;
-  background: rgba(255,255,255,0.8);
-}
-
-    .resizable::after {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  bottom: 0;
-  right: 0;
-  background: #888;
-  cursor: se-resize;
-  z-index: 10;
+  background: rgba(255,255,255,0.6); /* opsional: biar kelihatan kotaknya */
+  border: 1px solid #aaa;
 }
 
 
@@ -509,14 +494,8 @@ if (translationText) {
   <script>
 interact('.draggable.resizable')
   .draggable({
-    modifiers: [
-      interact.modifiers.restrictRect({
-        restriction: 'parent',
-        endOnly: true
-      })
-    ],
     listeners: {
-      move(event) {
+      move (event) {
         const target = event.target;
         const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
         const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
@@ -530,26 +509,25 @@ interact('.draggable.resizable')
   .resizable({
     edges: { left: true, right: true, bottom: true, top: true },
     listeners: {
-      move(event) {
-        let { x, y } = event.target.dataset;
+      move (event) {
+        const target = event.target;
 
-        x = parseFloat(x) || 0;
-        y = parseFloat(y) || 0;
+        // Resize ukuran langsung
+        let { width, height } = event.rect;
+        target.style.width = `${width}px`;
+        target.style.height = `${height}px`;
 
-        // Resize lebar dan tinggi
-        Object.assign(event.target.style, {
-          width: `${event.rect.width}px`,
-          height: `${event.rect.height}px`,
-          transform: `translate(${x}px, ${y}px)`
-        });
+        // Pindahkan jika perlu
+        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.deltaRect.left;
+        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.deltaRect.top;
 
-        event.target.dataset.x = x;
-        event.target.dataset.y = y;
+        target.style.transform = `translate(${x}px, ${y}px)`;
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
       }
     }
   });
 </script>
-
 
   
 </body>
