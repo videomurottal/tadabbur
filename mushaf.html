@@ -22,14 +22,10 @@
     #selector {
       display: flex;
       flex-wrap: wrap;
-      justify-content: start;
+      justify-content: flex-end; /* ✅ tombol di kanan */
       align-items: center;
       gap: 0.6em;
       margin-bottom: 2em;
-    }
-
-    #selector .spacer {
-      margin-right: auto;
     }
 
     select, button {
@@ -69,7 +65,7 @@
       max-width: 700px;
       opacity: 0;
       transition: opacity 0.3s ease;
-      word-spacing: 0em; /* Rapatkan spasi */
+      word-spacing: 0em;
       letter-spacing: 0em;
     }
 
@@ -104,16 +100,11 @@
       display: block;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 600px) {
       #selector {
         flex-direction: row;
+        justify-content: center;
         gap: 0.5em;
-      }
-
-      #selector select,
-      #selector button {
-        font-size: 0.9em;
-        min-width: 100px;
       }
     }
   </style>
@@ -129,7 +120,6 @@
   <label>Ayat:
     <select id="ayah-select"></select>
   </label>
-  <div class="spacer"></div>
   <button onclick="loadAyat()">Tampilkan</button>
 </div>
 
@@ -159,6 +149,7 @@ const pagesDiv = document.getElementById("pages");
 let activeWord = null;
 let timeoutId = null;
 
+// isi select Surah
 for (let i = 1; i <= 114; i++) {
   const opt = document.createElement("option");
   opt.value = i;
@@ -166,6 +157,7 @@ for (let i = 1; i <= 114; i++) {
   surahSelect.appendChild(opt);
 }
 
+// isi select Ayat berdasar Surah
 surahSelect.addEventListener("change", () => {
   const surah = parseInt(surahSelect.value);
   const totalAyah = lastAyahOfSurah[surah] || 1;
