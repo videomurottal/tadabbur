@@ -22,7 +22,7 @@
       gap: 1em;
       flex-wrap: wrap;
       margin: 1em auto;
-      direction: ltr;
+      direction: ltr; /* agar select dan tombol urut dari kiri ke kanan */
     }
 
     select, button {
@@ -39,16 +39,17 @@
       opacity: 0;
       transition: opacity 0.3s ease;
       display: none;
-      word-spacing: 0.05em;
+      word-spacing: 0.07em;
       max-width: 700px;
     }
 
     .word {
       display: inline-block;
       position: relative;
-      margin: 0 0.1em;
+      margin: 0 -0.03em; /* lebih rapat antar kata */
       cursor: pointer;
     }
+
 
     .word:hover {
       background-color: #f7eacb;
@@ -57,7 +58,7 @@
 
     .translation {
       position: absolute;
-      top: 120%;
+      bottom: -2.4em;
       font-size: 0.45em;
       font-family: sans-serif;
       background: #fff;
