@@ -441,10 +441,75 @@ innerTrans.innerHTML = "Artinya: " + kalimat;
 // ✅ Tambahkan innerTrans ke translationDiv
 translationDiv.appendChild(innerTrans);
 
+
+    // Tambah handle untuk terjemahan
+const transFluid = document.createElement("div");
+transFluid.className = "scale-handle-fluid";
+
+const transFixed = document.createElement("div");
+transFixed.className = "scale-handle-fixed";
+
+translationDiv.appendChild(transFluid);
+translationDiv.appendChild(transFixed);
+
+
 // ✅ Tambahkan ke container utama
 container.appendChild(translationDiv);
 } // ✅ <— tambahkan ini untuk menutup if (translationText)
 
+setTimeout(() => {
+  const auto = translationDiv.querySelector(".auto-scale");
+
+  // 🔷 HANDLE FIXED FONT untuk TERJEMAHAN
+  transFixed.onmousedown = e => {
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = translationDiv.offsetWidth, startH = translationDiv.offsetHeight;
+    const startFont = parseFloat(getComputedStyle(auto).fontSize);
+
+    const resize = e2 => {
+      const newW = Math.max(150, startW + (e2.clientX - startX));
+      const newH = Math.max(80, startH + (e2.clientY - startY));
+      const scale = Math.min(newW / startW, newH / startH);
+      translationDiv.style.width = newW + "px";
+      translationDiv.style.height = newH + "px";
+      auto.style.fontSize = (startFont * scale).toFixed(2) + "px";
+    };
+
+    const stop = () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stop);
+    };
+
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stop);
+  };
+
+  // 🔵 HANDLE FLUID FONT untuk TERJEMAHAN
+  transFluid.onmousedown = e => {
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = translationDiv.offsetWidth, startH = translationDiv.offsetHeight;
+
+    const resize = e2 => {
+      const newW = Math.max(150, startW + (e2.clientX - startX));
+      const newH = Math.max(80, startH + (e2.clientY - startY));
+      translationDiv.style.width = newW + "px";
+      translationDiv.style.height = newH + "px";
+    };
+
+    const stop = () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stop);
+    };
+
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stop);
+  };
+}, 0);
+
+
+  
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
 
