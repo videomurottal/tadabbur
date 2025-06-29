@@ -16,6 +16,12 @@
       text-align: center;
     }
 
+    .resizable {
+  resize: both;
+  overflow: auto;
+}
+
+
 #pages {
   position: relative;
   background-size: cover;
@@ -135,12 +141,46 @@
   <p id="uploadedLink" style="font-size: 0.8em; color: #333; word-break: break-all;"></p>
 </div>
 
+  <div style="text-align:center; margin: 1em 0;">
+  <label>Font Terjemah:</label>
+  <select id="fontSelect">
+    <option value="sans-serif">Sans-serif</option>
+    <option value="serif">Serif</option>
+    <option value="Arial">Arial</option>
+    <option value="Times New Roman">Times New Roman</option>
+    <option value="Georgia">Georgia</option>
+  </select>
+</div>
+
+  <div style="text-align: center; margin-bottom: 1em;">
+  <label>Warna Ayat:</label>
+  <input type="color" id="colorAyat" value="#000000">
+  <label style="margin-left: 1em;">Warna Terjemah:</label>
+  <input type="color" id="colorTerjemah" value="#000000">
+</div>
+
+
   
 <div id="pages"></div>
 <div style="text-align: center; margin-top: 1em;">
   <button onclick="downloadWallpaper()">Download Wallpaper</button>
 </div>
 <script>
+
+document.getElementById("colorAyat").addEventListener("change", function () {
+  const ayatBox = document.querySelector(".draggable.resizable");
+  if (ayatBox) {
+    ayatBox.style.color = this.value;
+  }
+});
+
+document.getElementById("colorTerjemah").addEventListener("change", function () {
+  const transBox = document.querySelector(".ayah-translation");
+  if (transBox) {
+    transBox.style.color = this.value;
+  }
+});
+  
 function downloadWallpaper() {
   html2canvas(document.getElementById("pages")).then(canvas => {
     const link = document.createElement('a');
@@ -308,7 +348,18 @@ loadBtn.addEventListener("click", async () => {
     count++;
   });
 
-  container.appendChild(line);
+  // BUNGKUS AYAT DALAM KOTAK DRAGGABLE & RESIZABLE
+const ayahBox = document.createElement("div");
+ayahBox.className = "draggable resizable";
+ayahBox.style.position = "absolute";
+ayahBox.style.top = "30px";
+ayahBox.style.right = "20px";
+ayahBox.style.fontSize = "2em";
+ayahBox.style.direction = "rtl";
+ayahBox.style.textAlign = "justify";
+ayahBox.appendChild(line);
+container.appendChild(ayahBox);
+
 
   // Tambah terjemahan ayat (per ayat)
 const translationText = result.verse.translations?.[0]?.text;
@@ -318,6 +369,8 @@ if (translationText) {
   const translationDiv = document.createElement("div");
   translationDiv.className = "ayah-translation draggable";
 translationDiv.setAttribute("contenteditable", "true");
+translationDiv.className = "ayah-translation draggable resizable";
+
 
   // Format akhir (Nama Surah: Ayat) setelah titik
   const akhir = ` <strong>(${surahName}: ${ayah})</strong>`;
@@ -436,6 +489,13 @@ if (translationText) {
       }
     }
   });
+
+  document.getElementById("fontSelect").addEventListener("change", function () {
+  const terjemahBox = document.querySelector(".ayah-translation");
+  if (terjemahBox) {
+    terjemahBox.style.fontFamily = this.value;
+  }
+});
 </script>
 
   
