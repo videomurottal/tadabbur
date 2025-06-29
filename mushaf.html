@@ -172,6 +172,7 @@ surahSelect.addEventListener("change", () => {
   }
 });
 surahSelect.dispatchEvent(new Event("change"));
+loadAyat(); // ✅ otomatis tampilkan Surah 1 Ayat 1 saat buka halaman
 
 function loadAyat() {
   const surah = parseInt(surahSelect.value);
