@@ -21,6 +21,13 @@
   width: 100%;
 }
 
+    .draggable.resizable {
+  position: absolute;
+  font-size: 36px; /* default awal */
+  padding: 0.3em;
+  resize: none; /* kita atur resize dengan interact.js */
+  overflow: hidden;
+}
 
     .resizable {
   /* Hapus resize bawaan browser */
@@ -506,9 +513,8 @@ interact('.draggable.resizable')
         const target = event.target;
         const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
         const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-        const scale = parseFloat(target.getAttribute('data-scale')) || 1;
-
-        target.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        target.style.left = `${x}px`;
+        target.style.top = `${y}px`;
         target.setAttribute('data-x', x);
         target.setAttribute('data-y', y);
       }
@@ -517,19 +523,34 @@ interact('.draggable.resizable')
   .resizable({
     edges: { left: true, right: true, bottom: true, top: true },
     listeners: {
+      start(event) {
+        const target = event.target;
+        target.dataset.startWidth = target.offsetWidth;
+        target.dataset.startFont = parseFloat(window.getComputedStyle(target).fontSize);
+      },
       move(event) {
         const target = event.target;
-        let scale = parseFloat(target.getAttribute('data-scale')) || 1;
-        const delta = event.deltaRect.width;
 
-        const newScale = scale * (1 + delta / target.offsetWidth);
-        scale = Math.max(0.2, Math.min(3, newScale));
+        // Resize ukuran elemen
+        const newWidth = event.rect.width;
+        const newHeight = event.rect.height;
+        target.style.width = `${newWidth}px`;
+        target.style.height = `${newHeight}px`;
 
-        const x = parseFloat(target.getAttribute('data-x')) || 0;
-        const y = parseFloat(target.getAttribute('data-y')) || 0;
+        // Hitung dan setel font size proporsional
+        const startWidth = parseFloat(target.dataset.startWidth);
+        const startFont = parseFloat(target.dataset.startFont);
+        const scale = newWidth / startWidth;
+        const newFont = Math.max(8, Math.min(150, startFont * scale));
+        target.style.fontSize = `${newFont}px`;
 
-        target.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
-        target.setAttribute('data-scale', scale);
+        // Perbarui posisi drag
+        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.deltaRect.left;
+        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.deltaRect.top;
+        target.style.left = `${x}px`;
+        target.style.top = `${y}px`;
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
       }
     }
   });
