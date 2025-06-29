@@ -301,6 +301,7 @@ loadBtn.addEventListener("click", async () => {
   container.style.fontFamily = fontName;
   container.id = `page-${page}`;
   pagesDiv.appendChild(container);
+  applyFontAndAlignSettings();
 
   await document.fonts.load(`1em '${fontName}'`);
 
@@ -496,6 +497,28 @@ if (translationText) {
     terjemahBox.style.fontFamily = this.value;
   }
 });
+
+  function applyFontAndAlignSettings() {
+  const ayahBox = document.getElementById("ayahBox");
+  const translationBox = document.getElementById("translationBox");
+  
+  if (ayahBox) {
+    ayahBox.style.fontSize = document.getElementById("fontSizeAyat").value + "px";
+    ayahBox.style.textAlign = document.getElementById("alignAyat").value;
+  }
+  
+  if (translationBox) {
+    translationBox.style.fontSize = document.getElementById("fontSizeTerjemah").value + "px";
+    translationBox.style.textAlign = document.getElementById("alignTerjemah").value;
+    translationBox.style.fontFamily = document.getElementById("fontSelect").value;
+    translationBox.style.color = document.getElementById("colorTerjemah").value;
+  }
+
+  if (ayahBox) {
+    ayahBox.style.color = document.getElementById("colorAyat").value;
+  }
+}
+
 </script>
 
   
