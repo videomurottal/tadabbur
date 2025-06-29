@@ -357,6 +357,11 @@ ayahBox.style.right = "20px";
 ayahBox.style.fontSize = "2em";
 ayahBox.style.direction = "rtl";
 ayahBox.style.textAlign = "justify";
+ayahBox.style.width = "400px";                // ✅ fix lebar awal
+ayahBox.style.minHeight = "80px";            // ✅ fix tinggi awal
+ayahBox.style.whiteSpace = "pre-wrap";       // ✅ biar wrap otomatis
+ayahBox.style.wordBreak = "break-word";      // ✅ biar teks tidak keluar
+
 ayahBox.appendChild(line);
 container.appendChild(ayahBox);
 
@@ -370,6 +375,16 @@ if (translationText) {
   translationDiv.className = "ayah-translation draggable";
 translationDiv.setAttribute("contenteditable", "true");
 translationDiv.className = "ayah-translation draggable resizable";
+  translationDiv.style.position = "absolute";
+translationDiv.style.bottom = "30px";
+translationDiv.style.left = "20px";
+translationDiv.style.fontSize = "20px";
+translationDiv.style.textAlign = "left";
+translationDiv.style.width = "400px";                // ✅ tambahkan
+translationDiv.style.minHeight = "80px";             // ✅ agar tidak terpotong
+translationDiv.style.whiteSpace = "pre-wrap";        // ✅ agar wrap
+translationDiv.style.wordBreak = "break-word";       // ✅ agar tidak keluar kotak
+
 
 
   // Format akhir (Nama Surah: Ayat) setelah titik
