@@ -24,13 +24,23 @@
 
     .resizable {
   resize: both;
-  overflow: auto;
+  overflow: hidden; /* 🧠 BUKAN auto, supaya tidak scroll */
   min-width: 150px;
   min-height: 80px;
-  padding: 1em;
+  padding: 0.5em;
   box-sizing: border-box;
-  background: rgba(255,255,255,0.6); /* opsional: biar kelihatan kotaknya */
   border: 1px solid #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.auto-scale {
+  width: 100%;
+  height: 100%;
+  font-size: calc(0.8em + 0.5vw); /* Skala otomatis */
+  overflow-wrap: break-word;
 }
 
 
@@ -371,7 +381,10 @@ ayahBox.style.right = "20px";
 ayahBox.style.fontSize = "2em";
 ayahBox.style.direction = "rtl";
 ayahBox.style.textAlign = "center";
-ayahBox.appendChild(line);
+const inner = document.createElement("div");
+inner.className = "auto-scale";
+inner.appendChild(line);
+ayahBox.appendChild(inner);
 container.appendChild(ayahBox);
 
 
@@ -457,7 +470,12 @@ if (translationText) {
   translationDiv.style.fontFamily = "sans-serif";
   translationDiv.style.direction = "ltr";
   translationDiv.style.textAlign = "left";
-  container.appendChild(translationDiv);
+  const innerTrans = document.createElement("div");
+innerTrans.className = "auto-scale";
+innerTrans.appendChild(translationDiv);
+translationDiv.innerHTML = ""; // kosongkan dulu
+translationDiv.appendChild(innerTrans);
+container.appendChild(translationDiv);
 }
 
  </script> 
