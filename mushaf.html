@@ -22,10 +22,14 @@
     #selector {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
+      justify-content: start;
       align-items: center;
       gap: 0.6em;
       margin-bottom: 2em;
+    }
+
+    #selector .spacer {
+      margin-right: auto;
     }
 
     select, button {
@@ -65,7 +69,8 @@
       max-width: 700px;
       opacity: 0;
       transition: opacity 0.3s ease;
-      word-spacing: 0em;
+      word-spacing: 0em; /* Rapatkan spasi */
+      letter-spacing: 0em;
     }
 
     .word {
@@ -124,6 +129,7 @@
   <label>Ayat:
     <select id="ayah-select"></select>
   </label>
+  <div class="spacer"></div>
   <button onclick="loadAyat()">Tampilkan</button>
 </div>
 
@@ -172,7 +178,7 @@ surahSelect.addEventListener("change", () => {
   }
 });
 surahSelect.dispatchEvent(new Event("change"));
-loadAyat(); // auto load surah 1:1
+loadAyat(); // default tampil Surah 1 Ayat 1
 
 function loadAyat() {
   const surah = parseInt(surahSelect.value);
