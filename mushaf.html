@@ -16,20 +16,6 @@
       text-align: center;
     }
 
-
-.resizable {
-  resize: both;
-  overflow: auto;
-  display: block;
-  min-width: 100px;
-  min-height: 50px;
-}
-
-#ayahBox {
-  width: 100%; /* agar textAlign center bisa efektif */
-}
-
-    
     .resizable {
   resize: both;
   overflow: auto;
@@ -173,13 +159,51 @@
   <input type="color" id="colorTerjemah" value="#000000">
 </div>
 
+  <div style="text-align: center; margin-bottom: 1em;">
+  <label>Ukuran Font Ayat:</label>
+  <input type="range" id="fontSizeAyat" min="20" max="100" value="32">
 
+  <label style="margin-left: 1em;">Ukuran Font Terjemah:</label>
+  <input type="range" id="fontSizeTerjemah" min="12" max="50" value="18">
+</div>
+
+<div style="text-align: center; margin-bottom: 1em;">
+  <label>Rata Teks Ayat:</label>
+  <select id="alignAyat">
+    <option value="right">Kanan</option>
+    <option value="center">Tengah</option>
+    <option value="left">Kiri</option>
+  </select>
+
+  <label style="margin-left: 1em;">Rata Teks Terjemah:</label>
+  <select id="alignTerjemah">
+    <option value="left">Kiri</option>
+    <option value="center">Tengah</option>
+    <option value="right">Kanan</option>
+  </select>
+</div>
   
 <div id="pages"></div>
 <div style="text-align: center; margin-top: 1em;">
   <button onclick="downloadWallpaper()">Download Wallpaper</button>
 </div>
 <script>
+
+  // Ukuran font Ayat
+document.getElementById("fontSizeAyat").addEventListener("input", function () {
+  const ayatBox = document.getElementById("ayahBox");
+  if (ayatBox) {
+    ayatBox.style.fontSize = this.value + "px";
+  }
+});
+
+// Ukuran font Terjemah
+document.getElementById("fontSizeTerjemah").addEventListener("input", function () {
+  const transBox = document.getElementById("translationBox");
+  if (transBox) {
+    transBox.style.fontSize = this.value + "px";
+  }
+});
 
 document.getElementById("colorAyat").addEventListener("change", function () {
   const ayatBox = document.querySelector(".draggable.resizable");
@@ -315,7 +339,6 @@ loadBtn.addEventListener("click", async () => {
   container.style.fontFamily = fontName;
   container.id = `page-${page}`;
   pagesDiv.appendChild(container);
-  applyFontAndAlignSettings();
 
   await document.fonts.load(`1em '${fontName}'`);
 
@@ -511,28 +534,6 @@ if (translationText) {
     terjemahBox.style.fontFamily = this.value;
   }
 });
-
-  function applyFontAndAlignSettings() {
-  const ayahBox = document.getElementById("ayahBox");
-  const translationBox = document.getElementById("translationBox");
-  
-  if (ayahBox) {
-    ayahBox.style.fontSize = document.getElementById("fontSizeAyat").value + "px";
-    ayahBox.style.textAlign = document.getElementById("alignAyat").value;
-  }
-  
-  if (translationBox) {
-    translationBox.style.fontSize = document.getElementById("fontSizeTerjemah").value + "px";
-    translationBox.style.textAlign = document.getElementById("alignTerjemah").value;
-    translationBox.style.fontFamily = document.getElementById("fontSelect").value;
-    translationBox.style.color = document.getElementById("colorTerjemah").value;
-  }
-
-  if (ayahBox) {
-    ayahBox.style.color = document.getElementById("colorAyat").value;
-  }
-}
-
 </script>
 
   
