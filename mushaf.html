@@ -204,7 +204,20 @@ loadBtn.addEventListener("click", async () => {
 
   let count = 0;
   result.verse.words.forEach(word => {
-    if (wordLimit !== "all" && count >= parseInt(wordLimit)) return;
+    container.appendChild(line);
+
+// Tambah nomor ayat jika jumlah kata = all dan centang aktif
+if (wordLimit === "all" && bracketToggle.checked) {
+  const ayahNumber = document.createElement("span");
+  ayahNumber.style.marginRight = "0.3em";
+  ayahNumber.style.fontSize = "0.8em";
+  ayahNumber.innerText = `﴿${ayah}﴾`;
+  line.appendChild(ayahNumber);
+}
+
+container.style.display = "block";
+requestAnimationFrame(() => container.style.opacity = "1");
+
 
     const span = document.createElement("span");
     span.className = "word";
