@@ -158,6 +158,13 @@ const lastAyahOfSurah = {
   111: "Al-Lahab", 112: "Al-Ikhlas", 113: "Al-Falaq", 114: "An-Nas"
 };
 
+for (let s = 1; s <= 114; s++) {
+  const option = document.createElement("option");
+  option.value = s;
+  option.text = `${s}. ${surahNames[s]}`;
+  surahSelect.appendChild(option);
+}
+  
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
 const wordCountSelect = document.getElementById("wordCountSelect");
