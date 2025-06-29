@@ -16,6 +16,15 @@
       text-align: center;
     }
 
+    .ayah-translation {
+  font-size: 0.85em;
+  color: #444;
+  margin-top: 1em;
+  font-family: sans-serif;
+  direction: ltr;
+  text-align: left;
+}
+
     .controls {
       display: flex;
       justify-content: center;
@@ -284,6 +293,21 @@ async function autoLoadDefault() {
 window.addEventListener("DOMContentLoaded", autoLoadDefault);
 </script>
 
-  
+ <script>
+   // Tambah terjemahan ayat (per ayat)
+const translationText = result.verse.translations?.[0]?.text;
+if (translationText) {
+  const translationDiv = document.createElement("div");
+  translationDiv.className = "ayah-translation";
+  translationDiv.innerText = "Artinya: " + translationText;
+  translationDiv.style.marginTop = "1em";
+  translationDiv.style.fontSize = "0.8em";
+  translationDiv.style.color = "#444";
+  translationDiv.style.fontFamily = "sans-serif";
+  translationDiv.style.direction = "ltr";
+  translationDiv.style.textAlign = "left";
+  container.appendChild(translationDiv);
+}
+ </script> 
 </body>
 </html>
