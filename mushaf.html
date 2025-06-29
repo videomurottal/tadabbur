@@ -100,13 +100,15 @@
     }
 
     @media (max-width: 768px) {
-      .page-container {
-        font-size: 1.5em;
+      #selector {
+        flex-direction: row;
+        gap: 0.5em;
       }
 
-      #selector {
-        flex-direction: column;
-        gap: 0.4em;
+      #selector select,
+      #selector button {
+        font-size: 0.9em;
+        min-width: 100px;
       }
     }
   </style>
@@ -116,15 +118,13 @@
 <h2>Al-Qur'an Dinamis</h2>
 
 <div id="selector">
-  <button onclick="loadAyat()">Tampilkan</button>
-
-  <label>Ayat:
-    <select id="ayah-select"></select>
-  </label>
-
   <label>Surah:
     <select id="surah-select"></select>
   </label>
+  <label>Ayat:
+    <select id="ayah-select"></select>
+  </label>
+  <button onclick="loadAyat()">Tampilkan</button>
 </div>
 
 <div id="pages"></div>
@@ -172,7 +172,7 @@ surahSelect.addEventListener("change", () => {
   }
 });
 surahSelect.dispatchEvent(new Event("change"));
-loadAyat(); // ✅ otomatis tampilkan Surah 1 Ayat 1 saat buka halaman
+loadAyat(); // auto load surah 1:1
 
 function loadAyat() {
   const surah = parseInt(surahSelect.value);
