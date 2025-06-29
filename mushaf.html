@@ -23,9 +23,10 @@
 
 
     .resizable {
-  resize: both;
-  overflow: auto;
+  overflow: visible;
+  transform-origin: top left;
 }
+
 
 
 #pages {
@@ -483,25 +484,42 @@ if (translationText) {
   });
 
   // Drag dan Resize
-  interact('.draggable').draggable({
+  <script>
+interact('.draggable.resizable')
+  .draggable({
     listeners: {
       move(event) {
         const target = event.target;
         const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
         const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-        target.style.transform = `translate(${x}px, ${y}px)`;
+        const scale = parseFloat(target.getAttribute('data-scale')) || 1;
+
+        target.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
         target.setAttribute('data-x', x);
         target.setAttribute('data-y', y);
       }
     }
-  });
+  })
+  .resizable({
+    edges: { left: true, right: true, bottom: true, top: true },
+    listeners: {
+      move(event) {
+        const target = event.target;
+        let scale = parseFloat(target.getAttribute('data-scale')) || 1;
+        const delta = event.deltaRect.width;
+        const newScale = scale * (1 + delta / target.offsetWidth);
 
-  document.getElementById("fontSelect").addEventListener("change", function () {
-  const terjemahBox = document.querySelector(".ayah-translation");
-  if (terjemahBox) {
-    terjemahBox.style.fontFamily = this.value;
-  }
-});
+        scale = Math.max(0.2, Math.min(3, newScale)); // batas skala aman
+        const x = parseFloat(target.getAttribute('data-x')) || 0;
+        const y = parseFloat(target.getAttribute('data-y')) || 0;
+
+        target.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        target.setAttribute('data-scale', scale);
+      }
+    }
+  });
+</script>
+
 </script>
 
   
