@@ -405,13 +405,21 @@ translationDiv.className = "ayah-translation draggable resizable";
     ? translationText.trim().replace(/([.!؟])$/, `$1${akhir}`)
     : translationText.trim() + akhir;
 
-  translationDiv.innerHTML = "Artinyconst innerTrans = document.createElement("div");
-innerTrans.className = "auto-scale";
-innerTrans.innerText = "Artinya: " + kalimat;
+  if (translationText) {
+  const translationDiv = document.createElement("div");
+  translationDiv.className = "ayah-translation draggable resizable";
+  translationDiv.setAttribute("contenteditable", "true");
 
-translationDiv.innerHTML = ""; // Kosongkan dulu
-translationDiv.appendChild(innerTrans);
-a: " + kalimat;
+  const akhir = ` <strong>(${surahName}: ${ayah})</strong>`;
+  const kalimat = /[.!؟]$/.test(translationText.trim())
+    ? translationText.trim().replace(/([.!؟])$/, `$1${akhir}`)
+    : translationText.trim() + akhir;
+
+  const innerTrans = document.createElement("div");
+  innerTrans.className = "auto-scale";
+  innerTrans.innerText = "Artinya: " + kalimat;
+
+  translationDiv.appendChild(innerTrans);
   container.appendChild(translationDiv);
 }
 
