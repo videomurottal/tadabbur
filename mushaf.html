@@ -412,11 +412,11 @@ translationDiv.appendChild(innerTrans);
 
 // ✅ Tambahkan ke container utama
 container.appendChild(translationDiv);
-
-
+} // ✅ <— tambahkan ini untuk menutup if (translationText)
 
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
+
 
   // Jika "all", ambil unicode ayat dari XML dan tampilkan nomor ayat
   const xml = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
@@ -462,28 +462,6 @@ async function autoLoadDefault() {
 // Jalankan saat DOM sudah siap
 window.addEventListener("DOMContentLoaded", autoLoadDefault);
 </script>
-
- <script>
-  // Tambah terjemahan ayat (per ayat)
-if (translationText) {
-  const translationDiv = document.createElement("div");
-  translationDiv.className = "ayah-translation";
-  translationDiv.innerText = "Artinya: " + translationText;
-  translationDiv.style.marginTop = "1em";
-  translationDiv.style.fontSize = "0.8em";
-  translationDiv.style.color = "#444";
-  translationDiv.style.fontFamily = "sans-serif";
-  translationDiv.style.direction = "ltr";
-  translationDiv.style.textAlign = "left";
-  const innerTrans = document.createElement("div");
-innerTrans.className = "auto-scale";
-innerTrans.appendChild(translationDiv);
-translationDiv.innerHTML = ""; // kosongkan dulu
-translationDiv.appendChild(innerTrans);
-container.appendChild(translationDiv);
-}
-
- </script> 
 
 <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
