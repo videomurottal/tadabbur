@@ -22,7 +22,7 @@
       gap: 1em;
       flex-wrap: wrap;
       margin: 1em auto;
-      direction: ltr; /* agar select dan tombol urut dari kiri ke kanan */
+      direction: ltr;
     }
 
     select, button {
@@ -39,17 +39,16 @@
       opacity: 0;
       transition: opacity 0.3s ease;
       display: none;
-      word-spacing: 0.07em;
+      word-spacing: 0.2em;
       max-width: 700px;
     }
 
     .word {
       display: inline-block;
       position: relative;
-      margin: 0 -0.03em; /* lebih rapat antar kata */
+      margin: 0 0.1em;
       cursor: pointer;
     }
-
 
     .word:hover {
       background-color: #f7eacb;
@@ -58,7 +57,7 @@
 
     .translation {
       position: absolute;
-      bottom: -2.4em;
+      top: 120%;
       font-size: 0.45em;
       font-family: sans-serif;
       background: #fff;
@@ -95,6 +94,10 @@
     <option value="">Pilih Ayat</option>
   </select>
 
+  <select id="wordCountSelect">
+    <option value="all">Jumlah Kata: All</option>
+  </select>
+
   <button id="loadBtn">Proses</button>
 </div>
 
@@ -120,9 +123,11 @@ const lastAyahOfSurah = {
 
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
+const wordCountSelect = document.getElementById("wordCountSelect");
 const loadBtn = document.getElementById("loadBtn");
 const pagesDiv = document.getElementById("pages");
 
+// Isi surah
 for (let s = 1; s <= 114; s++) {
   const option = document.createElement("option");
   option.value = s;
@@ -130,6 +135,7 @@ for (let s = 1; s <= 114; s++) {
   surahSelect.appendChild(option);
 }
 
+// Isi ayat ketika surah dipilih
 surahSelect.addEventListener("change", () => {
   ayahSelect.innerHTML = `<option value="">Pilih Ayat</option>`;
   const s = parseInt(surahSelect.value);
@@ -144,15 +150,24 @@ surahSelect.addEventListener("change", () => {
 
 let activeWord = null, timeoutId = null, originalUnicode = "";
 
+// Isi jumlah kata (1-129)
+for (let i = 1; i <= 129; i++) {
+  const option = document.createElement("option");
+  option.value = i;
+  option.text = `${i} Kata`;
+  wordCountSelect.appendChild(option);
+}
+
 loadBtn.addEventListener("click", async () => {
   const surah = surahSelect.value;
   const ayah = ayahSelect.value;
+  const wordLimit = wordCountSelect.value;
+
   if (!surah || !ayah) return alert("Pilih surah dan ayat terlebih dahulu!");
 
-  pagesDiv.innerHTML = ""; // Kosongkan halaman
+  pagesDiv.innerHTML = "";
 
   const ayahKey = `${surah}:${ayah}`;
-
   const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json").then(r => r.json());
   const page = pageMap[ayahKey];
 
@@ -179,7 +194,11 @@ loadBtn.addEventListener("click", async () => {
     .then(r => r.json());
 
   const line = document.createElement("div");
+
+  let count = 0;
   result.verse.words.forEach(word => {
+    if (wordLimit !== "all" && count >= parseInt(wordLimit)) return;
+
     const span = document.createElement("span");
     span.className = "word";
     span.innerText = word.code_v1 || word.text;
@@ -211,18 +230,24 @@ loadBtn.addEventListener("click", async () => {
     });
 
     line.appendChild(span);
-    line.appendChild(document.createTextNode(" "));
+    line.append(" ");
+    count++;
   });
+
   container.appendChild(line);
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
 
-  // Ambil teks unicode dari XML
+  // Jika "all", ambil unicode ayat dari XML dan tampilkan nomor ayat
   const xml = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
     .then(r => r.text());
   const doc = new DOMParser().parseFromString(xml, "text/xml");
   const aya = doc.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
-  if (aya) originalUnicode = aya.getAttribute("text") + ` (${ayah}) `;
+  if (aya && wordLimit === "all") {
+    originalUnicode = aya.getAttribute("text") + ` (${ayah}) `;
+  } else {
+    originalUnicode = ""; // kosongkan agar nomor ayat tidak muncul saat copy
+  }
 });
 
 document.addEventListener("copy", e => {
