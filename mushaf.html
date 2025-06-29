@@ -307,18 +307,19 @@ window.addEventListener("DOMContentLoaded", autoLoadDefault);
  <script>
    // Tambah terjemahan ayat (per ayat)
 const translationText = result.verse.translations?.[0]?.text;
+const surahName = result.verse.surah_name || `Surah ${surah}`; // fallback jika kosong
 if (translationText) {
   const translationDiv = document.createElement("div");
   translationDiv.className = "ayah-translation";
-  translationDiv.innerText = "Artinya: " + translationText;
-  translationDiv.style.marginTop = "1em";
-  translationDiv.style.fontSize = "0.8em";
-  translationDiv.style.color = "#444";
-  translationDiv.style.fontFamily = "sans-serif";
-  translationDiv.style.direction = "ltr";
-  translationDiv.style.textAlign = "left";
+  translationDiv.innerHTML = `
+    <div style="margin-bottom: 0.5em;">Artinya: ${translationText}</div>
+    <div style="text-align: right; font-weight: bold; font-size: 0.9em;">
+      (${surahName}: ${ayah})
+    </div>
+  `;
   container.appendChild(translationDiv);
 }
+
  </script> 
 </body>
 </html>
