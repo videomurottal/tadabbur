@@ -17,13 +17,18 @@
     }
 
     .ayah-translation {
-  font-size: 0.85em;
-  color: #444;
+  font-size: 1em;
   margin-top: 1em;
+  color: #333;
   font-family: sans-serif;
   direction: ltr;
   text-align: left;
+  background: #f9f6f1;
+  padding: 0.6em;
+  border-left: 4px solid #d4aa00;
+  border-radius: 4px;
 }
+
 
     .controls {
       display: flex;
@@ -245,6 +250,16 @@ loadBtn.addEventListener("click", async () => {
   });
 
   container.appendChild(line);
+
+  // Tambah terjemahan ayat (per ayat)
+const translationText = result.verse.translations?.[0]?.text;
+if (translationText) {
+  const translationDiv = document.createElement("div");
+  translationDiv.className = "ayah-translation";
+  translationDiv.innerText = "Artinya: " + translationText;
+  container.appendChild(translationDiv);
+}
+
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
 
