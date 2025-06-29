@@ -354,6 +354,64 @@ inner.appendChild(line);
 ayahBox.appendChild(inner);
 container.appendChild(ayahBox);
 
+  // === Tambah logika handle resize (khusus ayahBox yang baru) ===
+setTimeout(() => {
+  const box = ayahBox;
+  const auto = box.querySelector(".auto-scale");
+  const fluid = box.querySelector(".scale-handle-fluid");
+  const fixed = box.querySelector(".scale-handle-fixed");
+
+  if (!fluid || !fixed || !auto) return;
+
+  // Fluid resize (🔵 kiri bawah)
+  fluid.onmousedown = e => {
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = box.offsetWidth, startH = box.offsetHeight;
+
+    const move = e2 => {
+      const newW = Math.max(150, startW + (e2.clientX - startX));
+      const newH = Math.max(80, startH + (e2.clientY - startY));
+      box.style.width = newW + "px";
+      box.style.height = newH + "px";
+    };
+
+    const up = () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+  };
+
+  // Fixed resize (🔷 kanan bawah)
+  fixed.onmousedown = e => {
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = box.offsetWidth, startH = box.offsetHeight;
+    const startFont = parseFloat(getComputedStyle(auto).fontSize);
+
+    const move = e2 => {
+      const newW = Math.max(150, startW + (e2.clientX - startX));
+      const newH = Math.max(80, startH + (e2.clientY - startY));
+      const scale = Math.min(newW / startW, newH / startH);
+      box.style.width = newW + "px";
+      box.style.height = newH + "px";
+      auto.style.fontSize = (startFont * scale).toFixed(2) + "px";
+    };
+
+    const up = () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+  };
+}, 0); // End setTimeout
+
+
 const fluidHandle = document.createElement("div");
 fluidHandle.className = "scale-handle-fluid";
 
