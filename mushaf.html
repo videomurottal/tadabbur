@@ -249,18 +249,19 @@ loadBtn.addEventListener("click", async () => {
 
   // Tambah terjemahan ayat (per ayat)
 const translationText = result.verse.translations?.[0]?.text;
-const surahName = result.verse.surah_name || `Surah ${surah}`; // fallback jika kosong
+const surahName = result.verse.surah_name || `Surah ${surah}`; // fallback kalau kosong
+
 if (translationText) {
   const translationDiv = document.createElement("div");
   translationDiv.className = "ayah-translation";
-  translationDiv.innerHTML = `
-    <div style="margin-bottom: 0.5em;">Artinya: ${translationText}</div>
-    <div style="text-align: right; font-weight: bold; font-size: 0.9em;">
-      (${surahName}: ${ayah})
-    </div>
-  `;
+
+  // Sisipkan label surah:ayat di akhir kalimat
+  const akhir = ` <strong>(${surahName}:${ayah})</strong>`;
+  translationDiv.innerHTML = "Artinya: " + translationText.trim().replace(/([.!؟])$/, `$1${akhir}`);
+
   container.appendChild(translationDiv);
 }
+
 
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
