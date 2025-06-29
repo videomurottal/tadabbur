@@ -236,6 +236,34 @@ loadBtn.addEventListener("click", async () => {
   });
 
   container.appendChild(line);
+
+  // Ambil file XML terjemahan
+let translationXML = "";
+try {
+  translationXML = await fetch("https://github.com/tafsirnetlifyapp/quran/raw/refs/heads/main/TerjemahID.xml")
+    .then(res => res.text());
+} catch (error) {
+  console.error("Gagal memuat XML terjemahan:", error);
+}
+  // Parse XML string menjadi dokumen XML
+const xmlDoc = new DOMParser().parseFromString(translationXML, "text/xml");
+
+  // Cari teks terjemahan berdasarkan ChapterID dan VerseID
+const verseTranslation = xmlDoc.querySelector(
+  `Chapter[ChapterID="${surah}"] > Verse[VerseID="${ayah}"]`
+)?.textContent;
+
+  if (verseTranslation) {
+  const terjemahDiv = document.createElement("div");
+  terjemahDiv.style.fontSize = "1em";
+  terjemahDiv.style.fontFamily = "sans-serif";
+  terjemahDiv.style.marginTop = "1em";
+  terjemahDiv.style.color = "#444";
+  terjemahDiv.style.textAlign = "justify";
+  terjemahDiv.innerText = verseTranslation;
+  container.appendChild(terjemahDiv);
+}
+  
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
 
