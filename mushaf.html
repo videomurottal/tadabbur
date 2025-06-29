@@ -403,7 +403,55 @@ const surahName = surahNames[surah] || `Surah ${surah}`;
 
   // ✅ Tambah script resize KHUSUS untuk box terjemah
 
+setTimeout(() => {
+    const auto = translationDiv.querySelector(".auto-scale");
 
+    transFixed.onmousedown = e => {
+      e.preventDefault();
+      const startX = e.clientX, startY = e.clientY;
+      const startW = translationDiv.offsetWidth, startH = translationDiv.offsetHeight;
+      const startFont = parseFloat(getComputedStyle(auto).fontSize);
+
+      const resize = e2 => {
+        const newW = Math.max(150, startW + (e2.clientX - startX));
+        const newH = Math.max(80, startH + (e2.clientY - startY));
+        const scale = Math.min(newW / startW, newH / startH);
+        translationDiv.style.width = newW + "px";
+        translationDiv.style.height = newH + "px";
+        auto.style.fontSize = (startFont * scale).toFixed(2) + "px";
+      };
+
+      const stop = () => {
+        window.removeEventListener("mousemove", resize);
+        window.removeEventListener("mouseup", stop);
+      };
+
+      window.addEventListener("mousemove", resize);
+      window.addEventListener("mouseup", stop);
+    };
+
+    transFluid.onmousedown = e => {
+      e.preventDefault();
+      const startX = e.clientX, startY = e.clientY;
+      const startW = translationDiv.offsetWidth, startH = translationDiv.offsetHeight;
+
+      const resize = e2 => {
+        const newW = Math.max(150, startW + (e2.clientX - startX));
+        const newH = Math.max(80, startH + (e2.clientY - startY));
+        translationDiv.style.width = newW + "px";
+        translationDiv.style.height = newH + "px";
+      };
+
+      const stop = () => {
+        window.removeEventListener("mousemove", resize);
+        window.removeEventListener("mouseup", stop);
+      };
+
+      window.addEventListener("mousemove", resize);
+      window.addEventListener("mouseup", stop);
+    };
+  }, 0);
+}
   
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
