@@ -99,11 +99,6 @@
     <option value="all">Jumlah Kata: All</option>
   </select>
 
-  <label>
-  <input type="checkbox" id="bracketToggle" checked>
-  Tampilkan Kurung Ayat ﴿ ﴾
-</label>
-
   <button id="loadBtn">Proses</button>
 </div>
 
@@ -132,7 +127,6 @@ const ayahSelect = document.getElementById("ayahSelect");
 const wordCountSelect = document.getElementById("wordCountSelect");
 const loadBtn = document.getElementById("loadBtn");
 const pagesDiv = document.getElementById("pages");
-const bracketToggle = document.getElementById("bracketToggle");
 
 // Isi surah
 for (let s = 1; s <= 114; s++) {
@@ -204,20 +198,7 @@ loadBtn.addEventListener("click", async () => {
 
   let count = 0;
   result.verse.words.forEach(word => {
-    container.appendChild(line);
-
-// Tambah nomor ayat jika jumlah kata = all dan centang aktif
-if (wordLimit === "all" && bracketToggle.checked) {
-  const ayahNumber = document.createElement("span");
-  ayahNumber.style.marginRight = "0.3em";
-  ayahNumber.style.fontSize = "0.8em";
-  ayahNumber.innerText = `﴿${ayah}﴾`;
-  line.appendChild(ayahNumber);
-}
-
-container.style.display = "block";
-requestAnimationFrame(() => container.style.opacity = "1");
-
+    if (wordLimit !== "all" && count >= parseInt(wordLimit)) return;
 
     const span = document.createElement("span");
     span.className = "word";
@@ -264,11 +245,10 @@ requestAnimationFrame(() => container.style.opacity = "1");
   const doc = new DOMParser().parseFromString(xml, "text/xml");
   const aya = doc.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
   if (aya && wordLimit === "all") {
-  const bracketed = bracketToggle.checked ? ` ﴿${ayah}﴾` : "";
-  originalUnicode = aya.getAttribute("text") + bracketed;
-} else {
-  originalUnicode = "";
-}
+    originalUnicode = aya.getAttribute("text") + ` (${ayah}) `;
+  } else {
+    originalUnicode = ""; // kosongkan agar nomor ayat tidak muncul saat copy
+  }
 });
 
 document.addEventListener("copy", e => {
