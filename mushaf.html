@@ -13,17 +13,28 @@
     }
 
     h2 { text-align: center; }
+
+    #selector {
+      text-align: center;
+      margin-bottom: 1em;
+    }
+
+    #selector select, #selector button {
+      font-size: 1em;
+      margin: 0.2em;
+    }
+
     .page-container {
       font-size: 2.5em;
       line-height: 1.6;
       text-align: justify;
       user-select: text;
       margin: 2em auto;
-      opacity: 0;
-      transition: opacity 0.3s ease;
       display: none;
       word-spacing: 0.2em;
       max-width: 700px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .word {
@@ -66,12 +77,21 @@
 </head>
 <body>
 
-<h2 id="title">Al-Qur'an Dinamis</h2>
+<h2>Al-Qur'an Dinamis</h2>
+
+<div id="selector">
+  <label>Surah:
+    <select id="surah-select"></select>
+  </label>
+  <label>Ayat:
+    <select id="ayah-select"></select>
+  </label>
+  <button onclick="loadAyat()">Tampilkan</button>
+</div>
+
 <div id="pages"></div>
 
 <script>
-const fromSurah = 112, fromAyah = 1, toSurah = 114, toAyah = 6;
-
 const lastAyahOfSurah = {
   1: 7, 2: 286, 3: 200, 4: 176, 5: 120, 6: 165, 7: 206, 8: 75, 9: 129,
   10: 109, 11: 123, 12: 111, 13: 43, 14: 52, 15: 99, 16: 128, 17: 111,
@@ -89,34 +109,44 @@ const lastAyahOfSurah = {
   106: 4, 107: 7, 108: 3, 109: 6, 110: 3, 111: 5, 112: 4, 113: 5, 114: 6
 };
 
-const generateAyahKeys = (fromSurah, fromAyah, toSurah, toAyah) => {
-  const keys = [];
-  for (let s = fromSurah; s <= toSurah; s++) {
-    const start = s === fromSurah ? fromAyah : 1;
-    const end = s === toSurah ? toAyah : lastAyahOfSurah[s];
-    for (let i = start; i <= end; i++) keys.push(`${s}:${i}`);
-  }
-  return keys;
-};
-
-const ayahKeys = generateAyahKeys(fromSurah, fromAyah, toSurah, toAyah);
-let originalUnicode = "";
+const surahSelect = document.getElementById("surah-select");
+const ayahSelect = document.getElementById("ayah-select");
+const pagesDiv = document.getElementById("pages");
 let activeWord = null;
 let timeoutId = null;
 
-fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json")
-  .then(res => res.json())
-  .then(pageMap => {
-    const pages = {};
-    ayahKeys.forEach(key => {
-      const page = pageMap[key];
-      if (!pages[page]) pages[page] = [];
-      pages[page].push(key);
-    });
+for (let i = 1; i <= 114; i++) {
+  const opt = document.createElement("option");
+  opt.value = i;
+  opt.textContent = `Surah ${i}`;
+  surahSelect.appendChild(opt);
+}
 
-    Object.entries(pages).forEach(([page, keys]) => {
+surahSelect.addEventListener("change", () => {
+  const surah = parseInt(surahSelect.value);
+  const totalAyah = lastAyahOfSurah[surah] || 1;
+  ayahSelect.innerHTML = "";
+  for (let i = 1; i <= totalAyah; i++) {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = `Ayat ${i}`;
+    ayahSelect.appendChild(opt);
+  }
+});
+surahSelect.dispatchEvent(new Event("change"));
+
+function loadAyat() {
+  const surah = parseInt(surahSelect.value);
+  const ayah = parseInt(ayahSelect.value);
+  const key = `${surah}:${ayah}`;
+  pagesDiv.innerHTML = "";
+
+  fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json")
+    .then(res => res.json())
+    .then(map => {
+      const page = map[key];
       const fontName = `QCF_P${String(page).padStart(3, '0')}`;
-      const fontUrl = `https://raw.githubusercontent.com/dickymiswardi/quran/refs/heads/main/fonts/${fontName}.TTF`;
+      const fontUrl = `https://raw.githubusercontent.com/dickymiswardi/quran/main/fonts/${fontName}.TTF`;
 
       const style = document.createElement("style");
       style.innerText = `@font-face {
@@ -127,17 +157,14 @@ fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/
       document.head.appendChild(style);
 
       const container = document.createElement("div");
-      container.id = `page-${page}`;
       container.className = "page-container";
       container.style.fontFamily = fontName;
-      document.getElementById("pages").appendChild(container);
+      pagesDiv.appendChild(container);
 
       document.fonts.load(`1em '${fontName}'`).then(() => {
-        Promise.all(keys.map(key =>
-          fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`)
-            .then(r => r.json())
-        )).then(results => {
-          results.forEach(data => {
+        fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`)
+          .then(r => r.json())
+          .then(data => {
             const line = document.createElement("div");
             data.verse.words.forEach(word => {
               const span = document.createElement("span");
@@ -170,32 +197,12 @@ fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/
               line.appendChild(document.createTextNode(" "));
             });
             container.appendChild(line);
+            container.style.display = "block";
+            requestAnimationFrame(() => container.style.opacity = "1");
           });
-          container.style.display = "block";
-          requestAnimationFrame(() => container.style.opacity = "1");
-        });
       });
     });
-
-    // Ambil teks unicode dari XML
-    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
-      .then(res => res.text())
-      .then(xml => {
-        const doc = new DOMParser().parseFromString(xml, "text/xml");
-        ayahKeys.forEach(key => {
-          const [s, a] = key.split(":");
-          const aya = doc.querySelector(`sura[index="${s}"] > aya[index="${a}"]`);
-          if (aya) originalUnicode += aya.getAttribute("text") + ` (${a}) `;
-        });
-      });
-  });
-
-document.addEventListener("copy", e => {
-  if (originalUnicode) {
-    e.preventDefault();
-    e.clipboardData.setData("text/plain", originalUnicode.trim());
-  }
-});
+}
 </script>
 
 </body>
