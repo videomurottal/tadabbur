@@ -366,58 +366,7 @@ ayahBox.appendChild(handleFluid);
 ayahBox.appendChild(handleFixed);
 
 // === FUNGSI HANDLE FLUID & FIXED ===
-setTimeout(() => {
-  const auto = ayahBox.querySelector(".auto-scale");
 
-  // 🔵 HANDLE FLUID FONT — pojok kiri bawah
-  handleFluid.onmousedown = e => {
-    e.preventDefault();
-    const startX = e.clientX, startY = e.clientY;
-    const startW = ayahBox.offsetWidth, startH = ayahBox.offsetHeight;
-
-    const resize = e2 => {
-      const newW = Math.max(150, startW + (e2.clientX - startX));
-      const newH = Math.max(80, startH + (e2.clientY - startY));
-      ayahBox.style.width = newW + "px";
-      ayahBox.style.height = newH + "px";
-      // font-size tetap pakai CSS calc di .auto-scale
-    };
-
-    const stop = () => {
-      window.removeEventListener("mousemove", resize);
-      window.removeEventListener("mouseup", stop);
-    };
-
-    window.addEventListener("mousemove", resize);
-    window.addEventListener("mouseup", stop);
-  };
-
-  // 🔷 HANDLE FIXED FONT — pojok kanan bawah
-  handleFixed.onmousedown = e => {
-    e.preventDefault();
-    const startX = e.clientX, startY = e.clientY;
-    const startW = ayahBox.offsetWidth, startH = ayahBox.offsetHeight;
-    const startFont = parseFloat(getComputedStyle(auto).fontSize);
-
-    const resize = e2 => {
-      const newW = Math.max(150, startW + (e2.clientX - startX));
-      const newH = Math.max(80, startH + (e2.clientY - startY));
-      const scale = Math.min(newW / startW, newH / startH);
-      ayahBox.style.width = newW + "px";
-      ayahBox.style.height = newH + "px";
-      auto.style.fontSize = (startFont * scale).toFixed(2) + "px";
-    };
-
-    const stop = () => {
-      window.removeEventListener("mousemove", resize);
-      window.removeEventListener("mouseup", stop);
-    };
-
-    window.addEventListener("mousemove", resize);
-    window.addEventListener("mouseup", stop);
-  };
-
-}, 0); // end setTimeout
 
 
   // Tambah terjemahan ayat (per ayat)
