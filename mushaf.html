@@ -622,67 +622,6 @@ interact('.draggable.resizable')
   });
 </script>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".draggable.resizable").forEach(box => {
-    const auto = box.querySelector(".auto-scale");
-    const fluid = box.querySelector(".scale-handle-fluid");
-    const fixed = box.querySelector(".scale-handle-fixed");
-
-    if (!fluid || !fixed || !auto) return;
-
-    // Mode 1: Fluid Resize (pakai calc font-size)
-    fluid.addEventListener("mousedown", e => {
-      e.preventDefault();
-      const startX = e.clientX;
-      const startY = e.clientY;
-      const startW = box.offsetWidth;
-      const startH = box.offsetHeight;
-
-      function resize(e2) {
-        box.style.width = Math.max(150, startW + (e2.clientX - startX)) + "px";
-        box.style.height = Math.max(80, startH + (e2.clientY - startY)) + "px";
-      }
-
-      function stop() {
-        window.removeEventListener("mousemove", resize);
-        window.removeEventListener("mouseup", stop);
-      }
-
-      window.addEventListener("mousemove", resize);
-      window.addEventListener("mouseup", stop);
-    });
-
-    // Mode 2: Fixed Resize (font ikut proporsional)
-    fixed.addEventListener("mousedown", e => {
-      e.preventDefault();
-      const startX = e.clientX;
-      const startY = e.clientY;
-      const startW = box.offsetWidth;
-      const startH = box.offsetHeight;
-      const startFont = parseFloat(getComputedStyle(auto).fontSize);
-
-      function resize(e2) {
-        const newW = Math.max(150, startW + (e2.clientX - startX));
-        const newH = Math.max(80, startH + (e2.clientY - startY));
-        const scale = Math.min(newW / startW, newH / startH);
-        box.style.width = newW + "px";
-        box.style.height = newH + "px";
-        auto.style.fontSize = (startFont * scale).toFixed(2) + "px";
-      }
-
-      function stop() {
-        window.removeEventListener("mousemove", resize);
-        window.removeEventListener("mouseup", stop);
-      }
-
-      window.addEventListener("mousemove", resize);
-      window.addEventListener("mouseup", stop);
-    });
-  });
-});
-</script>
-
   
 </body>
 </html>
