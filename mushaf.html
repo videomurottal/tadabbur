@@ -403,12 +403,11 @@ const surahName = surahNames[surah] || `Surah ${surah}`;
     : translationText.trim() + akhir;
 
   const innerTrans = document.createElement("div");
-  innerTrans.className = "auto-scale";
-  innerTrans.innerText = "Artinya: " + kalimat;
+innerTrans.className = "auto-scale";
+innerTrans.innerHTML = "Artinya: " + kalimat; // ✅ fix ini
 
-  translationDiv.appendChild(innerTrans);
-  container.appendChild(translationDiv);
-}
+translationDiv.appendChild(innerTrans);
+container.appendChild(translationDiv);
 
 
   container.style.display = "block";
