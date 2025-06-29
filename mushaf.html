@@ -259,5 +259,20 @@ document.addEventListener("copy", e => {
 });
 </script>
 
+  <script>
+// ==== AUTO LOAD DEFAULT ====
+window.addEventListener("DOMContentLoaded", () => {
+  surahSelect.value = "2"; // Surah Al-Baqarah
+  const event = new Event("change");
+  surahSelect.dispatchEvent(event); // trigger isi ayat
+
+  setTimeout(() => {
+    ayahSelect.value = "257";
+    wordCountSelect.value = "9";
+    loadBtn.click();
+  }, 300); // beri delay agar ayat terisi dulu
+});
+</script>
+  
 </body>
 </html>
