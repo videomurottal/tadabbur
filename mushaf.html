@@ -445,17 +445,6 @@ setTimeout(() => {
 }, 0); // End setTimeout
 
 
-const fluidHandle = document.createElement("div");
-fluidHandle.className = "scale-handle-fluid";
-
-const fixedHandle = document.createElement("div");
-fixedHandle.className = "scale-handle-fixed";
-
-ayahBox.appendChild(fluidHandle);
-ayahBox.appendChild(fixedHandle);
-
-
-
   // Tambah terjemahan ayat (per ayat)
 const translationText = result.verse.translations?.[0]?.text;
 const surahName = surahNames[surah] || `Surah ${surah}`;
