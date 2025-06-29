@@ -99,6 +99,11 @@
     <option value="all">Jumlah Kata: All</option>
   </select>
 
+  <label>
+  <input type="checkbox" id="bracketToggle" checked>
+  Tampilkan Kurung Ayat ﴿ ﴾
+</label>
+
   <button id="loadBtn">Proses</button>
 </div>
 
@@ -127,6 +132,7 @@ const ayahSelect = document.getElementById("ayahSelect");
 const wordCountSelect = document.getElementById("wordCountSelect");
 const loadBtn = document.getElementById("loadBtn");
 const pagesDiv = document.getElementById("pages");
+const bracketToggle = document.getElementById("bracketToggle");
 
 // Isi surah
 for (let s = 1; s <= 114; s++) {
@@ -245,10 +251,11 @@ loadBtn.addEventListener("click", async () => {
   const doc = new DOMParser().parseFromString(xml, "text/xml");
   const aya = doc.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
   if (aya && wordLimit === "all") {
-    originalUnicode = aya.getAttribute("text") + ` (${ayah}) `;
-  } else {
-    originalUnicode = ""; // kosongkan agar nomor ayat tidak muncul saat copy
-  }
+  const bracketed = bracketToggle.checked ? ` ﴿${ayah}﴾` : "";
+  originalUnicode = aya.getAttribute("text") + bracketed;
+} else {
+  originalUnicode = "";
+}
 });
 
 document.addEventListener("copy", e => {
