@@ -16,13 +16,37 @@
       text-align: center;
     }
 
+    .scale-handle-fluid {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #666;
+  border-radius: 50%;
+  bottom: -8px;
+  left: -8px;
+  cursor: nwse-resize;
+  z-index: 10;
+}
+
+.scale-handle-fixed {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #00aaff;
+  border-radius: 2px;
+  bottom: -8px;
+  right: -8px;
+  cursor: nwse-resize;
+  z-index: 10;
+}
+
 
 .scale-handle-fluid,
 .scale-handle-fixed {
   position: absolute;
   width: 14px;
   height: 14px;
-  z-index: 10;
+  z-index: 20;
 }
 
 .scale-handle-fluid {
@@ -355,6 +379,70 @@ inner.appendChild(line);
 ayahBox.appendChild(inner);
 container.appendChild(ayahBox);
 
+  // Tambah handle resize khusus untuk ayahBox
+const handleFluid = document.createElement("div");
+handleFluid.className = "scale-handle-fluid";
+
+const handleFixed = document.createElement("div");
+handleFixed.className = "scale-handle-fixed";
+
+ayahBox.appendChild(handleFluid);
+ayahBox.appendChild(handleFixed);
+
+// === FUNGSI HANDLE FLUID & FIXED ===
+setTimeout(() => {
+  const auto = ayahBox.querySelector(".auto-scale");
+
+  // 🔵 HANDLE FLUID FONT — pojok kiri bawah
+  handleFluid.onmousedown = e => {
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = ayahBox.offsetWidth, startH = ayahBox.offsetHeight;
+
+    const resize = e2 => {
+      const newW = Math.max(150, startW + (e2.clientX - startX));
+      const newH = Math.max(80, startH + (e2.clientY - startY));
+      ayahBox.style.width = newW + "px";
+      ayahBox.style.height = newH + "px";
+      // font-size tetap pakai CSS calc di .auto-scale
+    };
+
+    const stop = () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stop);
+    };
+
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stop);
+  };
+
+  // 🔷 HANDLE FIXED FONT — pojok kanan bawah
+  handleFixed.onmousedown = e => {
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = ayahBox.offsetWidth, startH = ayahBox.offsetHeight;
+    const startFont = parseFloat(getComputedStyle(auto).fontSize);
+
+    const resize = e2 => {
+      const newW = Math.max(150, startW + (e2.clientX - startX));
+      const newH = Math.max(80, startH + (e2.clientY - startY));
+      const scale = Math.min(newW / startW, newH / startH);
+      ayahBox.style.width = newW + "px";
+      ayahBox.style.height = newH + "px";
+      auto.style.fontSize = (startFont * scale).toFixed(2) + "px";
+    };
+
+    const stop = () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stop);
+    };
+
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stop);
+  };
+
+}, 0); // end setTimeout
+
 
   // Tambah terjemahan ayat (per ayat)
 const translationText = result.verse.translations?.[0]?.text;
@@ -378,7 +466,8 @@ innerTrans.innerHTML = "Artinya: " + kalimat;
 // ✅ Tambahkan innerTrans ke translationDiv
 translationDiv.appendChild(innerTrans);
 
-    // 🔵🔷 Tambah handle resize ke terjemahan
+
+    // Tambah handle untuk terjemahan
 const transFluid = document.createElement("div");
 transFluid.className = "scale-handle-fluid";
 
@@ -393,10 +482,10 @@ translationDiv.appendChild(transFixed);
 container.appendChild(translationDiv);
 } // ✅ <— tambahkan ini untuk menutup if (translationText)
 
-  setTimeout(() => {
+setTimeout(() => {
   const auto = translationDiv.querySelector(".auto-scale");
 
-  // 🔷 Resize FIXED (font ikut proporsional)
+  // 🔷 HANDLE FIXED FONT untuk TERJEMAHAN
   transFixed.onmousedown = e => {
     e.preventDefault();
     const startX = e.clientX, startY = e.clientY;
@@ -421,7 +510,7 @@ container.appendChild(translationDiv);
     window.addEventListener("mouseup", stop);
   };
 
-  // 🔵 Resize FLUID (box saja)
+  // 🔵 HANDLE FLUID FONT untuk TERJEMAHAN
   transFluid.onmousedown = e => {
     e.preventDefault();
     const startX = e.clientX, startY = e.clientY;
@@ -445,6 +534,7 @@ container.appendChild(translationDiv);
 }, 0);
 
 
+  
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
 
@@ -538,7 +628,88 @@ interact('.draggable.resizable')
       }
     }
   })
-  
+  .resizable({
+    edges: { left: true, right: true, bottom: true, top: true },
+    listeners: {
+      move (event) {
+        const target = event.target;
+
+        // Resize ukuran langsung
+        let { width, height } = event.rect;
+        target.style.width = `${width}px`;
+        target.style.height = `${height}px`;
+
+        // Pindahkan jika perlu
+        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.deltaRect.left;
+        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.deltaRect.top;
+
+        target.style.transform = `translate(${x}px, ${y}px)`;
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+      }
+    }
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".draggable.resizable").forEach(box => {
+    const auto = box.querySelector(".auto-scale");
+    const fluid = box.querySelector(".scale-handle-fluid");
+    const fixed = box.querySelector(".scale-handle-fixed");
+
+    if (!fluid || !fixed || !auto) return;
+
+    // Mode 1: Fluid Resize (pakai calc font-size)
+    fluid.addEventListener("mousedown", e => {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startW = box.offsetWidth;
+      const startH = box.offsetHeight;
+
+      function resize(e2) {
+        box.style.width = Math.max(150, startW + (e2.clientX - startX)) + "px";
+        box.style.height = Math.max(80, startH + (e2.clientY - startY)) + "px";
+      }
+
+      function stop() {
+        window.removeEventListener("mousemove", resize);
+        window.removeEventListener("mouseup", stop);
+      }
+
+      window.addEventListener("mousemove", resize);
+      window.addEventListener("mouseup", stop);
+    });
+
+    // Mode 2: Fixed Resize (font ikut proporsional)
+    fixed.addEventListener("mousedown", e => {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startW = box.offsetWidth;
+      const startH = box.offsetHeight;
+      const startFont = parseFloat(getComputedStyle(auto).fontSize);
+
+      function resize(e2) {
+        const newW = Math.max(150, startW + (e2.clientX - startX));
+        const newH = Math.max(80, startH + (e2.clientY - startY));
+        const scale = Math.min(newW / startW, newH / startH);
+        box.style.width = newW + "px";
+        box.style.height = newH + "px";
+        auto.style.fontSize = (startFont * scale).toFixed(2) + "px";
+      }
+
+      function stop() {
+        window.removeEventListener("mousemove", resize);
+        window.removeEventListener("mouseup", stop);
+      }
+
+      window.addEventListener("mousemove", resize);
+      window.addEventListener("mouseup", stop);
+    });
+  });
+});
 </script>
 
   
