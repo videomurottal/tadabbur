@@ -16,6 +16,16 @@
       text-align: center;
     }
 
+#pages {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  border: 2px dashed #ccc;
+  margin-top: 1em;
+}
+
+    
     .ayah-translation {
   font-size: 0.85em;
   color: #444;
@@ -112,8 +122,34 @@
   <button id="loadBtn">Proses</button>
 </div>
 
-<div id="pages"></div>
+<div style="margin: 1em auto; text-align: center;">
+  <label>Ukuran Wallpaper:</label>
+  <select id="sizeSelect">
+    <option value="1080x1080">Instagram Post (1080x1080)</option>
+    <option value="1080x1920">Instagram Story (1080x1920)</option>
+    <option value="1200x675">Twitter (1200x675)</option>
+  </select>
 
+  <label style="margin-left: 1em;">Upload Background:</label>
+  <input type="file" id="bgUpload" accept="image/*">
+  <p id="uploadedLink" style="font-size: 0.8em; color: #333; word-break: break-all;"></p>
+</div>
+
+  
+<div id="pages"></div>
+<div style="text-align: center; margin-top: 1em;">
+  <button onclick="downloadWallpaper()">Download Wallpaper</button>
+</div>
+<script>
+function downloadWallpaper() {
+  html2canvas(document.getElementById("pages")).then(canvas => {
+    const link = document.createElement('a');
+    link.download = "wallpaper-quran.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+</script>
 <script>
 
 const surahNames = {
@@ -280,7 +316,8 @@ const surahName = surahNames[surah] || `Surah ${surah}`;
 
 if (translationText) {
   const translationDiv = document.createElement("div");
-  translationDiv.className = "ayah-translation";
+  translationDiv.className = "ayah-translation draggable";
+translationDiv.setAttribute("contenteditable", "true");
 
   // Format akhir (Nama Surah: Ayat) setelah titik
   const akhir = ` <strong>(${surahName}: ${ayah})</strong>`;
@@ -357,5 +394,50 @@ if (translationText) {
 }
 
  </script> 
+
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+  // Ukuran wallpaper
+  document.getElementById("sizeSelect").addEventListener("change", function () {
+    const [w, h] = this.value.split("x");
+    const area = document.getElementById("pages");
+    area.style.width = w + "px";
+    area.style.height = h + "px";
+  });
+  document.getElementById("sizeSelect").dispatchEvent(new Event("change"));
+
+  // Upload background
+  document.getElementById("bgUpload").addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const url = e.target.result;
+      document.getElementById("pages").style.backgroundImage = `url(${url})`;
+      document.getElementById("uploadedLink").innerHTML =
+        `🔗 <a href="${url}" target="_blank">Link Gambar</a>`;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Drag dan Resize
+  interact('.draggable').draggable({
+    listeners: {
+      move(event) {
+        const target = event.target;
+        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+        target.style.transform = `translate(${x}px, ${y}px)`;
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+      }
+    }
+  });
+</script>
+
+  
 </body>
 </html>
