@@ -23,9 +23,23 @@
 
 
     .resizable {
+  /* Hapus resize bawaan browser */
   overflow: visible;
   transform-origin: top left;
 }
+
+    .resizable::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  bottom: 0;
+  right: 0;
+  background: #888;
+  cursor: se-resize;
+  z-index: 10;
+}
+
 
 
 
@@ -485,7 +499,6 @@ if (translationText) {
 </script>
 
   <script>
-  // Drag dan Resize
 interact('.draggable.resizable')
   .draggable({
     listeners: {
@@ -508,9 +521,10 @@ interact('.draggable.resizable')
         const target = event.target;
         let scale = parseFloat(target.getAttribute('data-scale')) || 1;
         const delta = event.deltaRect.width;
-        const newScale = scale * (1 + delta / target.offsetWidth);
 
-        scale = Math.max(0.2, Math.min(3, newScale)); // batas skala aman
+        const newScale = scale * (1 + delta / target.offsetWidth);
+        scale = Math.max(0.2, Math.min(3, newScale));
+
         const x = parseFloat(target.getAttribute('data-x')) || 0;
         const y = parseFloat(target.getAttribute('data-y')) || 0;
 
@@ -520,6 +534,7 @@ interact('.draggable.resizable')
     }
   });
 </script>
+
   
 </body>
 </html>
