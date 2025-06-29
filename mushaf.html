@@ -65,7 +65,7 @@
       max-width: 700px;
       opacity: 0;
       transition: opacity 0.3s ease;
-      word-spacing: 0em; /* rapat antar kata */
+      word-spacing: 0em;
     }
 
     .word {
@@ -116,15 +116,15 @@
 <h2>Al-Qur'an Dinamis</h2>
 
 <div id="selector">
-  <label>Surah:
-    <select id="surah-select"></select>
-  </label>
+  <button onclick="loadAyat()">Tampilkan</button>
 
   <label>Ayat:
     <select id="ayah-select"></select>
   </label>
 
-  <button onclick="loadAyat()">Tampilkan</button>
+  <label>Surah:
+    <select id="surah-select"></select>
+  </label>
 </div>
 
 <div id="pages"></div>
