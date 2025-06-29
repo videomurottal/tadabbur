@@ -1850,7 +1850,7 @@ function resetCheckResult() {
 }
 
 async function isUsernameTaken(username) {
-  const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
+  const url = `https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/data/${username}.json`;
   const res = await fetch(url);
   return res.ok;
 }
@@ -2014,7 +2014,7 @@ async function uploadDataToCloud() {
 
   try {
     status.innerHTML = '⬇️ Downloading <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" style="vertical-align:middle; display:inline;" />';
-    const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
+    const url = `https://raw.githubusercontent.com/tafsirnetlifyapp/quran/main/data/${username}.json`;
     const response = await fetch(url);
     if (!response.ok) throw new Error("Gagal ambil data");
 
@@ -2255,8 +2255,8 @@ document.addEventListener('touchend', e => {
 <script>
 const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
 const currentHost = location.hostname.includes("netlify")
-  ? "https://tadabbur.netlify.app"
-  : "https://dickymiswardi.github.io/tadabbur";
+  ? "https://tafsir.netlify.app"
+  : "https://netlify.github.io/quran";
 
 function isArabic(text) {
   return /[\u0600-\u06FF]/.test(text);
