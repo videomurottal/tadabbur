@@ -22,12 +22,25 @@
       gap: 1em;
       flex-wrap: wrap;
       margin: 1em auto;
-      direction: ltr; /* agar select dan tombol urut dari kiri ke kanan */
+      direction: ltr;
+    }
+
+    .controls label {
+      font-weight: bold;
+      margin-right: 0.3em;
     }
 
     select, button {
       font-size: 1em;
       padding: 0.5em;
+    }
+
+    .info-ayah {
+      text-align: center;
+      font-size: 1.2em;
+      margin-top: 1em;
+      font-weight: bold;
+      color: #333;
     }
 
     .page-container {
@@ -39,14 +52,14 @@
       opacity: 0;
       transition: opacity 0.3s ease;
       display: none;
-      word-spacing: 0.2em;
+      word-spacing: 0; /* Lebih rapat */
       max-width: 700px;
     }
 
     .word {
       display: inline-block;
       position: relative;
-      margin: 0 0.1em;
+      margin: 0 -0.03em; /* lebih rapat antar kata */
       cursor: pointer;
     }
 
@@ -57,7 +70,7 @@
 
     .translation {
       position: absolute;
-      bottom: -2.4em;
+      top: 120%;
       font-size: 0.45em;
       font-family: sans-serif;
       background: #fff;
@@ -86,10 +99,12 @@
 <h2 id="title">Al-Qur'an Dinamis</h2>
 
 <div class="controls">
+  <label for="surahSelect">Surah:</label>
   <select id="surahSelect">
     <option value="">Pilih Surah</option>
   </select>
 
+  <label for="ayahSelect">Ayat:</label>
   <select id="ayahSelect">
     <option value="">Pilih Ayat</option>
   </select>
@@ -97,6 +112,7 @@
   <button id="loadBtn">Proses</button>
 </div>
 
+<div class="info-ayah" id="infoAyat"></div>
 <div id="pages"></div>
 
 <script>
@@ -121,6 +137,7 @@ const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
 const loadBtn = document.getElementById("loadBtn");
 const pagesDiv = document.getElementById("pages");
+const infoAyat = document.getElementById("infoAyat");
 
 for (let s = 1; s <= 114; s++) {
   const option = document.createElement("option");
@@ -148,7 +165,11 @@ loadBtn.addEventListener("click", async () => {
   const ayah = ayahSelect.value;
   if (!surah || !ayah) return alert("Pilih surah dan ayat terlebih dahulu!");
 
-  pagesDiv.innerHTML = ""; // Kosongkan halaman
+  loadBtn.disabled = true;
+  loadBtn.innerText = "Memuat...";
+
+  pagesDiv.innerHTML = "";
+  infoAyat.innerText = `Surah ${surah} Ayat ${ayah}`;
 
   const ayahKey = `${surah}:${ayah}`;
 
@@ -187,7 +208,6 @@ loadBtn.addEventListener("click", async () => {
     trans.className = "translation";
     trans.innerText = word.translation?.text || "-";
 
-    // Sembunyikan tooltip simbol
     if (word.translation?.text && !/^[\u06dd\u06de\u06e9\u06e0\u06e5\u06e6]+$/.test(word.text)) {
       span.appendChild(trans);
     }
@@ -210,18 +230,21 @@ loadBtn.addEventListener("click", async () => {
     });
 
     line.appendChild(span);
-    line.appendChild(document.createTextNode(" "));
+    line.append(" ");
   });
+
   container.appendChild(line);
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
 
-  // Ambil teks unicode dari XML
   const xml = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
     .then(r => r.text());
   const doc = new DOMParser().parseFromString(xml, "text/xml");
   const aya = doc.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
   if (aya) originalUnicode = aya.getAttribute("text") + ` (${ayah}) `;
+
+  loadBtn.disabled = false;
+  loadBtn.innerText = "Proses";
 });
 
 document.addEventListener("copy", e => {
