@@ -23,9 +23,17 @@
 
 
     .resizable {
-  /* Hapus resize bawaan browser */
-  overflow: visible;
-  transform-origin: top left;
+  resize: both;
+  overflow: auto;
+  min-width: 150px;
+  min-height: 100px;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 0.5em;
+  box-sizing: border-box;
+  position: absolute;
+  border: 1px dashed #aaa;
+  background: rgba(255,255,255,0.8);
 }
 
     .resizable::after {
@@ -501,14 +509,19 @@ if (translationText) {
   <script>
 interact('.draggable.resizable')
   .draggable({
+    modifiers: [
+      interact.modifiers.restrictRect({
+        restriction: 'parent',
+        endOnly: true
+      })
+    ],
     listeners: {
       move(event) {
         const target = event.target;
         const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
         const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-        const scale = parseFloat(target.getAttribute('data-scale')) || 1;
 
-        target.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        target.style.transform = `translate(${x}px, ${y}px)`;
         target.setAttribute('data-x', x);
         target.setAttribute('data-y', y);
       }
@@ -518,22 +531,25 @@ interact('.draggable.resizable')
     edges: { left: true, right: true, bottom: true, top: true },
     listeners: {
       move(event) {
-        const target = event.target;
-        let scale = parseFloat(target.getAttribute('data-scale')) || 1;
-        const delta = event.deltaRect.width;
+        let { x, y } = event.target.dataset;
 
-        const newScale = scale * (1 + delta / target.offsetWidth);
-        scale = Math.max(0.2, Math.min(3, newScale));
+        x = parseFloat(x) || 0;
+        y = parseFloat(y) || 0;
 
-        const x = parseFloat(target.getAttribute('data-x')) || 0;
-        const y = parseFloat(target.getAttribute('data-y')) || 0;
+        // Resize lebar dan tinggi
+        Object.assign(event.target.style, {
+          width: `${event.rect.width}px`,
+          height: `${event.rect.height}px`,
+          transform: `translate(${x}px, ${y}px)`
+        });
 
-        target.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
-        target.setAttribute('data-scale', scale);
+        event.target.dataset.x = x;
+        event.target.dataset.y = y;
       }
     }
   });
 </script>
+
 
   
 </body>
