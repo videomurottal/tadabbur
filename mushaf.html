@@ -8,51 +8,26 @@
     body {
       background: #fefcf8;
       padding: 1em;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: sans-serif;
       direction: rtl;
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 1em;
-      font-size: 1.8em;
-      color: #222;
     }
 
-    #selector {
+    .controls {
       display: flex;
+      justify-content: center;
+      gap: 1em;
       flex-wrap: wrap;
-      justify-content: flex-end; /* ✅ tombol di kanan */
-      align-items: center;
-      gap: 0.6em;
-      margin-bottom: 2em;
+      margin: 1em auto;
+      direction: ltr; /* agar select dan tombol urut dari kiri ke kanan */
     }
 
     select, button {
-      padding: 0.4em 0.8em;
       font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background-color: #fff8e5;
-      color: #333;
-      font-family: inherit;
-      cursor: pointer;
-    }
-
-    select:focus, button:focus {
-      outline: none;
-      border-color: #d6a756;
-      box-shadow: 0 0 0 2px rgba(214, 167, 86, 0.3);
-    }
-
-    button {
-      background-color: #f7d488;
-      font-weight: bold;
-      transition: background-color 0.2s ease;
-    }
-
-    button:hover {
-      background-color: #f0c45c;
+      padding: 0.5em;
     }
 
     .page-container {
@@ -61,12 +36,11 @@
       text-align: justify;
       user-select: text;
       margin: 2em auto;
-      display: none;
-      max-width: 700px;
       opacity: 0;
       transition: opacity 0.3s ease;
-      word-spacing: 0em;
-      letter-spacing: 0em;
+      display: none;
+      word-spacing: 0.2em;
+      max-width: 700px;
     }
 
     .word {
@@ -100,27 +74,27 @@
       display: block;
     }
 
-    @media (max-width: 600px) {
-      #selector {
-        flex-direction: row;
-        justify-content: center;
-        gap: 0.5em;
+    @media (max-width: 768px) {
+      .page-container {
+        font-size: 1.5em;
       }
     }
   </style>
 </head>
 <body>
 
-<h2>Al-Qur'an Dinamis</h2>
+<h2 id="title">Al-Qur'an Dinamis</h2>
 
-<div id="selector">
-  <label>Surah:
-    <select id="surah-select"></select>
-  </label>
-  <label>Ayat:
-    <select id="ayah-select"></select>
-  </label>
-  <button onclick="loadAyat()">Tampilkan</button>
+<div class="controls">
+  <select id="surahSelect">
+    <option value="">Pilih Surah</option>
+  </select>
+
+  <select id="ayahSelect">
+    <option value="">Pilih Ayat</option>
+  </select>
+
+  <button id="loadBtn">Proses</button>
 </div>
 
 <div id="pages"></div>
@@ -143,103 +117,119 @@ const lastAyahOfSurah = {
   106: 4, 107: 7, 108: 3, 109: 6, 110: 3, 111: 5, 112: 4, 113: 5, 114: 6
 };
 
-const surahSelect = document.getElementById("surah-select");
-const ayahSelect = document.getElementById("ayah-select");
+const surahSelect = document.getElementById("surahSelect");
+const ayahSelect = document.getElementById("ayahSelect");
+const loadBtn = document.getElementById("loadBtn");
 const pagesDiv = document.getElementById("pages");
-let activeWord = null;
-let timeoutId = null;
 
-// isi select Surah
-for (let i = 1; i <= 114; i++) {
-  const opt = document.createElement("option");
-  opt.value = i;
-  opt.textContent = `Surah ${i}`;
-  surahSelect.appendChild(opt);
+for (let s = 1; s <= 114; s++) {
+  const option = document.createElement("option");
+  option.value = s;
+  option.text = `Surah ${s}`;
+  surahSelect.appendChild(option);
 }
 
-// isi select Ayat berdasar Surah
 surahSelect.addEventListener("change", () => {
-  const surah = parseInt(surahSelect.value);
-  const totalAyah = lastAyahOfSurah[surah] || 1;
-  ayahSelect.innerHTML = "";
-  for (let i = 1; i <= totalAyah; i++) {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = `Ayat ${i}`;
-    ayahSelect.appendChild(opt);
+  ayahSelect.innerHTML = `<option value="">Pilih Ayat</option>`;
+  const s = parseInt(surahSelect.value);
+  if (!s || !lastAyahOfSurah[s]) return;
+  for (let i = 1; i <= lastAyahOfSurah[s]; i++) {
+    const option = document.createElement("option");
+    option.value = i;
+    option.text = `Ayat ${i}`;
+    ayahSelect.appendChild(option);
   }
 });
-surahSelect.dispatchEvent(new Event("change"));
-loadAyat(); // default tampil Surah 1 Ayat 1
 
-function loadAyat() {
-  const surah = parseInt(surahSelect.value);
-  const ayah = parseInt(ayahSelect.value);
-  const key = `${surah}:${ayah}`;
-  pagesDiv.innerHTML = "";
+let activeWord = null, timeoutId = null, originalUnicode = "";
 
-  fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json")
-    .then(res => res.json())
-    .then(map => {
-      const page = map[key];
-      const fontName = `QCF_P${String(page).padStart(3, '0')}`;
-      const fontUrl = `https://raw.githubusercontent.com/dickymiswardi/quran/main/fonts/${fontName}.TTF`;
+loadBtn.addEventListener("click", async () => {
+  const surah = surahSelect.value;
+  const ayah = ayahSelect.value;
+  if (!surah || !ayah) return alert("Pilih surah dan ayat terlebih dahulu!");
 
-      const style = document.createElement("style");
-      style.innerText = `@font-face {
-        font-family: '${fontName}';
-        src: url('${fontUrl}') format('truetype');
-        font-display: swap;
-      }`;
-      document.head.appendChild(style);
+  pagesDiv.innerHTML = ""; // Kosongkan halaman
 
-      const container = document.createElement("div");
-      container.className = "page-container";
-      container.style.fontFamily = fontName;
-      pagesDiv.appendChild(container);
+  const ayahKey = `${surah}:${ayah}`;
 
-      document.fonts.load(`1em '${fontName}'`).then(() => {
-        fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`)
-          .then(r => r.json())
-          .then(data => {
-            const line = document.createElement("div");
-            data.verse.words.forEach(word => {
-              const span = document.createElement("span");
-              span.className = "word";
-              span.innerText = word.code_v1 || word.text;
+  const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json").then(r => r.json());
+  const page = pageMap[ayahKey];
 
-              const trans = document.createElement("div");
-              trans.className = "translation";
-              trans.innerText = word.translation?.text || "-";
-              span.appendChild(trans);
+  const fontName = `QCF_P${String(page).padStart(3, '0')}`;
+  const fontUrl = `https://raw.githubusercontent.com/dickymiswardi/quran/refs/heads/main/fonts/${fontName}.TTF`;
 
-              span.addEventListener("click", () => {
-                if (span === activeWord) {
-                  span.classList.remove("active");
-                  clearTimeout(timeoutId);
-                  activeWord = null;
-                  return;
-                }
-                document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-                span.classList.add("active");
-                activeWord = span;
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => {
-                  span.classList.remove("active");
-                  activeWord = null;
-                }, 7000);
-              });
+  const style = document.createElement("style");
+  style.innerText = `@font-face {
+    font-family: '${fontName}';
+    src: url('${fontUrl}') format('truetype');
+    font-display: swap;
+  }`;
+  document.head.appendChild(style);
 
-              line.appendChild(span);
-              line.appendChild(document.createTextNode(" "));
-            });
-            container.appendChild(line);
-            container.style.display = "block";
-            requestAnimationFrame(() => container.style.opacity = "1");
-          });
-      });
+  const container = document.createElement("div");
+  container.className = "page-container";
+  container.style.fontFamily = fontName;
+  container.id = `page-${page}`;
+  pagesDiv.appendChild(container);
+
+  await document.fonts.load(`1em '${fontName}'`);
+
+  const result = await fetch(`https://api.quran.com/api/v4/verses/by_key/${ayahKey}?words=true&language=id&translations=33`)
+    .then(r => r.json());
+
+  const line = document.createElement("div");
+  result.verse.words.forEach(word => {
+    const span = document.createElement("span");
+    span.className = "word";
+    span.innerText = word.code_v1 || word.text;
+
+    const trans = document.createElement("div");
+    trans.className = "translation";
+    trans.innerText = word.translation?.text || "-";
+
+    // Sembunyikan tooltip simbol
+    if (word.translation?.text && !/^[\u06dd\u06de\u06e9\u06e0\u06e5\u06e6]+$/.test(word.text)) {
+      span.appendChild(trans);
+    }
+
+    span.addEventListener("click", () => {
+      if (span === activeWord) {
+        span.classList.remove("active");
+        clearTimeout(timeoutId);
+        activeWord = null;
+        return;
+      }
+      document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+      span.classList.add("active");
+      activeWord = span;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        span.classList.remove("active");
+        activeWord = null;
+      }, 7000);
     });
-}
+
+    line.appendChild(span);
+    line.appendChild(document.createTextNode(" "));
+  });
+  container.appendChild(line);
+  container.style.display = "block";
+  requestAnimationFrame(() => container.style.opacity = "1");
+
+  // Ambil teks unicode dari XML
+  const xml = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
+    .then(r => r.text());
+  const doc = new DOMParser().parseFromString(xml, "text/xml");
+  const aya = doc.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
+  if (aya) originalUnicode = aya.getAttribute("text") + ` (${ayah}) `;
+});
+
+document.addEventListener("copy", e => {
+  if (originalUnicode) {
+    e.preventDefault();
+    e.clipboardData.setData("text/plain", originalUnicode.trim());
+  }
+});
 </script>
 
 </body>
