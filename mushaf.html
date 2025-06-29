@@ -259,20 +259,31 @@ document.addEventListener("copy", e => {
 });
 </script>
 
-  <script>
-// ==== AUTO LOAD DEFAULT ====
-window.addEventListener("DOMContentLoaded", () => {
-  surahSelect.value = "2"; // Surah Al-Baqarah
-  const event = new Event("change");
-  surahSelect.dispatchEvent(event); // trigger isi ayat
+ <script>
+async function autoLoadDefault() {
+  // 1. Set nilai Surah dan trigger perubahan
+  surahSelect.value = "2";
+  surahSelect.dispatchEvent(new Event("change"));
 
-  setTimeout(() => {
-    ayahSelect.value = "257";
-    wordCountSelect.value = "9";
-    loadBtn.click();
-  }, 300); // beri delay agar ayat terisi dulu
-});
+  // 2. Tunggu sampai ayatSelect terisi (maks 1 detik)
+  let tries = 0;
+  while (ayahSelect.options.length < 10 && tries < 20) {
+    await new Promise(res => setTimeout(res, 50));
+    tries++;
+  }
+
+  // 3. Isi nilai ayat dan jumlah kata
+  ayahSelect.value = "257";
+  wordCountSelect.value = "9";
+
+  // 4. Klik tombol "Proses"
+  loadBtn.click();
+}
+
+// Jalankan saat DOM sudah siap
+window.addEventListener("DOMContentLoaded", autoLoadDefault);
 </script>
+
   
 </body>
 </html>
