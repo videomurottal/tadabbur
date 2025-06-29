@@ -16,6 +16,13 @@
       text-align: center;
     }
 
+.resizable {
+  resize: both; /* ini hanya berfungsi untuk native browser, bukan Interact.js */
+  overflow: auto;
+  min-width: 100px;
+  min-height: 50px;
+}
+    
     .resizable {
   resize: both;
   overflow: auto;
@@ -469,22 +476,7 @@ async function autoLoadDefault() {
 window.addEventListener("DOMContentLoaded", autoLoadDefault);
 </script>
 
- <script>
-  // Tambah terjemahan ayat (per ayat)
-if (translationText) {
-  const translationDiv = document.createElement("div");
-  translationDiv.className = "ayah-translation";
-  translationDiv.innerText = "Artinya: " + translationText;
-  translationDiv.style.marginTop = "1em";
-  translationDiv.style.fontSize = "0.8em";
-  translationDiv.style.color = "#444";
-  translationDiv.style.fontFamily = "sans-serif";
-  translationDiv.style.direction = "ltr";
-  translationDiv.style.textAlign = "left";
-  container.appendChild(translationDiv);
-}
 
- </script> 
 
 <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -534,6 +526,33 @@ if (translationText) {
     terjemahBox.style.fontFamily = this.value;
   }
 });
+
+  interact('.resizable').resizable({
+  edges: { left: true, right: true, bottom: true, top: true },
+  listeners: {
+    move (event) {
+      let { x, y } = event.target.dataset
+
+      x = (parseFloat(x) || 0)
+      y = (parseFloat(y) || 0)
+
+      // Resize kotaknya
+      Object.assign(event.target.style, {
+        width: `${event.rect.width}px`,
+        height: `${event.rect.height}px`,
+      })
+
+      // Transform tetap sesuai drag
+      x += event.deltaRect.left
+      y += event.deltaRect.top
+
+      event.target.style.transform = `translate(${x}px, ${y}px)`
+      event.target.dataset.x = x
+      event.target.dataset.y = y
+    }
+  }
+});
+
 </script>
 
   
