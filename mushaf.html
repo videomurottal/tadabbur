@@ -16,32 +16,6 @@
       text-align: center;
     }
 
-
-.scale-handle-fluid,
-.scale-handle-fixed {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  z-index: 20;
-}
-
-.scale-handle-fluid {
-  background: #666;
-  border-radius: 50%;
-  bottom: -8px;
-  left: -8px;
-  cursor: nwse-resize;
-}
-
-.scale-handle-fixed {
-  background: #00aaff;
-  border-radius: 2px;
-  bottom: -8px;
-  right: -8px;
-  cursor: nwse-resize;
-}
-
-    
     .ayah-text {
   text-align: center;
   width: 100%;
@@ -355,104 +329,33 @@ inner.appendChild(line);
 ayahBox.appendChild(inner);
 container.appendChild(ayahBox);
 
-  // Tambah handle resize khusus untuk ayahBox
-const handleFluid = document.createElement("div");
-handleFluid.className = "scale-handle-fluid";
-
-const handleFixed = document.createElement("div");
-handleFixed.className = "scale-handle-fixed";
-
-ayahBox.appendChild(handleFluid);
-ayahBox.appendChild(handleFixed);
-
-// === FUNGSI HANDLE FLUID & FIXED ===
-
-
 
   // Tambah terjemahan ayat (per ayat)
 const translationText = result.verse.translations?.[0]?.text;
 const surahName = surahNames[surah] || `Surah ${surah}`;
 
- if (translationText) {
-  const translationDiv = document.createElement("div");
-  translationDiv.className = "ayah-translation draggable resizable";
-  translationDiv.setAttribute("contenteditable", "true");
+  if (translationText) {
+ const translationDiv = document.createElement("div");
+translationDiv.className = "ayah-translation draggable resizable";
+translationDiv.setAttribute("contenteditable", "true");
 
-  const akhir = ` <strong>(${surahName}: ${ayah})</strong>`;
-  const kalimat = /[.!؟]$/.test(translationText.trim())
-    ? translationText.trim().replace(/([.!؟])$/, `$1${akhir}`)
-    : translationText.trim() + akhir;
+const akhir = ` <strong>(${surahName}: ${ayah})</strong>`;
+const kalimat = /[.!؟]$/.test(translationText.trim())
+  ? translationText.trim().replace(/([.!؟])$/, `$1${akhir}`)
+  : translationText.trim() + akhir;
 
-  const innerTrans = document.createElement("div");
-  innerTrans.className = "auto-scale";
-  innerTrans.innerHTML = "Artinya: " + kalimat;
+// ✅ Bungkus ke dalam auto-scale
+const innerTrans = document.createElement("div");
+innerTrans.className = "auto-scale";
+innerTrans.innerHTML = "Artinya: " + kalimat;
 
-  translationDiv.appendChild(innerTrans);
+// ✅ Tambahkan innerTrans ke translationDiv
+translationDiv.appendChild(innerTrans);
 
-  // ✅ Tambah handle
-  const transFluid = document.createElement("div");
-  transFluid.className = "scale-handle-fluid";
+// ✅ Tambahkan ke container utama
+container.appendChild(translationDiv);
+} // ✅ <— tambahkan ini untuk menutup if (translationText)
 
-  const transFixed = document.createElement("div");
-  transFixed.className = "scale-handle-fixed";
-
-  translationDiv.appendChild(transFluid);
-  translationDiv.appendChild(transFixed);
-
-  container.appendChild(translationDiv);
-
-  // ✅ Tambah script resize KHUSUS untuk box terjemah
-
-setTimeout(() => {
-    const auto = translationDiv.querySelector(".auto-scale");
-
-    transFixed.onmousedown = e => {
-      e.preventDefault();
-      const startX = e.clientX, startY = e.clientY;
-      const startW = translationDiv.offsetWidth, startH = translationDiv.offsetHeight;
-      const startFont = parseFloat(getComputedStyle(auto).fontSize);
-
-      const resize = e2 => {
-        const newW = Math.max(150, startW + (e2.clientX - startX));
-        const newH = Math.max(80, startH + (e2.clientY - startY));
-        const scale = Math.min(newW / startW, newH / startH);
-        translationDiv.style.width = newW + "px";
-        translationDiv.style.height = newH + "px";
-        auto.style.fontSize = (startFont * scale).toFixed(2) + "px";
-      };
-
-      const stop = () => {
-        window.removeEventListener("mousemove", resize);
-        window.removeEventListener("mouseup", stop);
-      };
-
-      window.addEventListener("mousemove", resize);
-      window.addEventListener("mouseup", stop);
-    };
-
-    transFluid.onmousedown = e => {
-      e.preventDefault();
-      const startX = e.clientX, startY = e.clientY;
-      const startW = translationDiv.offsetWidth, startH = translationDiv.offsetHeight;
-
-      const resize = e2 => {
-        const newW = Math.max(150, startW + (e2.clientX - startX));
-        const newH = Math.max(80, startH + (e2.clientY - startY));
-        translationDiv.style.width = newW + "px";
-        translationDiv.style.height = newH + "px";
-      };
-
-      const stop = () => {
-        window.removeEventListener("mousemove", resize);
-        window.removeEventListener("mouseup", stop);
-      };
-
-      window.addEventListener("mousemove", resize);
-      window.addEventListener("mouseup", stop);
-    };
-  }, 0);
-}
-  
   container.style.display = "block";
   requestAnimationFrame(() => container.style.opacity = "1");
 
@@ -545,8 +448,28 @@ interact('.draggable.resizable')
         target.setAttribute('data-y', y);
       }
     }
-  });
+  })
+  .resizable({
+    edges: { left: true, right: true, bottom: true, top: true },
+    listeners: {
+      move (event) {
+        const target = event.target;
 
+        // Resize ukuran langsung
+        let { width, height } = event.rect;
+        target.style.width = `${width}px`;
+        target.style.height = `${height}px`;
+
+        // Pindahkan jika perlu
+        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.deltaRect.left;
+        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.deltaRect.top;
+
+        target.style.transform = `translate(${x}px, ${y}px)`;
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+      }
+    }
+  });
 </script>
 
   
