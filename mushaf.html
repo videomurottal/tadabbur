@@ -392,19 +392,6 @@ container.appendChild(ayahBox);
 const translationText = result.verse.translations?.[0]?.text;
 const surahName = surahNames[surah] || `Surah ${surah}`;
 
-if (translationText) {
-  const translationDiv = document.createElement("div");
-  translationDiv.className = "ayah-translation draggable";
-translationDiv.setAttribute("contenteditable", "true");
-translationDiv.className = "ayah-translation draggable resizable";
-
-
-  // Format akhir (Nama Surah: Ayat) setelah titik
-  const akhir = ` <strong>(${surahName}: ${ayah})</strong>`;
-  const kalimat = /[.!؟]$/.test(translationText.trim())
-    ? translationText.trim().replace(/([.!؟])$/, `$1${akhir}`)
-    : translationText.trim() + akhir;
-
   if (translationText) {
   const translationDiv = document.createElement("div");
   translationDiv.className = "ayah-translation draggable resizable";
