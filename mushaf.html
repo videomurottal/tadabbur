@@ -166,8 +166,8 @@
 const translationLanguageMap = {
   "20": "en", "33": "id"
 };
-  
-const surahList = {
+
+  const surahList = {
   1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
   5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
   9:["At-Tawbah"], 10:["Yūnus"], 11:["Hūd"], 12:["Yūsuf"], 13:["Ar-Raʿd"],
@@ -254,18 +254,15 @@ async function loadAyat() {
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
   const words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
-  // Isi dropdown Dari & Sampai
+  // Isi dropdown Dari & Sampai dengan semua range
   wordStart.innerHTML = "";
   wordEnd.innerHTML = "";
   for (let i = 1; i <= words.length; i++) {
     wordStart.appendChild(new Option(i, i));
     wordEnd.appendChild(new Option(i, i));
   }
-  if (!wordStart.value || !wordEnd.value) {
-    wordStart.value = 1;
-    wordEnd.value = 1;
-  }
-  updateWordEndOptions();
+  wordStart.value = 1;
+  wordEnd.value = 1;
 
   const style = document.createElement("style");
   style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
@@ -291,6 +288,7 @@ async function loadAyat() {
 
   div.appendChild(line);
 
+  // Render Terjemahan Lengkap jika dipilih
   if (translationSelect.value) {
     try {
       const r = await fetch(`https://quranenc.com/api/v1/translation/aya/${translationSelect.value}/${s}/${a}`);
@@ -304,7 +302,8 @@ async function loadAyat() {
     } catch (e) {
       console.error("Gagal ambil terjemahan:", e);
     }
-  } else if (wordTranslationId.value !== "0") {
+  } else {
+    // Render Terjemah Perkata jika tidak ada Terjemah Lengkap
     const langCode = translationLanguageMap[wordTranslationId.value] || "en";
     try {
       const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTranslationId.value}`);
