@@ -56,36 +56,8 @@
       text-align: center;
       margin-top: 1em;
     }
-    #popup {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    #popupContent {
-      background: #fff;
-      padding: 1.5em;
-      border-radius: 8px;
-      max-width: 600px;
-      width: 90%;
-      text-align: left;
-      direction: ltr;
-    }
-    #popupContent h3 {
-      margin-top: 0;
-    }
-    #closePopup {
-      background: #f44336;
-      color: #fff;
-      border: none;
-      padding: 0.5em 1em;
-      cursor: pointer;
-      border-radius: 4px;
-      margin-top: 1em;
+    @media (max-width: 768px) {
+      .page-container { font-size: 1.5em; }
     }
   </style>
 </head>
@@ -94,40 +66,39 @@
 <h2>📖 Al-Qur'an Dinamis (V1/V2 + Terjemah)</h2>
 
 <div class="controls">
-  <label><select id="surahSelect"></select>
+  <label>Surah
+    <select id="surahSelect"></select>
   </label>
-  <label><select id="ayahSelect"></select>
+  <label>Ayat
+    <select id="ayahSelect"></select>
   </label>
-  <label><select id="wordStart"></select>
+  <label>Dari kata ke-
+    <select id="wordStart"></select>
   </label>
-  <label><select id="wordEnd"></select>
+  <label>Sampai kata ke-
+    <select id="wordEnd"></select>
   </label>
-  <label><select id="wordTranslationId">
-      <option value="33">Indonesian – Islamic Affairs Ministry</option>
+  <label>Terjemah Per Kata
+    <select id="wordTranslationId">
+      <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
       <option value="20">English – Saheeh International</option>
     </select>
   </label>
-  <button onclick="showPopup()">📖 Pembanding</button>
 </div>
 
 <div class="version-buttons">
-  <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
   <button onclick="setVersion('v2')">📜 Gunakan Quran V2</button>
+  <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
 </div>
 
 <div id="pages"></div>
 
-<!-- Popup -->
-<div id="popup">
-  <div id="popupContent">
-    <h3>Terjemah Lengkap</h3>
-    <p id="popupText">Loading...</p>
-    <button id="closePopup" onclick="closePopup()">Tutup</button>
-  </div>
-</div>
-
 <script>
-const surahList = {
+const translationLanguageMap = {
+  "20": "en", "33": "id"
+};
+
+  const surahList = {
   1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
   5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
   9:["At-Tawbah"], 10:["Yūnus"], 11:["Hūd"], 12:["Yūsuf"], 13:["Ar-Raʿd"],
@@ -158,23 +129,39 @@ const surahList = {
   111:["Al-Masad"], 112:["Al-Ikhlāṣ"], 113:["Al-Falaq"], 114:["An-Nās"]
 };
 
-
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
 const wordStart = document.getElementById("wordStart");
 const wordEnd = document.getElementById("wordEnd");
 const wordTranslationId = document.getElementById("wordTranslationId");
 let currentVersion = 'v1';
-  
-// Isi dropdown Surah
+let words = []; // Global
+let initialLoad = true;
+
+function setVersion(v) {
+  currentVersion = v;
+  loadAyat();
+}
+
 for (let i in surahList) {
   const [name] = surahList[i];
   surahSelect.appendChild(new Option(`${i}. ${name}`, i));
 }
 
-// Set default
-surahSelect.value = 1;
-wordTranslationId.value = 33; // Default Indonesia ID 33
+surahSelect.addEventListener("change", updateAyahDropdown);
+ayahSelect.addEventListener("change", loadAyat);
+
+wordStart.addEventListener("change", () => {
+  const startVal = +wordStart.value;
+  wordEnd.innerHTML = "";
+  for (let i = startVal; i <= words.length; i++) {
+    wordEnd.appendChild(new Option(i, i));
+  }
+  wordEnd.value = startVal;
+  loadAyat();
+});
+wordEnd.addEventListener("change", loadAyat);
+wordTranslationId.addEventListener("change", loadAyat);
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
@@ -185,56 +172,13 @@ async function updateAyahDropdown() {
   for (let i = 1; i <= max; i++) {
     ayahSelect.appendChild(new Option(`Ayat ${i}`, i));
   }
-  ayahSelect.value = 1; // Default Ayat 1
-  await loadAyat();
-}
-
-function syncWordEnd() {
-  const start = parseInt(wordStart.value);
-  wordEnd.innerHTML = "";
-  for (let i = start; i <= wordEnd.dataset.max; i++) {
-    wordEnd.appendChild(new Option(i, i));
-  }
-  wordEnd.value = start;
+  ayahSelect.value = 1;
   loadAyat();
 }
-
-  wordStart.addEventListener("change", () => {
-  updateWordEndOptions();
-  loadAyat();
-});
-wordEnd.addEventListener("change", loadAyat);
-
-
-// Isi wordStart & wordEnd
-wordStart.innerHTML = "";
-for (let i = 1; i <= words.length; i++) {
-  wordStart.appendChild(new Option(`Word ${i}`, i));
-}
-wordStart.value = 1;
-
-updateWordEndOptions();
-
-function updateWordEndOptions() {
-  const start = parseInt(wordStart.value);
-  wordEnd.innerHTML = "";
-  for (let i = start; i <= words.length; i++) {
-    wordEnd.appendChild(new Option(`To ${i}`, i));
-  }
-  if (parseInt(wordEnd.value) < start) {
-    wordEnd.value = start;
-  }
-  if (!wordEnd.value) {
-    wordEnd.value = start < words.length ? start + 1 : start;
-  }
-}
-
 
 async function loadAyat() {
   const s = surahSelect.value;
   const a = ayahSelect.value;
-  const ws = parseInt(wordStart.value);
-  const we = parseInt(wordEnd.value);
   const key = `${s}:${a}`;
   const container = document.getElementById("pages");
   container.innerHTML = "";
@@ -248,7 +192,24 @@ async function loadAyat() {
 
   const apiField = currentVersion === "v1" ? "code_v1" : "code_v2";
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
-  const words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
+  words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
+
+  const prevStart = +wordStart.value || 1;
+  const prevEnd = +wordEnd.value || 1;
+
+  wordStart.innerHTML = "";
+  for (let i = 1; i <= words.length; i++) {
+    wordStart.appendChild(new Option(i, i));
+  }
+  wordStart.value = initialLoad ? 1 : Math.min(prevStart, words.length);
+
+  wordEnd.innerHTML = "";
+  for (let i = wordStart.value; i <= words.length; i++) {
+    wordEnd.appendChild(new Option(i, i));
+  }
+  wordEnd.value = initialLoad ? 1 : Math.min(prevEnd, words.length);
+
+  initialLoad = false;
 
   const style = document.createElement("style");
   style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
@@ -260,27 +221,28 @@ async function loadAyat() {
   container.appendChild(div);
 
   await document.fonts.load(`1em ${fontName}`);
-  const line = document.createElement("div");
 
-  const selectedWords = words.slice(ws - 1, we);
-  selectedWords.forEach(word => {
+  const startIdx = (+wordStart.value || 1) - 1;
+  const endIdx = (+wordEnd.value || startIdx + 1);
+
+  const line = document.createElement("div");
+  words.slice(startIdx, endIdx).forEach(word => {
     const span = document.createElement("span");
     span.className = "word";
     span.innerText = word.arabic;
     line.appendChild(span);
     line.appendChild(document.createTextNode(" "));
   });
-
   div.appendChild(line);
 
-  const transId = wordTranslationId.value;
-  if (transId !== "0") {
+  if (wordTranslationId.value) {
+    const langCode = translationLanguageMap[wordTranslationId.value];
     try {
-      const langCode = transId === "33" ? "id" : "en";
-      const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${transId}`);
+      const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTranslationId.value}`);
       const j = await r.json();
       const wordsData = j.verse.words;
-      const wordTranslations = wordsData.slice(ws - 1, we).map(w => w.translation?.text || "");
+      const wordTranslations = wordsData.map(w => w.translation?.text || "").slice(startIdx, endIdx);
+
       const perKataDiv = document.createElement("div");
       perKataDiv.className = "translation";
       perKataDiv.textContent = wordTranslations.join(" ");
@@ -294,34 +256,7 @@ async function loadAyat() {
   requestAnimationFrame(() => div.style.opacity = "1");
 }
 
-function setVersion(v) {
-  currentVersion = v;
-  loadAyat();
-}
-
-// Popup Functions
-function showPopup() {
-  const s = surahSelect.value;
-  const a = ayahSelect.value;
-  const lang = wordTranslationId.value === "33" ? "indonesian_complex" : "english_rwwad";
-  fetch(`https://quranenc.com/api/v1/translation/aya/${lang}/${s}/${a}`)
-    .then(r => r.json())
-    .then(j => {
-      const text = j.result?.translation || "Tidak ditemukan.";
-      document.getElementById("popupText").textContent = text;
-      document.getElementById("popup").style.display = "flex";
-    })
-    .catch(e => {
-      console.error("Gagal ambil terjemah lengkap:", e);
-      document.getElementById("popupText").textContent = "Gagal mengambil terjemahan.";
-      document.getElementById("popup").style.display = "flex";
-    });
-}
-
-function closePopup() {
-  document.getElementById("popup").style.display = "none";
-}
-
+surahSelect.value = 1;
 updateAyahDropdown();
 </script>
 </body>
