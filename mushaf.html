@@ -72,17 +72,14 @@
   <label>Ayat
     <select id="ayahSelect"></select>
   </label>
-<label>Dari kata ke-
-  <select id="wordStart"></select>
-</label>
-<label>Dari kata ke-
-  <select id="wordStart"></select>
-</label>
-<label>Sampai kata ke-
-  <select id="wordEnd"></select>
-</label>
+  <label>Dari kata ke-
+    <select id="wordStart"></select>
+  </label>
+  <label>Sampai kata ke-
+    <select id="wordEnd"></select>
+  </label>
   <label>Terjemah Lengkap
-    <select id="translationSelect">
+    <select id="translationSelect"></select>
       <option value="indonesian_complex">Indonesian – Complex</option>
       <option value="indonesian_sabiq">Indonesian – Sabiq</option>
       <option value="indonesian_affairs">Indonesian – Affairs</option>
@@ -148,7 +145,6 @@
       <option value="moore_rwwad">Moore – RWWAD</option>
       <option value="asante_harun">Asante – Harun</option>
       <option value="lingala_zakaria">Lingala – Zakaria</option>
-    </select>
   </label>
   <label>Terjemah Per Kata
     <select id="wordTranslationId">
@@ -166,7 +162,6 @@
 <div id="pages"></div>
 
 <script>
-
 const translationLanguageMap = {
   "20": "en", "33": "id"
 };
@@ -204,7 +199,8 @@ const surahList = {
 
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
-const wordCount = document.getElementById("wordCount");
+const wordStart = document.getElementById("wordStart");
+const wordEnd = document.getElementById("wordEnd");
 const translationSelect = document.getElementById("translationSelect");
 const wordTranslationId = document.getElementById("wordTranslationId");
 let currentVersion = 'v1';
@@ -231,6 +227,14 @@ wordTranslationId.addEventListener("change", () => {
 
 surahSelect.addEventListener("change", updateAyahDropdown);
 ayahSelect.addEventListener("change", loadAyat);
+wordStart.addEventListener("change", () => {
+  if (+wordStart.value > +wordEnd.value) wordEnd.value = wordStart.value;
+  loadAyat();
+});
+wordEnd.addEventListener("change", () => {
+  if (+wordEnd.value < +wordStart.value) wordStart.value = wordEnd.value;
+  loadAyat();
+});
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
@@ -248,7 +252,6 @@ async function updateAyahDropdown() {
 async function loadAyat() {
   const s = surahSelect.value;
   const a = ayahSelect.value;
-  const wc = +wordCount.value;
   const key = `${s}:${a}`;
   const container = document.getElementById("pages");
   container.innerHTML = "";
@@ -264,18 +267,18 @@ async function loadAyat() {
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
   const words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
+  // Isi dropdown Dari & Sampai
   wordStart.innerHTML = "";
   wordEnd.innerHTML = "";
-
-for (let i = 1; i <= words.length; i++) {
-  wordStart.appendChild(new Option(i, i));
-  wordEnd.appendChild(new Option(i, i));
-}
-
-// Set default range
-wordStart.value = 1;
-wordEnd.value = words.length;
-
+  for (let i = 1; i <= words.length; i++) {
+    wordStart.appendChild(new Option(i, i));
+    wordEnd.appendChild(new Option(i, i));
+  }
+  // Set default
+  if (!wordStart.value || !wordEnd.value) {
+    wordStart.value = 1;
+    wordEnd.value = words.length;
+  }
 
   const style = document.createElement("style");
   style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
@@ -289,64 +292,37 @@ wordEnd.value = words.length;
   await document.fonts.load(`1em ${fontName}`);
   const line = document.createElement("div");
 
+  const start = +wordStart.value - 1;
+  const end = +wordEnd.value;
+  words.slice(start, end).forEach(word => {
+    const span = document.createElement("span");
+    span.className = "word";
+    span.innerText = word.arabic;
+    line.appendChild(span);
+    line.appendChild(document.createTextNode(" "));
+  });
+
+  div.appendChild(line);
+
+  // Terjemahan per kata
   const wordTransIdValue = wordTranslationId.value;
   let wordTranslations = [];
   if (wordTransIdValue !== "0") {
     try {
       const langCode = translationLanguageMap[wordTransIdValue] || "en";
-    try {
       const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTransIdValue}`);
       const j = await r.json();
       const wordsData = j.verse.words;
-      wordTranslations = wordsData.map(w => {
-      // Hanya ambil dari w.translation.text jika ada dan jenis kata adalah 'word'
-      if (w.char_type_name === "word" && w.translation?.text) return w.translation.text;
-      return "";
-    });
-
-
-    } catch (e) {
-      console.error("Gagal ambil terjemah perkata:", e);
-    }
-
+      wordTranslations = wordsData.map(w => (w.char_type_name === "word" && w.translation?.text) ? w.translation.text : "");
     } catch (e) {
       console.error("Gagal ambil terjemah perkata:", e);
     }
   }
-
-  const start = +wordStart.value - 1; // array index mulai dari 0
-const end = +wordEnd.value;        // slice() exclusive
-
-words.slice(start, end).forEach(word => {
-  const span = document.createElement("span");
-  span.className = "word";
-  span.innerText = word.arabic;
-  line.appendChild(span);
-  line.appendChild(document.createTextNode(" "));
-});
-
-  wordStart.addEventListener("change", loadAyat);
-  wordEnd.addEventListener("change", loadAyat);
-  div.appendChild(line);
-
-  wordStart.addEventListener("change", () => {
-  if (+wordStart.value > +wordEnd.value) {
-    wordEnd.value = wordStart.value;
-  }
-  loadAyat();
-});
-wordEnd.addEventListener("change", () => {
-  if (+wordEnd.value < +wordStart.value) {
-    wordStart.value = wordEnd.value;
-  }
-  loadAyat();
-});
-
 
   if (wordTransIdValue !== "0" && wordTranslations.length && !translationSelect.value) {
     const perKataDiv = document.createElement("div");
     perKataDiv.className = "translation";
-    perKataDiv.textContent = wordTranslations.slice(0, wc || undefined).join(" ");
+    perKataDiv.textContent = wordTranslations.slice(start, end).join(" ");
     div.appendChild(perKataDiv);
   } else if (translationSelect.value) {
     try {
