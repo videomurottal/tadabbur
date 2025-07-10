@@ -76,7 +76,7 @@
     <select id="wordStart"></select>
   </label>
   <label>Sampai kata ke-
-    <select id="wordEnd" disabled></select>
+    <select id="wordEnd"></select>
   </label>
   <label>Terjemah Lengkap
     <select id="translationSelect">
@@ -166,8 +166,7 @@
 const translationLanguageMap = {
   "20": "en", "33": "id"
 };
-
-  const surahList = {
+const surahList = {
   1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
   5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
   9:["At-Tawbah"], 10:["Yūnus"], 11:["Hūd"], 12:["Yūsuf"], 13:["Ar-Raʿd"],
@@ -219,14 +218,8 @@ for (let i in surahList) {
 
 translationSelect.addEventListener("change", () => {
   const hasFullTranslation = translationSelect.value !== "";
-  wordTranslationId.disabled = hasFullTranslation;
   wordStart.disabled = hasFullTranslation;
-  wordEnd.disabled = hasFullTranslation || wordEnd.options.length === 0;
-  loadAyat();
-});
-
-wordTranslationId.addEventListener("change", () => {
-  translationSelect.disabled = wordTranslationId.value !== "";
+  wordEnd.disabled = hasFullTranslation;
   loadAyat();
 });
 
@@ -239,7 +232,6 @@ wordStart.addEventListener("change", () => {
   for (let i = startVal; i <= words.length; i++) {
     wordEnd.appendChild(new Option(i, i));
   }
-  wordEnd.disabled = false;
   wordEnd.value = startVal;
   loadAyat();
 });
@@ -276,16 +268,15 @@ async function loadAyat() {
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
   words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
-  // Set dropdown "Dari kata ke-" & default
+  // Set dropdown "Dari kata ke-" & "Sampai kata ke-"
   wordStart.innerHTML = "";
+  wordEnd.innerHTML = "";
   for (let i = 1; i <= words.length; i++) {
     wordStart.appendChild(new Option(i, i));
+    wordEnd.appendChild(new Option(i, i));
   }
   wordStart.value = 1;
-
-  // Set dropdown "Sampai kata ke-" default disable
-  wordEnd.innerHTML = "";
-  wordEnd.disabled = true;
+  wordEnd.value = 1;
 
   const style = document.createElement("style");
   style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
