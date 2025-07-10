@@ -149,7 +149,7 @@
   </label>
   <label>Terjemah Per Kata
     <select id="wordTranslationId">
-      <option value="33">Indonesian – Islamic Affairs Ministry</option>
+      <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
       <option value="20">English – Saheeh International</option>
     </select>
   </label>
@@ -167,7 +167,7 @@ const translationLanguageMap = {
   "20": "en", "33": "id"
 };
 
-const surahList = {
+  const surahList = {
   1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
   5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
   9:["At-Tawbah"], 10:["Yūnus"], 11:["Hūd"], 12:["Yūsuf"], 13:["Ar-Raʿd"],
@@ -205,43 +205,43 @@ const wordEnd = document.getElementById("wordEnd");
 const translationSelect = document.getElementById("translationSelect");
 const wordTranslationId = document.getElementById("wordTranslationId");
 let currentVersion = 'v1';
-let words = []; // Global untuk akses kata per ayat
+let words = []; // Global
 
 function setVersion(v) {
   currentVersion = v;
   loadAyat();
 }
 
-// Isi dropdown Surah
 for (let i in surahList) {
   const [name] = surahList[i];
   surahSelect.appendChild(new Option(`${i}. ${name}`, i));
 }
 
 translationSelect.addEventListener("change", () => {
-  wordTranslationId.value = "0";
+  const hasFullTranslation = translationSelect.value !== "";
+  wordTranslationId.disabled = hasFullTranslation;
+  wordStart.disabled = hasFullTranslation;
+  wordEnd.disabled = hasFullTranslation || wordEnd.options.length === 0;
   loadAyat();
 });
+
 wordTranslationId.addEventListener("change", () => {
-  translationSelect.value = "";
+  translationSelect.disabled = wordTranslationId.value !== "";
   loadAyat();
 });
+
 surahSelect.addEventListener("change", updateAyahDropdown);
 ayahSelect.addEventListener("change", loadAyat);
 
-// Logika untuk Dari kata → Sampai kata
 wordStart.addEventListener("change", () => {
   const startVal = +wordStart.value;
   wordEnd.innerHTML = "";
-
-  // Isi ulang dropdown Sampai kata mulai dari startVal
   for (let i = startVal; i <= words.length; i++) {
     wordEnd.appendChild(new Option(i, i));
   }
-
-  wordEnd.disabled = false;    // Enable dropdown
-  wordEnd.value = startVal;    // Default ke startVal
-  loadAyat();                  // Refresh ayat dengan range baru
+  wordEnd.disabled = false;
+  wordEnd.value = startVal;
+  loadAyat();
 });
 wordEnd.addEventListener("change", loadAyat);
 
@@ -276,14 +276,14 @@ async function loadAyat() {
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
   words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
-  // Isi dropdown "Dari kata ke-"
+  // Set dropdown "Dari kata ke-" & default
   wordStart.innerHTML = "";
   for (let i = 1; i <= words.length; i++) {
     wordStart.appendChild(new Option(i, i));
   }
   wordStart.value = 1;
 
-  // Kosongkan & disable "Sampai kata ke-" sampai "Dari kata" dipilih
+  // Set dropdown "Sampai kata ke-" default disable
   wordEnd.innerHTML = "";
   wordEnd.disabled = true;
 
@@ -298,9 +298,8 @@ async function loadAyat() {
 
   await document.fonts.load(`1em ${fontName}`);
 
-  // Tentukan range kata
   const startIdx = (+wordStart.value || 1) - 1;
-  const endIdx = (+wordEnd.value || words.length);
+  const endIdx = (+wordEnd.value || startIdx + 1);
 
   const line = document.createElement("div");
   words.slice(startIdx, endIdx).forEach(word => {
@@ -312,7 +311,6 @@ async function loadAyat() {
   });
   div.appendChild(line);
 
-  // Tampilkan terjemahan jika ada
   if (translationSelect.value) {
     try {
       const r = await fetch(`https://quranenc.com/api/v1/translation/aya/${translationSelect.value}/${s}/${a}`);
@@ -326,12 +324,28 @@ async function loadAyat() {
     } catch (e) {
       console.error("Gagal ambil terjemahan:", e);
     }
+  } else if (wordTranslationId.value) {
+    const langCode = translationLanguageMap[wordTranslationId.value];
+    try {
+      const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTranslationId.value}`);
+      const j = await r.json();
+      const wordsData = j.verse.words;
+      const wordTranslations = wordsData.map(w => w.translation?.text || "").slice(startIdx, endIdx);
+
+      const perKataDiv = document.createElement("div");
+      perKataDiv.className = "translation";
+      perKataDiv.textContent = wordTranslations.join(" ");
+      div.appendChild(perKataDiv);
+    } catch (e) {
+      console.error("Gagal ambil terjemah perkata:", e);
+    }
   }
 
   div.style.display = "block";
   requestAnimationFrame(() => div.style.opacity = "1");
 }
 
+// Default: Surah 1, Ayat 1
 surahSelect.value = 1;
 updateAyahDropdown();
 </script>
