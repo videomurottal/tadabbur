@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Mushaf Otomatis</title>
+  <title>Mushaf Ayat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -25,21 +25,13 @@
       align-items: flex-end;
     }
 
-    .controls label {
-      display: flex;
-      flex-direction: column;
+    label {
       font-size: 0.9em;
     }
 
-    select, input {
+    select {
       font-size: 1em;
-      padding: 0.3em;
-    }
-
-    button {
-      font-size: 1em;
-      padding: 0.5em 1.2em;
-      cursor: pointer;
+      padding: 0.5em;
     }
 
     .page-container {
@@ -71,7 +63,6 @@
       position: absolute;
       bottom: -2.4em;
       font-size: 0.45em;
-      font-family: sans-serif;
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -93,154 +84,135 @@
 </head>
 <body>
 
-<h2 id="title">📖 Al-Qur'an Dinamis</h2>
+<h2>📖 Al-Qur'an Dinamis</h2>
 
 <div class="controls">
-  <label>Surah Awal
-    <select id="fromSurah" onchange="updateAyahInput(this, 'fromAyah')"></select>
+  <label>Surah
+    <select id="surahSelect"></select>
   </label>
-  <label>Ayat Awal
-    <input id="fromAyah" type="number" min="1" value="1">
+  <label>Ayat
+    <select id="ayahSelect"></select>
   </label>
-  <label>Surah Akhir
-    <select id="toSurah" onchange="updateAyahInput(this, 'toAyah')"></select>
+  <label>Jumlah Kata
+    <select id="wordCount">
+      <option value="0">Semua</option>
+    </select>
   </label>
-  <label>Ayat Akhir
-    <input id="toAyah" type="number" min="1" value="7">
-  </label>
-  <button onclick="renderAyat()">📥 Tampilkan Ayat</button>
 </div>
 
 <div id="pages"></div>
 
 <script>
 const surahList = {
-  1:["Al-Fātiḥah",7], 2:["Al-Baqarah",286], 3:["Āl ʿImrān",200], 4:["An-Nisāʾ",176], 5:["Al-Māʾidah",120],
-  6:["Al-Anʿām",165], 7:["Al-Aʿrāf",206], 8:["Al-Anfāl",75], 9:["At-Tawbah",129], 10:["Yūnus",109],
-  11:["Hūd",123], 12:["Yūsuf",111], 13:["Ar-Raʿd",43], 14:["Ibrāhīm",52], 15:["Al-Ḥijr",99],
-  16:["An-Naḥl",128], 17:["Al-Isrāʾ",111], 18:["Al-Kahf",110], 19:["Maryam",98], 20:["Ṭā-Hā",135],
-  21:["Al-Anbiyāʾ",112], 22:["Al-Ḥajj",78], 23:["Al-Muʾminūn",118], 24:["An-Nūr",64], 25:["Al-Furqān",77],
-  26:["Ash-Shuʿarāʾ",227], 27:["An-Naml",93], 28:["Al-Qaṣaṣ",88], 29:["Al-ʿAnkabūt",69], 30:["Ar-Rūm",60],
-  31:["Luqmān",34], 32:["As-Sajdah",30], 33:["Al-Aḥzāb",73], 34:["Sabaʾ",54], 35:["Fāṭir",45],
-  36:["Yā-Sīn",83], 37:["As-Ṣāffāt",182], 38:["Ṣād",88], 39:["Az-Zumar",75], 40:["Ghāfir",85],
-  41:["Fuṣṣilat",54], 42:["Ash-Shūrā",53], 43:["Az-Zukhruf",89], 44:["Ad-Dukhān",59], 45:["Al-Jāthiyah",37],
-  46:["Al-Aḥqāf",35], 47:["Muḥammad",38], 48:["Al-Fatḥ",29], 49:["Al-Ḥujurāt",18], 50:["Qāf",45],
-  51:["Adh-Dhāriyāt",60], 52:["Aṭ-Ṭūr",49], 53:["An-Najm",62], 54:["Al-Qamar",55], 55:["Ar-Raḥmān",78],
-  56:["Al-Wāqiʿah",96], 57:["Al-Ḥadīd",29], 58:["Al-Mujādilah",22], 59:["Al-Ḥashr",24], 60:["Al-Mumtaḥanah",13],
-  61:["Aṣ-Ṣaff",14], 62:["Al-Jumuʿah",11], 63:["Al-Munāfiqūn",11], 64:["At-Taghābun",18],
-  65:["Aṭ-Ṭalāq",12], 66:["At-Taḥrīm",12], 67:["Al-Mulk",30], 68:["Al-Qalam",52], 69:["Al-Ḥāqqah",52],
-  70:["Al-Maʿārij",44], 71:["Nūḥ",28], 72:["Al-Jinn",28], 73:["Al-Muzzammil",20], 74:["Al-Muddaththir",56],
-  75:["Al-Qiyāmah",40], 76:["Al-Insān",31], 77:["Al-Mursalāt",50], 78:["An-Nabaʾ",40], 79:["An-Nāziʿāt",46],
-  80:["ʿAbasa",42], 81:["At-Takwīr",29], 82:["Al-Infiṭār",19], 83:["Al-Muṭaffifīn",36], 84:["Al-Inshiqāq",25],
-  85:["Al-Burūj",22], 86:["Aṭ-Ṭāriq",17], 87:["Al-Aʿlā",19], 88:["Al-Ghāshiyah",26], 89:["Al-Fajr",30],
-  90:["Al-Balad",20], 91:["Ash-Shams",15], 92:["Al-Layl",21], 93:["Aḍ-Ḍuḥā",11], 94:["Ash-Sharḥ",8],
-  95:["At-Tīn",8], 96:["Al-ʿAlaq",19], 97:["Al-Qadr",5], 98:["Al-Bayyinah",8], 99:["Az-Zalzalah",8],
-  100:["Al-ʿĀdiyāt",11], 101:["Al-Qāriʿah",11], 102:["At-Takāthur",8], 103:["Al-ʿAṣr",3],
-  104:["Al-Humazah",9], 105:["Al-Fīl",5], 106:["Quraysh",4], 107:["Al-Māʿūn",7], 108:["Al-Kawthar",3],
-  109:["Al-Kāfirūn",6], 110:["An-Naṣr",3], 111:["Al-Masad",5], 112:["Al-Ikhlāṣ",4], 113:["Al-Falaq",5],
-  114:["An-Nās",6]
+  1:["Al-Fātiḥah",7], 2:["Al-Baqarah",286], 3:["Āl ʿImrān",200], 4:["An-Nisāʾ",176],
+  5:["Al-Māʾidah",120], 6:["Al-Anʿām",165], 7:["Al-Aʿrāf",206], 8:["Al-Anfāl",75],
+  9:["At-Tawbah",129], 10:["Yūnus",109], 11:["Hūd",123], 12:["Yūsuf",111], 13:["Ar-Raʿd",43],
+  14:["Ibrāhīm",52], 15:["Al-Ḥijr",99], 16:["An-Naḥl",128], 17:["Al-Isrāʾ",111],
+  18:["Al-Kahf",110], 19:["Maryam",98], 20:["Ṭā-Hā",135], 21:["Al-Anbiyāʾ",112],
+  22:["Al-Ḥajj",78], 23:["Al-Muʾminūn",118], 24:["An-Nūr",64], 25:["Al-Furqān",77],
+  26:["Ash-Shuʿarāʾ",227], 27:["An-Naml",93], 28:["Al-Qaṣaṣ",88], 29:["Al-ʿAnkabūt",69],
+  30:["Ar-Rūm",60], 31:["Luqmān",34], 32:["As-Sajdah",30], 33:["Al-Aḥzāb",73],
+  34:["Sabaʾ",54], 35:["Fāṭir",45], 36:["Yā-Sīn",83], 37:["As-Ṣāffāt",182],
+  38:["Ṣād",88], 39:["Az-Zumar",75], 40:["Ghāfir",85], 41:["Fuṣṣilat",54], 42:["Ash-Shūrā",53],
+  43:["Az-Zukhruf",89], 44:["Ad-Dukhān",59], 45:["Al-Jāthiyah",37], 46:["Al-Aḥqāf",35],
+  47:["Muḥammad",38], 48:["Al-Fatḥ",29], 49:["Al-Ḥujurāt",18], 50:["Qāf",45],
+  51:["Adh-Dhāriyāt",60], 52:["Aṭ-Ṭūr",49], 53:["An-Najm",62], 54:["Al-Qamar",55],
+  55:["Ar-Raḥmān",78], 56:["Al-Wāqiʿah",96], 57:["Al-Ḥadīd",29], 58:["Al-Mujādilah",22],
+  59:["Al-Ḥashr",24], 60:["Al-Mumtaḥanah",13], 61:["Aṣ-Ṣaff",14], 62:["Al-Jumuʿah",11],
+  63:["Al-Munāfiqūn",11], 64:["At-Taghābun",18], 65:["Aṭ-Ṭalāq",12], 66:["At-Taḥrīm",12],
+  67:["Al-Mulk",30], 68:["Al-Qalam",52], 69:["Al-Ḥāqqah",52], 70:["Al-Maʿārij",44],
+  71:["Nūḥ",28], 72:["Al-Jinn",28], 73:["Al-Muzzammil",20], 74:["Al-Muddaththir",56],
+  75:["Al-Qiyāmah",40], 76:["Al-Insān",31], 77:["Al-Mursalāt",50], 78:["An-Nabaʾ",40],
+  79:["An-Nāziʿāt",46], 80:["ʿAbasa",42], 81:["At-Takwīr",29], 82:["Al-Infiṭār",19],
+  83:["Al-Muṭaffifīn",36], 84:["Al-Inshiqāq",25], 85:["Al-Burūj",22], 86:["Aṭ-Ṭāriq",17],
+  87:["Al-Aʿlā",19], 88:["Al-Ghāshiyah",26], 89:["Al-Fajr",30], 90:["Al-Balad",20],
+  91:["Ash-Shams",15], 92:["Al-Layl",21], 93:["Aḍ-Ḍuḥā",11], 94:["Ash-Sharḥ",8],
+  95:["At-Tīn",8], 96:["Al-ʿAlaq",19], 97:["Al-Qadr",5], 98:["Al-Bayyinah",8],
+  99:["Az-Zalzalah",8], 100:["Al-ʿĀdiyāt",11], 101:["Al-Qāriʿah",11], 102:["At-Takāthur",8],
+  103:["Al-ʿAṣr",3], 104:["Al-Humazah",9], 105:["Al-Fīl",5], 106:["Quraysh",4],
+  107:["Al-Māʿūn",7], 108:["Al-Kawthar",3], 109:["Al-Kāfirūn",6], 110:["An-Naṣr",3],
+  111:["Al-Masad",5], 112:["Al-Ikhlāṣ",4], 113:["Al-Falaq",5], 114:["An-Nās",6]
 };
 
-function populateDropdowns() {
-  const from = document.getElementById("fromSurah");
-  const to = document.getElementById("toSurah");
-  for (let i = 1; i <= 114; i++) {
-    const [name, jml] = surahList[i];
-    const opt = new Option(`${i}. ${name} (${jml})`, i);
-    opt.dataset.jml = jml;
-    from.appendChild(opt.cloneNode(true));
-    to.appendChild(opt.cloneNode(true));
+const surahSelect = document.getElementById("surahSelect");
+const ayahSelect = document.getElementById("ayahSelect");
+const wordCount = document.getElementById("wordCount");
+
+for (let i = 1; i <= 114; i++) {
+  const [name, count] = surahList[i];
+  const opt = new Option(`${i}. ${name} (${count})`, i);
+  opt.dataset.count = count;
+  surahSelect.appendChild(opt);
+}
+for (let i = 1; i <= 129; i++) {
+  wordCount.appendChild(new Option(i, i));
+}
+surahSelect.addEventListener("change", updateAyahDropdown);
+ayahSelect.addEventListener("change", loadAyat);
+wordCount.addEventListener("change", loadAyat);
+
+function updateAyahDropdown() {
+  const max = surahSelect.options[surahSelect.selectedIndex].dataset.count;
+  ayahSelect.innerHTML = "";
+  for (let i = 1; i <= max; i++) {
+    ayahSelect.appendChild(new Option(i, i));
   }
-  from.value = 1;
-  to.value = 2;
+  ayahSelect.value = 1;
+  loadAyat();
 }
-populateDropdowns();
+async function loadAyat() {
+  const s = surahSelect.value;
+  const a = ayahSelect.value;
+  const wc = +wordCount.value;
+  const key = `${s}:${a}`;
+  const container = document.getElementById("pages");
+  container.innerHTML = "";
 
-function updateAyahInput(sel, inputId) {
-  const jml = sel.options[sel.selectedIndex].dataset.jml;
-  const input = document.getElementById(inputId);
-  input.max = jml;
-  if (input.value > jml) input.value = jml;
-}
+  const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
+  const page = pageMap[key];
+  const fontName = `QCF_P${String(page).padStart(3, '0')}`;
+  const fontUrl = `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`;
 
-function generateAyahKeys(fromS, fromA, toS, toA) {
-  const keys = [];
-  for (let s = fromS; s <= toS; s++) {
-    const start = s == fromS ? fromA : 1;
-    const end = s == toS ? toA : surahList[s][1];
-    for (let i = start; i <= end; i++) {
-      keys.push(`${s}:${i}`);
-    }
-  }
-  return keys;
-}
+  const style = document.createElement("style");
+  style.textContent = `@font-face {
+    font-family: '${fontName}';
+    src: url('${fontUrl}') format('truetype');
+  }`;
+  document.head.appendChild(style);
 
-async function renderAyat() {
-  document.getElementById("pages").innerHTML = "";
+  const div = document.createElement("div");
+  div.className = "page-container";
+  div.style.fontFamily = fontName;
+  container.appendChild(div);
 
-  const fromSurah = +document.getElementById("fromSurah").value;
-  const fromAyah = +document.getElementById("fromAyah").value;
-  const toSurah = +document.getElementById("toSurah").value;
-  const toAyah = +document.getElementById("toAyah").value;
+  await document.fonts.load(`1em ${fontName}`);
+  const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`).then(r => r.json());
+  const line = document.createElement("div");
 
-  const ayahKeys = generateAyahKeys(fromSurah, fromAyah, toSurah, toAyah);
-
-  const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json").then(r => r.json());
-
-  const pages = {};
-  ayahKeys.forEach(key => {
-    const page = pageMap[key];
-    if (!pages[page]) pages[page] = [];
-    pages[page].push(key);
+  data.verse.words.slice(0, wc || undefined).forEach(word => {
+    const span = document.createElement("span");
+    span.className = "word";
+    span.innerText = word.code_v1 || word.text;
+    const trans = document.createElement("div");
+    trans.className = "translation";
+    trans.innerText = word.translation?.text || "-";
+    span.appendChild(trans);
+    span.onclick = () => {
+      document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+      span.classList.add("active");
+      setTimeout(() => span.classList.remove("active"), 5000);
+    };
+    line.appendChild(span);
+    line.appendChild(document.createTextNode(" "));
   });
 
-  for (const [page, keys] of Object.entries(pages)) {
-    const fontName = `QCF_P${String(page).padStart(3, '0')}`;
-    const fontUrl = `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`;
-
-    const style = document.createElement("style");
-    style.textContent = `@font-face {
-      font-family: '${fontName}';
-      src: url('${fontUrl}') format('truetype');
-    }`;
-    document.head.appendChild(style);
-
-    const container = document.createElement("div");
-    container.className = "page-container";
-    container.style.fontFamily = fontName;
-    document.getElementById("pages").appendChild(container);
-
-    await document.fonts.load(`1em ${fontName}`);
-
-    const results = await Promise.all(keys.map(k =>
-      fetch(`https://api.quran.com/api/v4/verses/by_key/${k}?words=true&language=id&translations=33`)
-        .then(r => r.json())
-    ));
-
-    results.forEach(data => {
-      const line = document.createElement("div");
-      data.verse.words.forEach(word => {
-        const span = document.createElement("span");
-        span.className = "word";
-        span.innerText = word.code_v1 || word.text;
-        const trans = document.createElement("div");
-        trans.className = "translation";
-        trans.innerText = word.translation?.text || "-";
-        span.appendChild(trans);
-        span.addEventListener("click", () => {
-          document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-          span.classList.add("active");
-          setTimeout(() => span.classList.remove("active"), 7000);
-        });
-        line.appendChild(span);
-        line.appendChild(document.createTextNode(" "));
-      });
-      container.appendChild(line);
-    });
-    container.style.display = "block";
-    requestAnimationFrame(() => container.style.opacity = "1");
-  }
+  div.appendChild(line);
+  div.style.display = "block";
+  requestAnimationFrame(() => div.style.opacity = "1");
 }
+
+surahSelect.value = 1;
+updateAyahDropdown(); // initial render
 </script>
 
 </body>
