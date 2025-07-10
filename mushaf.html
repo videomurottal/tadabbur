@@ -4,36 +4,18 @@
   <meta charset="UTF-8">
   <title>Quran WBW + Terjemah</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #fefcf8;
-      padding: 1em;
-      direction: rtl;
-      text-align: center;
-    }
-    select {
-      font-size: 1em;
-      margin: 0.5em;
-    }
-    .word {
-      display: inline-block;
-      margin: 0.25em;
-      padding: 0.5em;
-      border-bottom: 1px solid #ccc;
-    }
-    .translation {
-      display: block;
-      font-size: 0.8em;
-      color: #444;
-    }
+    body { font-family: sans-serif; background: #fefcf8; padding: 1em; direction: rtl; text-align: center; }
+    input, select, button { font-size: 1em; margin: 0.5em; padding: 0.3em; }
+    .word { display: inline-block; margin: 0.3em; padding: 0.5em; border-bottom: 1px solid #ccc; }
+    .translation { display: block; font-size: 0.8em; color: #444; }
   </style>
 </head>
 <body>
-  <h2>📖 WBW Quran Terjemah</h2>
+  <h2>📖 WBW Quran – Urdu & English</h2>
 
   <label>Surah: <input type="number" id="surah" value="1" min="1" max="114"></label>
   <label>Ayat: <input type="number" id="ayah" value="1" min="1"></label>
-  <label>WBW Bahasa:
+  <label>Bahasa WBW:
     <select id="wbwLang">
       <option value="">Tanpa Terjemah</option>
       <option value="en">English</option>
@@ -49,29 +31,37 @@
       const surah = document.getElementById('surah').value;
       const ayah = document.getElementById('ayah').value;
       const lang = document.getElementById('wbwLang').value;
-      const output = document.getElementById('output');
-      output.innerHTML = 'Loading...';
+      const out = document.getElementById('output');
+      out.innerHTML = lang ? 'Loading...' : 'Silakan pilih bahasa WBW';
+
+      if (!lang) return;
 
       try {
         const res = await fetch(`https://api.quranwbw.com/v1/words/${surah}:${ayah}?language=${lang}`);
-        const json = await res.json();
-        const words = json.verse.words;
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const j = await res.json();
+        const words = (j.verse && j.verse.words) ? j.verse.words : [];
+        out.innerHTML = '';
 
-        output.innerHTML = '';
+        if (words.length === 0) {
+          out.innerText = 'Tidak ada data WBW untuk pilihan ini.';
+          return;
+        }
+
         words.forEach(w => {
           const span = document.createElement('span');
           span.className = 'word';
-          span.innerText = w.text;
-          if (lang && w.translation) {
+          span.innerText = w.text_arab || w.text || '';
+          if (w.translation) {
             const t = document.createElement('span');
             t.className = 'translation';
             t.innerText = w.translation;
             span.appendChild(t);
           }
-          output.appendChild(span);
+          out.appendChild(span);
         });
       } catch (e) {
-        output.innerHTML = 'Gagal mengambil data.';
+        out.innerText = 'Gagal mengambil data.';
         console.error(e);
       }
     }
