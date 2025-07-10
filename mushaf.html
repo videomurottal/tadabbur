@@ -212,9 +212,15 @@ async function loadAyat() {
     try {
       const langCode = translationLanguageMap[wordTransIdValue] || "en";
     try {
-      const r = await fetch(`https://api.quran.com/api/v4/words/by_verse/${key}?language=${langCode}&translation_id=${wordTransIdValue}`);
+      const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTransIdValue}`);
       const j = await r.json();
-      wordTranslations = j.words.map(w => w.translation?.text || "");
+      const wordsData = j.verse.words;
+      wordTranslations = wordsData.map(w => {
+      // Hanya ambil dari w.translation.text jika ada dan jenis kata adalah 'word'
+      if (w.char_type_name === "word" && w.translation?.text) return w.translation.text;
+      return "";
+    });
+
 
     } catch (e) {
       console.error("Gagal ambil terjemah perkata:", e);
