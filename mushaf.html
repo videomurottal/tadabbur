@@ -166,6 +166,18 @@ const wordEnd = document.getElementById("wordEnd");
 const wordTranslationId = document.getElementById("wordTranslationId");
 let currentVersion = 'v1';
 
+// ⬇️ Tambahkan event listener ini di sini
+wordStart.addEventListener("change", () => {
+  let start = parseInt(wordStart.value);
+  wordEnd.innerHTML = "";
+  for (let i = start; i <= words.length; i++) {
+    wordEnd.appendChild(new Option(`To ${i}`, i));
+  }
+  wordEnd.value = start;
+  loadAyat();
+});
+wordEnd.addEventListener("change", loadAyat);
+  
 // Isi dropdown Surah
 for (let i in surahList) {
   const [name] = surahList[i];
