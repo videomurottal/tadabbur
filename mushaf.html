@@ -72,11 +72,8 @@
   <label>Ayat
     <select id="ayahSelect"></select>
   </label>
-  <label>Dari Kata ke-
-    <select id="wordStart"></select>
-  </label>
-  <label>Sampai Kata ke-
-    <select id="wordEnd"></select>
+  <label>Jumlah Kata
+  <select id="wordCount"><option value="0">Semua</option></select>
   </label>
   <label>Terjemah Lengkap
     <select id="translationSelect">
@@ -197,14 +194,11 @@ const surahList = {
   103:["Al-ʿAṣr"], 104:["Al-Humazah"], 105:["Al-Fīl"], 106:["Quraysh"],
   107:["Al-Māʿūn"], 108:["Al-Kawthar"], 109:["Al-Kāfirūn"], 110:["An-Naṣr"],
   111:["Al-Masad"], 112:["Al-Ikhlāṣ"], 113:["Al-Falaq"], 114:["An-Nās"]
-};  
-  
-  
-const translationLanguageMap = { "20": "en", "33": "id" };
+};
+
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
-const wordStart = document.getElementById("wordStart");
-const wordEnd = document.getElementById("wordEnd");
+const wordCount = document.getElementById("wordCount");
 const translationSelect = document.getElementById("translationSelect");
 const wordTranslationId = document.getElementById("wordTranslationId");
 let currentVersion = 'v1';
@@ -231,6 +225,7 @@ wordTranslationId.addEventListener("change", () => {
 
 surahSelect.addEventListener("change", updateAyahDropdown);
 ayahSelect.addEventListener("change", loadAyat);
+wordCount.addEventListener("change", loadAyat);
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
@@ -248,6 +243,7 @@ async function updateAyahDropdown() {
 async function loadAyat() {
   const s = surahSelect.value;
   const a = ayahSelect.value;
+  const wc = +wordCount.value;
   const key = `${s}:${a}`;
   const container = document.getElementById("pages");
   container.innerHTML = "";
@@ -263,27 +259,12 @@ async function loadAyat() {
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
   const words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
-  // Update wordStart and wordEnd dropdowns
-  wordStart.innerHTML = "";
-  wordEnd.innerHTML = "";
+  wordCount.innerHTML = "";
+  wordCount.appendChild(new Option("Semua", 0));
   for (let i = 1; i <= words.length; i++) {
-    wordStart.appendChild(new Option(i, i));
+    wordCount.appendChild(new Option(i, i));
   }
-  wordStart.value = 1;
-
-  wordStart.addEventListener("change", () => {
-    const start = +wordStart.value;
-    wordEnd.innerHTML = "";
-    for (let i = start; i <= words.length; i++) {
-      wordEnd.appendChild(new Option(i, i));
-    }
-    wordEnd.value = words.length;
-    loadAyat();
-  });
-  for (let i = 1; i <= words.length; i++) {
-    wordEnd.appendChild(new Option(i, i));
-  }
-  wordEnd.value = words.length;
+  wordCount.value = wc <= words.length ? wc : 0;
 
   const style = document.createElement("style");
   style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
@@ -302,19 +283,27 @@ async function loadAyat() {
   if (wordTransIdValue !== "0") {
     try {
       const langCode = translationLanguageMap[wordTransIdValue] || "en";
+    try {
       const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTransIdValue}`);
       const j = await r.json();
       const wordsData = j.verse.words;
-      wordTranslations = wordsData.map(w => w.char_type_name === "word" && w.translation?.text ? w.translation.text : "");
+      wordTranslations = wordsData.map(w => {
+      // Hanya ambil dari w.translation.text jika ada dan jenis kata adalah 'word'
+      if (w.char_type_name === "word" && w.translation?.text) return w.translation.text;
+      return "";
+    });
+
+
+    } catch (e) {
+      console.error("Gagal ambil terjemah perkata:", e);
+    }
+
     } catch (e) {
       console.error("Gagal ambil terjemah perkata:", e);
     }
   }
 
-  const startIdx = +wordStart.value - 1;
-  const endIdx = +wordEnd.value;
-
-  words.slice(startIdx, endIdx).forEach(word => {
+  words.slice(0, wc || undefined).forEach(word => {
     const span = document.createElement("span");
     span.className = "word";
     span.innerText = word.arabic;
@@ -327,7 +316,7 @@ async function loadAyat() {
   if (wordTransIdValue !== "0" && wordTranslations.length && !translationSelect.value) {
     const perKataDiv = document.createElement("div");
     perKataDiv.className = "translation";
-    perKataDiv.textContent = wordTranslations.slice(startIdx, endIdx).join(" ");
+    perKataDiv.textContent = wordTranslations.slice(0, wc || undefined).join(" ");
     div.appendChild(perKataDiv);
   } else if (translationSelect.value) {
     try {
