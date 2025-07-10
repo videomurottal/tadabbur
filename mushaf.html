@@ -94,20 +94,15 @@
 <h2>📖 Al-Qur'an Dinamis (V1/V2 + Terjemah)</h2>
 
 <div class="controls">
-  <label>Surah
-    <select id="surahSelect"></select>
+  <label><select id="surahSelect"></select>
   </label>
-  <label>Ayat
-    <select id="ayahSelect"></select>
+  <label><select id="ayahSelect"></select>
   </label>
-  <label>Dari kata ke-
-    <select id="wordStart"></select>
+  <label><select id="wordStart"></select>
   </label>
-  <label>Sampai kata ke-
-    <select id="wordEnd"></select>
+  <label><select id="wordEnd"></select>
   </label>
-  <label>Terjemah Per Kata
-    <select id="wordTranslationId">
+  <label><select id="wordTranslationId">
       <option value="33">Indonesian – Islamic Affairs Ministry</option>
       <option value="20">English – Saheeh International</option>
     </select>
@@ -232,16 +227,16 @@ async function loadAyat() {
 
   wordStart.innerHTML = "";
   for (let i = 1; i <= words.length; i++) {
-    wordStart.appendChild(new Option(i, i));
+    wordStart.appendChild(new Option(`Word ${i}`, i));
   }
-  wordStart.value = ws;
+  wordStart.value = 1; // Default Word 1
 
   wordEnd.innerHTML = "";
   for (let i = ws; i <= words.length; i++) {
-    wordEnd.appendChild(new Option(i, i));
+    wordEnd.appendChild(new Option(`To ${i}`, i));
   }
   wordEnd.dataset.max = words.length;
-  wordEnd.value = we;
+  wordEnd.value = 5; // Default To 5
 
   const style = document.createElement("style");
   style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
