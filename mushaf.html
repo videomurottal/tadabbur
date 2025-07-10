@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Mushaf Ayat</title>
+  <title>Mushaf Dinamis V1 & V2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -29,9 +29,14 @@
       font-size: 0.9em;
     }
 
-    select {
+    select, button {
       font-size: 1em;
       padding: 0.5em;
+    }
+
+    .version-buttons {
+      margin-top: 1em;
+      text-align: center;
     }
 
     .page-container {
@@ -43,7 +48,7 @@
       opacity: 0;
       transition: opacity 0.3s ease;
       display: none;
-      word-spacing: 0.05em; /* Lebih rapat */
+      word-spacing: 0.05em;
       max-width: 700px;
     }
 
@@ -75,6 +80,11 @@
       <option value="0">Semua</option>
     </select>
   </label>
+</div>
+
+<div class="version-buttons">
+  <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
+  <button onclick="setVersion('v2')">📜 Gunakan Quran V2</button>
 </div>
 
 <div id="pages"></div>
@@ -114,6 +124,12 @@ const surahList = {
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
 const wordCount = document.getElementById("wordCount");
+let currentVersion = 'v1';
+
+function setVersion(v) {
+  currentVersion = v;
+  loadAyat();
+}
 
 for (let i = 1; i <= 114; i++) {
   const [name, count] = surahList[i];
@@ -137,6 +153,7 @@ function updateAyahDropdown() {
   ayahSelect.value = 1;
   loadAyat();
 }
+
 async function loadAyat() {
   const s = surahSelect.value;
   const a = ayahSelect.value;
@@ -145,10 +162,21 @@ async function loadAyat() {
   const container = document.getElementById("pages");
   container.innerHTML = "";
 
-  const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
-  const page = pageMap[key];
-  const fontName = `QCF_P${String(page).padStart(3, '0')}`;
-  const fontUrl = `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`;
+  let words = [], fontName = "", fontUrl = "";
+
+  if (currentVersion === "v1") {
+    const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
+    const page = pageMap[key];
+    fontName = `QCF_P${String(page).padStart(3, '0')}`;
+    fontUrl = `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`;
+    const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`).then(r => r.json());
+    words = data.verse.words.map(w => w.code_v1 || w.text);
+  } else {
+    fontName = "QCF_V2";
+    fontUrl = "https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@raw/refs/heads/main/fontsglyphvs/QCF2001.ttf";
+    const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=code_v2,v2_page`).then(r => r.json());
+    words = data.verse.words.map(w => w.code_v2 || w.text);
+  }
 
   const style = document.createElement("style");
   style.textContent = `@font-face {
@@ -163,13 +191,12 @@ async function loadAyat() {
   container.appendChild(div);
 
   await document.fonts.load(`1em ${fontName}`);
-  const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`).then(r => r.json());
   const line = document.createElement("div");
 
-  data.verse.words.slice(0, wc || undefined).forEach(word => {
+  words.slice(0, wc || undefined).forEach(word => {
     const span = document.createElement("span");
     span.className = "word";
-    span.innerText = word.code_v1 || word.text;
+    span.innerText = word;
     line.appendChild(span);
     line.appendChild(document.createTextNode(" "));
   });
@@ -180,7 +207,7 @@ async function loadAyat() {
 }
 
 surahSelect.value = 1;
-updateAyahDropdown(); // initial render
+updateAyahDropdown(); // render awal
 </script>
 
 </body>
