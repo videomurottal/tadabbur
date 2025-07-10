@@ -213,7 +213,11 @@ async function loadAyat() {
       const langCode = translationLanguageMap[wordTransIdValue] || "en";
       const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTransIdValue}`);
       const j = await r.json();
-      wordTranslations = j.verse.words.map(w => w.translation?.text || "");
+      wordTranslations = j.verse.words.map(w =>
+        w.translation?.text ||
+        (Array.isArray(w.translations) ? w.translations[0]?.text : "") ||
+        ""
+      );
     } catch (e) {
       console.error("Gagal ambil terjemah perkata:", e);
     }
