@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Mushaf Dinamis V1 & V2 + Terjemah</title>
+  <title>Mushaf Dinamis V1/V2 + Terjemah</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -40,7 +40,7 @@
       opacity: 0;
       transition: opacity 0.3s ease;
       display: none;
-      word-spacing: 0.00em;
+      word-spacing: -0.08em;
       max-width: 700px;
     }
     .word {
@@ -72,8 +72,11 @@
     <select id="ayahSelect"></select>
   </label>
   <label>Jumlah Kata
-    <select id="wordCount">
-      <option value="0">Semua</option>
+    <select id="wordCount"><option value="0">Semua</option></select>
+  </label>
+  <label>Terjemah
+    <select id="translationSelect">
+      <option value="">Tanpa Terjemah</option>
     </select>
   </label>
 </div>
@@ -120,6 +123,7 @@ const surahList = {
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
 const wordCount = document.getElementById("wordCount");
+const translationSelect = document.getElementById("translationSelect");
 let currentVersion = 'v1';
 
 function setVersion(v) {
@@ -129,20 +133,30 @@ function setVersion(v) {
 
 for (let i = 1; i <= 114; i++) {
   const [name] = surahList[i];
-  const opt = new Option(`${i}. ${name}`, i);
-  surahSelect.appendChild(opt);
+  surahSelect.appendChild(new Option(`${i}. ${name}`, i));
 }
 
 surahSelect.addEventListener("change", updateAyahDropdown);
 ayahSelect.addEventListener("change", loadAyat);
 wordCount.addEventListener("change", loadAyat);
+translationSelect.addEventListener("change", loadAyat);
+
+async function loadTranslations() {
+  const res = await fetch("https://quranenc.com/api/v1/translations/list");
+  const list = await res.json();
+  list.forEach(t => {
+    translationSelect.appendChild(
+      new Option(`${t.title} (${t.language_iso_code})`, t.key)
+    );
+  });
+}
+loadTranslations();
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
   const res = await fetch(`https://api.quran.com/api/v4/chapters/${s}`);
   const json = await res.json();
   const max = json.chapter.verses_count;
-
   ayahSelect.innerHTML = "";
   for (let i = 1; i <= max; i++) {
     ayahSelect.appendChild(new Option(i, i));
@@ -172,7 +186,7 @@ async function loadAyat() {
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
   const words = data.verse.words.map(w => w[apiField] || w.text);
 
-  // Update dropdown Jumlah Kata
+  // update dropdown jumlah kata
   wordCount.innerHTML = "";
   wordCount.appendChild(new Option("Semua", 0));
   for (let i = 1; i <= words.length; i++) {
@@ -204,6 +218,24 @@ async function loadAyat() {
   });
 
   div.appendChild(line);
+
+  // Tampilkan terjemahan jika ada
+  const tkey = translationSelect.value;
+  if (tkey) {
+    try {
+      const r = await fetch(`https://quranenc.com/api/v1/translation/aya/${tkey}/${s}/${a}`);
+      const jt = await r.json();
+      if (jt.translation) {
+        const transDiv = document.createElement("div");
+        transDiv.className = "translation";
+        transDiv.textContent = jt.translation;
+        div.appendChild(transDiv);
+      }
+    } catch (e) {
+      console.error("Gagal ambil terjemahan:", e);
+    }
+  }
+
   div.style.display = "block";
   requestAnimationFrame(() => div.style.opacity = "1");
 }
