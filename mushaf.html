@@ -221,19 +221,23 @@ async function loadAyat() {
     }
   }
 
-  words.slice(0, wc || undefined).forEach((word, i) => {
-    const span = document.createElement("span");
-    span.className = "word";
-    span.innerText = word.arabic;
-    if (wordTransId !== "0" && wordTranslations[i]) {
-      const sub = document.createElement("span");
-      sub.className = "word-translation";
-      sub.innerText = wordTranslations[i];
-      span.appendChild(sub);
-    }
-    line.appendChild(span);
-    line.appendChild(document.createTextNode(" "));
-  });
+  words.slice(0, wc || undefined).forEach((word) => {
+  const span = document.createElement("span");
+  span.className = "word";
+  span.innerText = word.arabic;
+  line.appendChild(span);
+  line.appendChild(document.createTextNode(" "));
+});
+
+div.appendChild(line);
+
+// Tambahkan terjemah perkata sebagai kalimat biasa
+if (wordTransId !== "0" && wordTranslations.length) {
+  const perKataDiv = document.createElement("div");
+  perKataDiv.className = "translation";
+  perKataDiv.textContent = wordTranslations.slice(0, wc || undefined).join(" ");
+  div.appendChild(perKataDiv);
+}
 
   div.appendChild(line);
 
