@@ -77,6 +77,22 @@
   <label>Terjemah
     <select id="translationSelect">
       <option value="">Tanpa Terjemah</option>
+      <option value="indonesian_sabiq">Indonesian – Sabiq</option>
+      <option value="indonesian_affairs">Indonesian – Affairs</option>
+      <option value="indonesian_complex">Indonesian – Complex</option>
+      <option value="english_saheeh">English – Saheeh</option>
+      <option value="english_rwwad">English – RWWAD</option>
+      <option value="urdu_junagarhi">Urdu – Junagarhi</option>
+      <option value="urdu_ahmedali">Urdu – Ahmed Ali</option>
+      <option value="french_montada">French – Montada</option>
+      <option value="spanish_garcia">Spanish – Garcia</option>
+      <option value="russian_krachkovsky">Russian – Krachkovsky</option>
+      <option value="german_bubenheim">German – Bubenheim</option>
+      <option value="turkish_diyanet">Turkish – Diyanet</option>
+      <option value="malay_basmeih">Malay – Basmeih</option>
+      <option value="chinese_majian">Chinese – Ma Jian</option>
+      <option value="persian_fooladvand">Persian – Fooladvand</option>
+      <option value="bengali_rahman">Bengali – Rahman</option>
     </select>
   </label>
 </div>
@@ -140,17 +156,6 @@ surahSelect.addEventListener("change", updateAyahDropdown);
 ayahSelect.addEventListener("change", loadAyat);
 wordCount.addEventListener("change", loadAyat);
 translationSelect.addEventListener("change", loadAyat);
-
-async function loadTranslations() {
-  const res = await fetch("https://quranenc.com/api/v1/translations/list");
-  const list = await res.json();
-  list.forEach(t => {
-    translationSelect.appendChild(
-      new Option(`${t.title} (${t.language_iso_code})`, t.key)
-    );
-  });
-}
-loadTranslations();
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
