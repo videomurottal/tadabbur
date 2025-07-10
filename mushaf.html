@@ -11,9 +11,7 @@
       font-family: sans-serif;
       direction: rtl;
     }
-
     h2 { text-align: center; }
-
     .controls {
       direction: ltr;
       max-width: 720px;
@@ -24,21 +22,15 @@
       justify-content: center;
       align-items: flex-end;
     }
-
-    label {
-      font-size: 0.9em;
-    }
-
+    label { font-size: 0.9em; }
     select, button {
       font-size: 1em;
       padding: 0.5em;
     }
-
     .version-buttons {
       margin-top: 1em;
       text-align: center;
     }
-
     .page-container {
       font-size: 2.5em;
       line-height: 1.6;
@@ -51,14 +43,11 @@
       word-spacing: 0.05em;
       max-width: 700px;
     }
-
     .word {
       display: inline-block;
-      position: relative;
       margin: 0;
       cursor: default;
     }
-
     @media (max-width: 768px) {
       .page-container { font-size: 1.5em; }
     }
@@ -66,7 +55,7 @@
 </head>
 <body>
 
-<h2>📖 Al-Qur'an Dinamis</h2>
+<h2>📖 Al-Qur'an Dinamis (V1/V2)</h2>
 
 <div class="controls">
   <label>Surah
@@ -162,21 +151,18 @@ async function loadAyat() {
   const container = document.getElementById("pages");
   container.innerHTML = "";
 
-  let words = [], fontName = "", fontUrl = "";
+  const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
+  const page = pageMap[key];
+  const fontName = currentVersion === 'v1'
+    ? `QCF_P${String(page).padStart(3, '0')}`
+    : `QCF2${String(page).padStart(3, '0')}`;
+  const fontUrl = currentVersion === "v1"
+    ? `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`
+    : `https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@refs/heads/main/fontsglyphvs/${fontName}.ttf`;
 
-  if (currentVersion === "v1") {
-    const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
-    const page = pageMap[key];
-    fontName = `QCF_P${String(page).padStart(3, '0')}`;
-    fontUrl = `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`;
-    const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`).then(r => r.json());
-    words = data.verse.words.map(w => w.code_v1 || w.text);
-  } else {
-    fontName = "QCF_V2";
-    fontUrl = "https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@raw/refs/heads/main/fontsglyphvs/QCF2001.ttf";
-    const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=code_v2,v2_page`).then(r => r.json());
-    words = data.verse.words.map(w => w.code_v2 || w.text);
-  }
+  const apiField = currentVersion === "v1" ? "code_v1" : "code_v2";
+  const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
+  const words = data.verse.words.map(w => w[apiField] || w.text);
 
   const style = document.createElement("style");
   style.textContent = `@font-face {
@@ -207,7 +193,7 @@ async function loadAyat() {
 }
 
 surahSelect.value = 1;
-updateAyahDropdown(); // render awal
+updateAyahDropdown();
 </script>
 
 </body>
