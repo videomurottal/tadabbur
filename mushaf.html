@@ -210,7 +210,7 @@ async function loadAyat() {
   let wordTranslations = [];
   if (wordTransIdValue !== "0") {
     try {
-      const langCode = translationLanguageMap[wordTransIdValue] || "en";
+      const langCode = translationLanguageMap[wordTransIdValue] || "ku";
     try {
       const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTransIdValue}`);
       const j = await r.json();
