@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Mushaf Dinamis V1 & V2</title>
+  <title>Mushaf Dinamis V1 & V2 + Terjemah</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -48,6 +48,13 @@
       margin: 0;
       cursor: default;
     }
+    .translation {
+      font-family: sans-serif;
+      font-size: 1em;
+      color: #333;
+      direction: ltr;
+      margin-top: 1em;
+    }
     @media (max-width: 768px) {
       .page-container { font-size: 1.5em; }
     }
@@ -55,7 +62,7 @@
 </head>
 <body>
 
-<h2>📖 Al-Qur'an Dinamis (V1/V2)</h2>
+<h2>📖 Al-Qur'an Dinamis (V1/V2 + Terjemah)</h2>
 
 <div class="controls">
   <label>Surah
@@ -67,6 +74,12 @@
   <label>Jumlah Kata
     <select id="wordCount">
       <option value="0">Semua</option>
+    </select>
+  </label>
+  <label>Terjemah
+    <select id="translationSelect">
+      <option value="">Tanpa Terjemah</option>
+      <option value="https://raw.githubusercontent.com/tafsirnetlifyapp/quran/refs/heads/main/terjemah/indonesian_complex_v1.0.1-xml.1">Bahasa Indonesia</option>
     </select>
   </label>
 </div>
@@ -113,6 +126,7 @@ const surahList = {
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
 const wordCount = document.getElementById("wordCount");
+const translationSelect = document.getElementById("translationSelect");
 let currentVersion = 'v1';
 
 function setVersion(v) {
@@ -132,6 +146,7 @@ for (let i = 1; i <= 129; i++) {
 surahSelect.addEventListener("change", updateAyahDropdown);
 ayahSelect.addEventListener("change", loadAyat);
 wordCount.addEventListener("change", loadAyat);
+translationSelect.addEventListener("change", loadAyat);
 
 function updateAyahDropdown() {
   const max = surahSelect.options[surahSelect.selectedIndex].dataset.count;
@@ -190,6 +205,28 @@ async function loadAyat() {
   div.appendChild(line);
   div.style.display = "block";
   requestAnimationFrame(() => div.style.opacity = "1");
+
+  // --- Terjemah dari XML ---
+  const translationUrl = translationSelect.value;
+  if (translationUrl) {
+    try {
+      const xmlText = await fetch(translationUrl).then(r => r.text());
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+      const surahNode = xmlDoc.querySelector(`sura[number="${s}"]`);
+      const ayahNode = surahNode?.querySelector(`aya[number="${a}"] > translation`);
+      const translationText = ayahNode?.textContent?.trim();
+
+      if (translationText) {
+        const translationDiv = document.createElement("div");
+        translationDiv.className = "translation";
+        translationDiv.innerText = translationText;
+        container.appendChild(translationDiv);
+      }
+    } catch (err) {
+      console.error("Gagal memuat terjemahan:", err);
+    }
+  }
 }
 
 surahSelect.value = 1;
