@@ -90,6 +90,7 @@
       <option value="0">Tanpa Terjemah Per Kata</option>
       <option value="33">Indonesian – Islamic Affairs Ministry</option>
       <option value="20">English – Saheeh International</option>
+      <option value="81">Kurdish – Burhan Muhammad-Amin</option>
     </select>
   </label>
 </div>
@@ -102,6 +103,21 @@
 <div id="pages"></div>
 
 <script>
+
+const translationLanguageMap = {
+  "19": "en", "20": "en", "22": "en", "23": "az", "25": "bs",
+  "26": "cs", "27": "de", "29": "fa", "30": "fi", "31": "fr",
+  "32": "ha", "33": "id", "35": "ja", "36": "ko", "37": "ml",
+  "38": "mr", "39": "ms", "41": "no", "42": "pl", "43": "pt",
+  "44": "ro", "45": "ru", "46": "so", "47": "sq", "48": "sv",
+  "49": "sw", "50": "ta", "51": "th", "52": "tr", "53": "tt",
+  "54": "ur", "55": "uz", "56": "zh", "57": "en", "74": "tg",
+  "75": "az", "76": "ug", "77": "tr", "78": "ru", "79": "ru",
+  "80": "ml", "81": "ku", "83": "es", "84": "en", "85": "en",
+  "86": "dv", "87": "am", "88": "sq", "89": "sq", "95": "en",
+  "97": "ur"
+};
+  
 const surahList = {
   1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
   5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
@@ -194,7 +210,8 @@ async function loadAyat() {
   let wordTranslations = [];
   if (wordTransIdValue !== "0") {
     try {
-      const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=${wordTransIdValue}`);
+      const langCode = translationLanguageMap[wordTransIdValue] || "en";
+      const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTransIdValue}`);
       const j = await r.json();
       wordTranslations = j.verse.words.map(w => w.translation?.text || "");
     } catch (e) {
