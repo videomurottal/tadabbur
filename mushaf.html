@@ -55,12 +55,6 @@
       direction: ltr;
       margin-top: 1em;
     }
-    .footnotes {
-      font-size: 0.85em;
-      color: #666;
-      margin-top: 0.5em;
-      direction: ltr;
-    }
     @media (max-width: 768px) {
       .page-container { font-size: 1.5em; }
     }
@@ -291,13 +285,7 @@ async function loadAyat() {
         transDiv.textContent = jt.result.translation;
         div.appendChild(transDiv);
       }
-      if (jt.result && jt.result.footnotes) {
-        const footnoteDiv = document.createElement("div");
-        footnoteDiv.className = "footnotes";
-        footnoteDiv.textContent = jt.result.footnotes;
-        div.appendChild(footnoteDiv);
-      }
-    } catch (e) {
+      catch (e) {
       console.error("Gagal ambil terjemahan:", e);
     }
   }
