@@ -59,6 +59,24 @@
     @media (max-width: 768px) {
       .page-container { font-size: 1.5em; }
     }
+
+    #loader {
+  display: none; /* sembunyikan awalnya */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+#loader img {
+  width: 60px;
+  height: 60px;
+}
   </style>
 </head>
 <body>
@@ -256,5 +274,11 @@ async function loadAyat() {
 surahSelect.value = 1;
 updateAyahDropdown();
 </script>
+
+<div id="loader">
+  <img src="https://raw.githubusercontent.com/tafsirnetlifyapp/quran/refs/heads/main/Loading-bar.gif">
+</div>
+
+  
 </body>
 </html>
