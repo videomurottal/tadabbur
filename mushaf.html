@@ -86,19 +86,68 @@
       <option value="indonesian_sabiq">Indonesian – Sabiq</option>
       <option value="indonesian_affairs">Indonesian – Affairs</option>
       <option value="indonesian_complex">Indonesian – Complex</option>
-      <option value="english_saheeh">English – Saheeh</option>
       <option value="english_rwwad">English – RWWAD</option>
-      <option value="urdu_junagarhi">Urdu – Junagarhi</option>
-      <option value="urdu_ahmedali">Urdu – Ahmed Ali</option>
+      <option value="english_saheeh">English – Saheeh</option>
+      <option value="english_hilali_khan">English – Hilali Khan</option>
+      <option value="french_rashid">French – Rashid</option>
       <option value="french_montada">French – Montada</option>
+      <option value="spanish_montada_eu">Spanish – Montada (EU)</option>
       <option value="spanish_garcia">Spanish – Garcia</option>
-      <option value="russian_krachkovsky">Russian – Krachkovsky</option>
+      <option value="spanish_montada_latin">Spanish – Montada (Latin)</option>
+      <option value="portuguese_nasr">Portuguese – Nasr</option>
       <option value="german_bubenheim">German – Bubenheim</option>
-      <option value="turkish_diyanet">Turkish – Diyanet</option>
-      <option value="malay_basmeih">Malay – Basmeih</option>
-      <option value="chinese_majian">Chinese – Ma Jian</option>
-      <option value="persian_fooladvand">Persian – Fooladvand</option>
-      <option value="bengali_rahman">Bengali – Rahman</option>
+      <option value="romanian_project">Romanian – Project</option>
+      <option value="dutch_center">Dutch – Center</option>
+      <option value="turkish_rwwad">Turkish – RWWAD</option>
+      <option value="turkish_shaban">Turkish – Shaban</option>
+      <option value="turkish_shahin">Turkish – Shahin</option>
+      <option value="azeri_musayev">Azeri – Musayev</option>
+      <option value="macedonian_group">Macedonian – Group</option>
+      <option value="albanian_nahi">Albanian – Nahi</option>
+      <option value="bosnian_rwwad">Bosnian – RWWAD</option>
+      <option value="bosnian_mihanovich">Bosnian – Mihanovich</option>
+      <option value="serbian_rwwad">Serbian – RWWAD</option>
+      <option value="croatian_rwwad">Croatian – RWWAD</option>
+      <option value="lithuanian_rwwad">Lithuanian – RWWAD</option>
+      <option value="uzbek_rwwad">Uzbek – RWWAD</option>
+      <option value="uzbek_mansour">Uzbek – Mansour</option>
+      <option value="tajik_arifi">Tajik – Arifi</option>
+      <option value="kyrgyz_hakimov">Kyrgyz – Hakimov</option>
+      <option value="tagalog_rwwad">Tagalog – RWWAD</option>
+      <option value="bisayan_rwwad">Bisayan – RWWAD</option>
+      <option value="chinese_suliman">Chinese – Suliman</option>
+      <option value="chinese_makin">Chinese – Makin</option>
+      <option value="uyghur_saleh">Uyghur – Saleh</option>
+      <option value="japanese_saeedsato">Japanese – Saeed Sato</option>
+      <option value="vietnamese_rwwad">Vietnamese – RWWAD</option>
+      <option value="khmer_rwwad">Khmer – RWWAD</option>
+      <option value="persian_ih">Persian – IH</option>
+      <option value="kurdish_bamoki">Kurdish – Bamoki</option>
+      <option value="pashto_rwwad">Pashto – RWWAD</option>
+      <option value="urdu_junagarhi">Urdu – Junagarhi</option>
+      <option value="hindi_omari">Hindi – Omari</option>
+      <option value="telugu_muhammad">Telugu – Muhammad</option>
+      <option value="gujarati_omari">Gujarati – Omari</option>
+      <option value="malayalam_kunhi">Malayalam – Kunhi</option>
+      <option value="kannada_hamza">Kannada – Hamza</option>
+      <option value="assamese_rafeeq">Assamese – Rafeeq</option>
+      <option value="punjabi_arif">Punjabi – Arif</option>
+      <option value="tamil_omar">Tamil – Omar</option>
+      <option value="tamil_baqavi">Tamil – Baqavi</option>
+      <option value="sinhalese_mahir">Sinhalese – Mahir</option>
+      <option value="swahili_barawani">Swahili – Barawani</option>
+      <option value="somali_yacob">Somali – Yacob</option>
+      <option value="amharic_zain">Amharic – Zain</option>
+      <option value="yoruba_mikail">Yoruba – Mikail</option>
+      <option value="hausa_gummi">Hausa – Gummi</option>
+      <option value="oromo_ababor">Oromo – Ababor</option>
+      <option value="afar_hamza">Afar – Hamza</option>
+      <option value="ankobambara_dayyan">Ankobambara – Dayyan</option>
+      <option value="kinyarwanda_assoc">Kinyarwanda – Assoc</option>
+      <option value="ikirundi_gehiti">Kirundi – Gehiti</option>
+      <option value="moore_rwwad">Moore – RWWAD</option>
+      <option value="asante_harun">Asante – Harun</option>
+      <option value="lingala_zakaria">Lingala – Zakaria</option>
     </select>
   </label>
 </div>
@@ -170,7 +219,7 @@ async function updateAyahDropdown() {
   const max = json.chapter.verses_count;
   ayahSelect.innerHTML = "";
   for (let i = 1; i <= max; i++) {
-    ayahSelect.appendChild(new Option(i, i));
+    ayahSelect.appendChild(new Option(`Ayat ${i}`, i));
   }
   ayahSelect.value = 1;
   loadAyat();
