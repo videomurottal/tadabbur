@@ -231,18 +231,14 @@ ayahSelect.addEventListener("change", loadAyat);
 
 wordStart.addEventListener("change", () => {
   const startVal = +wordStart.value;
-  wordEnd.innerHTML = ""; // kosongkan dulu
+  wordEnd.innerHTML = "";
 
-  // Isi dropdown "Sampai kata" dengan angka lebih besar dari startVal
   for (let i = startVal; i <= words.length; i++) {
     wordEnd.appendChild(new Option(i, i));
   }
 
-  // Set default sampai kata = startVal (biar minimal 1 kata ditampilkan)
   wordEnd.value = startVal;
-
-  // Aktifkan dropdown "Sampai kata"
-  wordEnd.disabled = false;
+  wordEnd.disabled = false; // ✅ ENABLE di sini
 
   loadAyat();
 });
@@ -280,18 +276,16 @@ async function loadAyat() {
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
   const words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
-  // Isi dropdown Dari & Sampai
-  wordStart.innerHTML = "";
-  wordEnd.innerHTML = "";
-  for (let i = 1; i <= words.length; i++) {
-    wordStart.appendChild(new Option(i, i));
-    wordEnd.appendChild(new Option(i, i));
-  }
-  // Set default
-  if (!wordStart.value || !wordEnd.value) {
-    wordStart.value = 1;
-    wordEnd.value = words.length;
-  }
+  // Isi dropdown "Dari kata ke-"
+wordStart.innerHTML = "";
+for (let i = 1; i <= words.length; i++) {
+  wordStart.appendChild(new Option(i, i));
+}
+wordStart.value = 1;
+
+// Kosongkan & disable "Sampai kata ke-" sampai "Dari kata" dipilih
+wordEnd.innerHTML = "";
+wordEnd.disabled = true;
 
   const style = document.createElement("style");
   style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
