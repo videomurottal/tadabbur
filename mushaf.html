@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -78,86 +80,17 @@
   <label>Sampai kata ke-
     <select id="wordEnd"></select>
   </label>
-  <label>Terjemah Lengkap
-    <select id="translationSelect">
-      <option value="indonesian_complex">Indonesian – Complex</option>
-      <option value="indonesian_sabiq">Indonesian – Sabiq</option>
-      <option value="indonesian_affairs">Indonesian – Affairs</option>
-      <option value="english_rwwad">English – RWWAD</option>
-      <option value="english_saheeh">English – Saheeh</option>
-      <option value="english_hilali_khan">English – Hilali Khan</option>
-      <option value="french_rashid">French – Rashid</option>
-      <option value="french_montada">French – Montada</option>
-      <option value="spanish_montada_eu">Spanish – Montada (EU)</option>
-      <option value="spanish_garcia">Spanish – Garcia</option>
-      <option value="spanish_montada_latin">Spanish – Montada (Latin)</option>
-      <option value="portuguese_nasr">Portuguese – Nasr</option>
-      <option value="german_bubenheim">German – Bubenheim</option>
-      <option value="romanian_project">Romanian – Project</option>
-      <option value="dutch_center">Dutch – Center</option>
-      <option value="turkish_rwwad">Turkish – RWWAD</option>
-      <option value="turkish_shaban">Turkish – Shaban</option>
-      <option value="turkish_shahin">Turkish – Shahin</option>
-      <option value="azeri_musayev">Azeri – Musayev</option>
-      <option value="macedonian_group">Macedonian – Group</option>
-      <option value="albanian_nahi">Albanian – Nahi</option>
-      <option value="bosnian_rwwad">Bosnian – RWWAD</option>
-      <option value="bosnian_mihanovich">Bosnian – Mihanovich</option>
-      <option value="serbian_rwwad">Serbian – RWWAD</option>
-      <option value="croatian_rwwad">Croatian – RWWAD</option>
-      <option value="lithuanian_rwwad">Lithuanian – RWWAD</option>
-      <option value="uzbek_rwwad">Uzbek – RWWAD</option>
-      <option value="uzbek_mansour">Uzbek – Mansour</option>
-      <option value="tajik_arifi">Tajik – Arifi</option>
-      <option value="kyrgyz_hakimov">Kyrgyz – Hakimov</option>
-      <option value="tagalog_rwwad">Tagalog – RWWAD</option>
-      <option value="bisayan_rwwad">Bisayan – RWWAD</option>
-      <option value="chinese_suliman">Chinese – Suliman</option>
-      <option value="chinese_makin">Chinese – Makin</option>
-      <option value="uyghur_saleh">Uyghur – Saleh</option>
-      <option value="japanese_saeedsato">Japanese – Saeed Sato</option>
-      <option value="vietnamese_rwwad">Vietnamese – RWWAD</option>
-      <option value="khmer_rwwad">Khmer – RWWAD</option>
-      <option value="persian_ih">Persian – IH</option>
-      <option value="kurdish_bamoki">Kurdish – Bamoki</option>
-      <option value="pashto_rwwad">Pashto – RWWAD</option>
-      <option value="urdu_junagarhi">Urdu – Junagarhi</option>
-      <option value="hindi_omari">Hindi – Omari</option>
-      <option value="telugu_muhammad">Telugu – Muhammad</option>
-      <option value="gujarati_omari">Gujarati – Omari</option>
-      <option value="malayalam_kunhi">Malayalam – Kunhi</option>
-      <option value="kannada_hamza">Kannada – Hamza</option>
-      <option value="assamese_rafeeq">Assamese – Rafeeq</option>
-      <option value="punjabi_arif">Punjabi – Arif</option>
-      <option value="tamil_omar">Tamil – Omar</option>
-      <option value="tamil_baqavi">Tamil – Baqavi</option>
-      <option value="sinhalese_mahir">Sinhalese – Mahir</option>
-      <option value="swahili_barawani">Swahili – Barawani</option>
-      <option value="somali_yacob">Somali – Yacob</option>
-      <option value="amharic_zain">Amharic – Zain</option>
-      <option value="yoruba_mikail">Yoruba – Mikail</option>
-      <option value="hausa_gummi">Hausa – Gummi</option>
-      <option value="oromo_ababor">Oromo – Ababor</option>
-      <option value="afar_hamza">Afar – Hamza</option>
-      <option value="ankobambara_dayyan">Ankobambara – Dayyan</option>
-      <option value="kinyarwanda_assoc">Kinyarwanda – Assoc</option>
-      <option value="ikirundi_gehiti">Kirundi – Gehiti</option>
-      <option value="moore_rwwad">Moore – RWWAD</option>
-      <option value="asante_harun">Asante – Harun</option>
-      <option value="lingala_zakaria">Lingala – Zakaria</option>
-      </select>
-  </label>
   <label>Terjemah Per Kata
     <select id="wordTranslationId">
-      <option value="33">Indonesian – Islamic Affairs Ministry</option>
+      <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
       <option value="20">English – Saheeh International</option>
     </select>
   </label>
 </div>
 
 <div class="version-buttons">
-  <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
   <button onclick="setVersion('v2')">📜 Gunakan Quran V2</button>
+  <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
 </div>
 
 <div id="pages"></div>
@@ -202,9 +135,10 @@ const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
 const wordStart = document.getElementById("wordStart");
 const wordEnd = document.getElementById("wordEnd");
-const translationSelect = document.getElementById("translationSelect");
 const wordTranslationId = document.getElementById("wordTranslationId");
 let currentVersion = 'v1';
+let words = []; // Global
+let initialLoad = true;
 
 function setVersion(v) {
   currentVersion = v;
@@ -216,12 +150,20 @@ for (let i in surahList) {
   surahSelect.appendChild(new Option(`${i}. ${name}`, i));
 }
 
-translationSelect.addEventListener("change", loadAyat);
-wordTranslationId.addEventListener("change", loadAyat);
 surahSelect.addEventListener("change", updateAyahDropdown);
 ayahSelect.addEventListener("change", loadAyat);
-wordStart.addEventListener("change", updateWordEndOptions);
+
+wordStart.addEventListener("change", () => {
+  const startVal = +wordStart.value;
+  wordEnd.innerHTML = "";
+  for (let i = startVal; i <= words.length; i++) {
+    wordEnd.appendChild(new Option(i, i));
+  }
+  wordEnd.value = startVal;
+  loadAyat();
+});
 wordEnd.addEventListener("change", loadAyat);
+wordTranslationId.addEventListener("change", loadAyat);
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
@@ -252,17 +194,24 @@ async function loadAyat() {
 
   const apiField = currentVersion === "v1" ? "code_v1" : "code_v2";
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
-  const words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
+  words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
-  // Isi dropdown Dari & Sampai dengan semua range
+  const prevStart = +wordStart.value || 1;
+  const prevEnd = +wordEnd.value || 1;
+
   wordStart.innerHTML = "";
-  wordEnd.innerHTML = "";
   for (let i = 1; i <= words.length; i++) {
     wordStart.appendChild(new Option(i, i));
+  }
+  wordStart.value = initialLoad ? 1 : Math.min(prevStart, words.length);
+
+  wordEnd.innerHTML = "";
+  for (let i = wordStart.value; i <= words.length; i++) {
     wordEnd.appendChild(new Option(i, i));
   }
-  wordStart.value = 1;
-  wordEnd.value = 1;
+  wordEnd.value = initialLoad ? 1 : Math.min(prevEnd, words.length);
+
+  initialLoad = false;
 
   const style = document.createElement("style");
   style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
@@ -274,10 +223,11 @@ async function loadAyat() {
   container.appendChild(div);
 
   await document.fonts.load(`1em ${fontName}`);
-  const line = document.createElement("div");
 
-  const startIdx = parseInt(wordStart.value) - 1;
-  const endIdx = parseInt(wordEnd.value);
+  const startIdx = (+wordStart.value || 1) - 1;
+  const endIdx = (+wordEnd.value || startIdx + 1);
+
+  const line = document.createElement("div");
   words.slice(startIdx, endIdx).forEach(word => {
     const span = document.createElement("span");
     span.className = "word";
@@ -285,35 +235,19 @@ async function loadAyat() {
     line.appendChild(span);
     line.appendChild(document.createTextNode(" "));
   });
-
   div.appendChild(line);
 
-  // Render Terjemahan Lengkap jika dipilih
-  if (translationSelect.value) {
-    try {
-      const r = await fetch(`https://quranenc.com/api/v1/translation/aya/${translationSelect.value}/${s}/${a}`);
-      const jt = await r.json();
-      if (jt.result && jt.result.translation) {
-        const transDiv = document.createElement("div");
-        transDiv.className = "translation";
-        transDiv.textContent = jt.result.translation;
-        div.appendChild(transDiv);
-      }
-    } catch (e) {
-      console.error("Gagal ambil terjemahan:", e);
-    }
-  } else {
-    // Render Terjemah Perkata jika tidak ada Terjemah Lengkap
-    const langCode = translationLanguageMap[wordTranslationId.value] || "en";
+  if (wordTranslationId.value) {
+    const langCode = translationLanguageMap[wordTranslationId.value];
     try {
       const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTranslationId.value}`);
       const j = await r.json();
       const wordsData = j.verse.words;
-      const wordTranslations = wordsData.map(w => (w.char_type_name === "word" && w.translation?.text) ? w.translation.text : "");
+      const wordTranslations = wordsData.map(w => w.translation?.text || "").slice(startIdx, endIdx);
 
       const perKataDiv = document.createElement("div");
       perKataDiv.className = "translation";
-      perKataDiv.textContent = wordTranslations.slice(startIdx, endIdx).join(" ");
+      perKataDiv.textContent = wordTranslations.join(" ");
       div.appendChild(perKataDiv);
     } catch (e) {
       console.error("Gagal ambil terjemah perkata:", e);
@@ -324,20 +258,7 @@ async function loadAyat() {
   requestAnimationFrame(() => div.style.opacity = "1");
 }
 
-function updateWordEndOptions() {
-  const startVal = parseInt(wordStart.value);
-  wordEnd.innerHTML = "";
-  for (let i = startVal; i <= wordStart.options.length; i++) {
-    wordEnd.appendChild(new Option(i, i));
-  }
-  if (parseInt(wordEnd.value) < startVal) {
-    wordEnd.value = startVal;
-  }
-}
-
 surahSelect.value = 1;
-wordTranslationId.value = "33";
-translationSelect.value = "";
 updateAyahDropdown();
 </script>
 </body>
