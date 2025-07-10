@@ -2,17 +2,45 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Quran Mushaf Viewer</title>
+  <title>Viewer Mushaf Dinamis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background: #fefdf8;
-      padding: 1em;
       font-family: sans-serif;
       direction: rtl;
+      padding: 1em;
     }
 
     h2 { text-align: center; }
+
+    .controls {
+      direction: ltr;
+      margin: 1em auto;
+      max-width: 600px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1em;
+      justify-content: center;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9em;
+    }
+
+    select, input {
+      font-size: 1em;
+      padding: 0.3em;
+    }
+
+    button {
+      font-size: 1em;
+      padding: 0.4em 1em;
+      cursor: pointer;
+    }
+
     .page-container {
       font-size: 2.5em;
       line-height: 1.7;
@@ -66,12 +94,32 @@
 </head>
 <body>
 
-<h2>📖 Tampilan Mushaf Al-Qur'an</h2>
+<h2>📖 Tampilan Mushaf Al-Qur'an Interaktif</h2>
+
+<div class="controls">
+  <label>Surah Awal
+    <select id="fromSurah"></select>
+  </label>
+  <label>Ayat Awal
+    <input type="number" id="fromAyah" value="1" min="1">
+  </label>
+  <label>Surah Akhir
+    <select id="toSurah"></select>
+  </label>
+  <label>Ayat Akhir
+    <input type="number" id="toAyah" value="7" min="1">
+  </label>
+  <label>🔢 Kata per Baris
+    <input type="number" id="wordsPerLine" value="10" min="1" max="20">
+  </label>
+  <button onclick="loadAyat()">📥 Tampilkan Ayat</button>
+</div>
+
 <div id="pages"></div>
 
 <script>
-const fromSurah = 1, fromAyah = 1, toSurah = 1, toAyah = 7; // Al-Fatihah
 const loadedFonts = new Set();
+const pagesDiv = document.getElementById("pages");
 
 const lastAyahOfSurah = {
   1: 7, 2: 286, 3: 200, 4: 176, 5: 120, 6: 165, 7: 206, 8: 75, 9: 129,
@@ -90,85 +138,109 @@ const lastAyahOfSurah = {
   106: 4, 107: 7, 108: 3, 109: 6, 110: 3, 111: 5, 112: 4, 113: 5, 114: 6
 };
 
-const generateAyahKeys = (fromSurah, fromAyah, toSurah, toAyah) => {
+for (let i = 1; i <= 114; i++) {
+  const opt1 = new Option(i + `.`, i);
+  const opt2 = new Option(i + `.`, i);
+  fromSurah.appendChild(opt1.cloneNode(true));
+  toSurah.appendChild(opt2.cloneNode(true));
+}
+fromSurah.value = 1;
+toSurah.value = 1;
+
+function generateAyahKeys(fromS, fromA, toS, toA) {
   const keys = [];
-  for (let s = fromSurah; s <= toSurah; s++) {
-    const start = s === fromSurah ? fromAyah : 1;
-    const end = s === toSurah ? toAyah : lastAyahOfSurah[s];
-    for (let i = start; i <= end; i++) keys.push(`${s}:${i}`);
+  for (let s = fromS; s <= toS; s++) {
+    const start = s == fromS ? fromA : 1;
+    const end = s == toS ? toA : lastAyahOfSurah[s];
+    for (let i = start; i <= end; i++) {
+      keys.push(`${s}:${i}`);
+    }
   }
   return keys;
-};
+}
 
-const loadFontIfNeeded = (fontName, fontUrl) => {
+function loadFont(fontName, url) {
   if (loadedFonts.has(fontName)) return Promise.resolve();
   const style = document.createElement("style");
   style.innerText = `@font-face {
     font-family: '${fontName}';
-    src: url('${fontUrl}') format('truetype');
+    src: url('${url}') format('truetype');
     font-display: swap;
   }`;
   document.head.appendChild(style);
   loadedFonts.add(fontName);
   return document.fonts.load(`1em '${fontName}'`);
-};
+}
 
-const ayahKeys = generateAyahKeys(fromSurah, fromAyah, toSurah, toAyah);
+async function loadAyat() {
+  pagesDiv.innerHTML = "⏳ Memuat...";
+  const fromS = parseInt(fromSurah.value);
+  const fromA = parseInt(fromAyah.value);
+  const toS = parseInt(toSurah.value);
+  const toA = parseInt(toAyah.value);
+  const maxPerLine = parseInt(document.getElementById("wordsPerLine").value);
+  const ayahKeys = generateAyahKeys(fromS, fromA, toS, toA);
 
-fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json")
-  .then(res => res.json())
-  .then(async pageMap => {
-    const pages = {};
-    ayahKeys.forEach(key => {
-      const page = pageMap[key];
-      if (!pages[page]) pages[page] = [];
-      pages[page].push(key);
+  const map = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json")
+    .then(r => r.json());
+
+  const pages = {};
+  ayahKeys.forEach(key => {
+    const page = map[key];
+    if (!pages[page]) pages[page] = [];
+    pages[page].push(key);
+  });
+
+  pagesDiv.innerHTML = "";
+
+  for (const [page, keys] of Object.entries(pages)) {
+    const fontName = `QCF_P${String(page).padStart(3, '0')}`;
+    const fontUrl = `https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@main/fonts/${fontName}.TTF`;
+
+    await loadFont(fontName, fontUrl);
+
+    const container = document.createElement("div");
+    container.className = "page-container";
+    container.style.fontFamily = fontName;
+
+    const results = await Promise.all(keys.map(k =>
+      fetch(`https://api.quran.com/api/v4/verses/by_key/${k}?words=true&language=id&translations=33`)
+        .then(r => r.json())
+    ));
+
+    let wordLine = [];
+    results.forEach(data => {
+      data.verse.words.forEach(word => {
+        wordLine.push(word);
+        if (wordLine.length >= maxPerLine || word.qpc_ayah_end) {
+          const line = document.createElement("div");
+          wordLine.forEach(w => {
+            const span = document.createElement("span");
+            span.className = "word";
+            span.innerText = w.code_v1 || w.text;
+            const t = document.createElement("div");
+            t.className = "translation";
+            t.innerText = w.translation?.text || "-";
+            span.appendChild(t);
+            span.onclick = () => {
+              document.querySelectorAll(".word").forEach(x => x.classList.remove("active"));
+              span.classList.add("active");
+              setTimeout(() => span.classList.remove("active"), 5000);
+            };
+            line.appendChild(span);
+            line.appendChild(document.createTextNode(" "));
+          });
+          container.appendChild(line);
+          wordLine = [];
+        }
+      });
     });
 
-    for (const [page, keys] of Object.entries(pages)) {
-      const fontName = `QCF_P${String(page).padStart(3, '0')}`;
-      const fontUrl = `https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@main/fonts/${fontName}.TTF`;
-
-      await loadFontIfNeeded(fontName, fontUrl);
-
-      const container = document.createElement("div");
-      container.className = "page-container";
-      container.style.fontFamily = fontName;
-      document.getElementById("pages").appendChild(container);
-
-      const results = await Promise.all(keys.map(key =>
-        fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`)
-          .then(r => r.json())
-      ));
-
-      results.forEach(data => {
-        const line = document.createElement("div");
-        data.verse.words.forEach(word => {
-          const span = document.createElement("span");
-          span.className = "word";
-          span.innerText = word.code_v1 || word.text;
-
-          const trans = document.createElement("div");
-          trans.className = "translation";
-          trans.innerText = word.translation?.text || "-";
-          span.appendChild(trans);
-
-          span.addEventListener("click", () => {
-            document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-            span.classList.add("active");
-            setTimeout(() => span.classList.remove("active"), 5000);
-          });
-
-          line.appendChild(span);
-          line.appendChild(document.createTextNode(" "));
-        });
-        container.appendChild(line);
-      });
-
-      container.style.display = "block";
-      requestAnimationFrame(() => container.style.opacity = "1");
-    }
-  });
+    container.style.display = "block";
+    requestAnimationFrame(() => container.style.opacity = "1");
+    pagesDiv.appendChild(container);
+  }
+}
 </script>
 
 </body>
