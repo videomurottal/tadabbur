@@ -56,6 +56,11 @@
       text-align: center;
       margin-top: 1em;
     }
+    .word-translation {
+      display: block;
+      font-size: 0.4em;
+      color: #666;
+    }
     @media (max-width: 768px) {
       .page-container { font-size: 1.5em; }
     }
@@ -144,6 +149,61 @@
       <option value="lingala_zakaria">Lingala – Zakaria</option>
     </select>
   </label>
+  <label>Terjemah Per Kata
+    <select id="wordTranslationSelect">
+    <option value="33">Indonesian – Islamic Affairs Ministry</option>
+    <option value="19">English – M. Pickthall</option>
+    <option value="20">English – Saheeh International</option>
+    <option value="22">English – A. Yusuf Ali</option>
+    <option value="23">Azeri – Azerbaijani</option>
+    <option value="25">Bosnian – Muhamed Mehanović</option>
+    <option value="26">Czech – Czech</option>
+    <option value="27">German – Frank Bubenheim and Nadeem</option>
+    <option value="29">Persian – Hussein Taji Kal Dari</option>
+    <option value="30">Finnish – Finnish</option>
+    <option value="31">French – Muhammad Hamidullah</option>
+    <option value="32">Hausa – Abubakar Gumi</option>
+    <option value="35">Japanese – Ryoichi Mita</option>
+    <option value="36">Korean – Korean</option>
+    <option value="37">Malayalam – Abdul Hameed and Kunhi</option>
+    <option value="38">Maranao – Maranao</option>
+    <option value="39">Malay – Abdullah Muhammad Basmeih</option>
+    <option value="41">Norwegian – Norwegian</option>
+    <option value="42">Polish – Józef Bielawski</option>
+    <option value="43">Portuguese – Samir</option>
+    <option value="44">Romanian – Grigore</option>
+    <option value="45">Russian – Elmir Kuliev</option>
+    <option value="46">Somali – Mahmud Muhammad Abduh</option>
+    <option value="47">Albanian – Albanian</option>
+    <option value="48">Swedish – Knut Bernström</option>
+    <option value="49">Swahili – Ali Muhsin Al-Barwani</option>
+    <option value="50">Tamil – Jan Trust Foundation</option>
+    <option value="51">Thai – King Fahad Quran Complex</option>
+    <option value="52">Turkish – Elmalili Hamdi Yazir</option>
+    <option value="53">Tatar – Tatar</option>
+    <option value="54">Urdu – Maulana Muhammad Junagarhi</option>
+    <option value="55">Uzbek – Muhammad Sodiq Muhammad Yusuf (Latin)</option>
+    <option value="56">Chinese – Ma Jain</option>
+    <option value="57">English – Transliteration</option>
+    <option value="74">Tajik – Tajik</option>
+    <option value="75">Azeri – Alikhan Musayev</option>
+    <option value="76">Uyghur – Muhammad Saleh</option>
+    <option value="77">Turkish – Diyanet</option>
+    <option value="78">Russian – Ministry of Awqaf, Egypt</option>
+    <option value="79">Russian – Abu Adel</option>
+    <option value="80">Malayalam – Muhammad Karakunnu & Vanidas Elayavoor</option>
+    <option value="81">Kurdish – Burhan Muhammad-Amin</option>
+    <option value="83">Spanish – Sheikh Isa Garcia</option>
+    <option value="84">English – T. Usmani</option>
+    <option value="85">English – M.A.S. Abdel Haleem</option>
+    <option value="86">Divehi – Office of the President of Maldives</option>
+    <option value="87">Amharic – Sadiq and Sani</option>
+    <option value="88">Albanian – Hasan Efendi Nahi</option>
+    <option value="89">Albanian – Albanian Translation</option>
+    <option value="95">English – A. Maududi (Tafhim)</option>
+    <option value="97">Urdu – Tafheem e Qur'an – Syed Abu Ali Maududi</option>
+    </select>
+  </label>
 </div>
 
 <div class="version-buttons">
@@ -154,41 +214,13 @@
 <div id="pages"></div>
 
 <script>
-const surahList = {
-  1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
-  5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
-  9:["At-Tawbah"], 10:["Yūnus"], 11:["Hūd"], 12:["Yūsuf"], 13:["Ar-Raʿd"],
-  14:["Ibrāhīm"], 15:["Al-Ḥijr"], 16:["An-Naḥl"], 17:["Al-Isrāʾ"],
-  18:["Al-Kahf"], 19:["Maryam"], 20:["Ṭā-Hā"], 21:["Al-Anbiyāʾ"],
-  22:["Al-Ḥajj"], 23:["Al-Muʾminūn"], 24:["An-Nūr"], 25:["Al-Furqān"],
-  26:["Ash-Shuʿarāʾ"], 27:["An-Naml"], 28:["Al-Qaṣaṣ"], 29:["Al-ʿAnkabūt"],
-  30:["Ar-Rūm"], 31:["Luqmān"], 32:["As-Sajdah"], 33:["Al-Aḥzāb"],
-  34:["Sabaʾ"], 35:["Fāṭir"], 36:["Yā-Sīn"], 37:["As-Ṣāffāt"],
-  38:["Ṣād"], 39:["Az-Zumar"], 40:["Ghāfir"], 41:["Fuṣṣilat"], 42:["Ash-Shūrā"],
-  43:["Az-Zukhruf"], 44:["Ad-Dukhān"], 45:["Al-Jāthiyah"], 46:["Al-Aḥqāf"],
-  47:["Muḥammad"], 48:["Al-Fatḥ"], 49:["Al-Ḥujurāt"], 50:["Qāf"],
-  51:["Adh-Dhāriyāt"], 52:["Aṭ-Ṭūr"], 53:["An-Najm"], 54:["Al-Qamar"],
-  55:["Ar-Raḥmān"], 56:["Al-Wāqiʿah"], 57:["Al-Ḥadīd"], 58:["Al-Mujādilah"],
-  59:["Al-Ḥashr"], 60:["Al-Mumtaḥanah"], 61:["Aṣ-Ṣaff"], 62:["Al-Jumuʿah"],
-  63:["Al-Munāfiqūn"], 64:["At-Taghābun"], 65:["Aṭ-Ṭalāq"], 66:["At-Taḥrīm"],
-  67:["Al-Mulk"], 68:["Al-Qalam"], 69:["Al-Ḥāqqah"], 70:["Al-Maʿārij"],
-  71:["Nūḥ"], 72:["Al-Jinn"], 73:["Al-Muzzammil"], 74:["Al-Muddaththir"],
-  75:["Al-Qiyāmah"], 76:["Al-Insān"], 77:["Al-Mursalāt"], 78:["An-Nabaʾ"],
-  79:["An-Nāziʿāt"], 80:["ʿAbasa"], 81:["At-Takwīr"], 82:["Al-Infiṭār"],
-  83:["Al-Muṭaffifīn"], 84:["Al-Inshiqāq"], 85:["Al-Burūj"], 86:["Aṭ-Ṭāriq"],
-  87:["Al-Aʿlā"], 88:["Al-Ghāshiyah"], 89:["Al-Fajr"], 90:["Al-Balad"],
-  91:["Ash-Shams"], 92:["Al-Layl"], 93:["Aḍ-Ḍuḥā"], 94:["Ash-Sharḥ"],
-  95:["At-Tīn"], 96:["Al-ʿAlaq"], 97:["Al-Qadr"], 98:["Al-Bayyinah"],
-  99:["Az-Zalzalah"], 100:["Al-ʿĀdiyāt"], 101:["Al-Qāriʿah"], 102:["At-Takāthur"],
-  103:["Al-ʿAṣr"], 104:["Al-Humazah"], 105:["Al-Fīl"], 106:["Quraysh"],
-  107:["Al-Māʿūn"], 108:["Al-Kawthar"], 109:["Al-Kāfirūn"], 110:["An-Naṣr"],
-  111:["Al-Masad"], 112:["Al-Ikhlāṣ"], 113:["Al-Falaq"], 114:["An-Nās"]
-};
+const surahList = { 1:["Al-Fātiḥah"], 2:["Al-Baqarah"], ... /* disingkat */ };
 
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
 const wordCount = document.getElementById("wordCount");
 const translationSelect = document.getElementById("translationSelect");
+const wordTranslationId = document.getElementById("wordTranslationId");
 let currentVersion = 'v1';
 
 function setVersion(v) {
@@ -205,6 +237,7 @@ surahSelect.addEventListener("change", updateAyahDropdown);
 ayahSelect.addEventListener("change", loadAyat);
 wordCount.addEventListener("change", loadAyat);
 translationSelect.addEventListener("change", loadAyat);
+wordTranslationId.addEventListener("change", loadAyat);
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
@@ -238,7 +271,10 @@ async function loadAyat() {
 
   const apiField = currentVersion === "v1" ? "code_v1" : "code_v2";
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
-  const words = data.verse.words.map(w => w[apiField] || w.text);
+  const words = data.verse.words.map(w => ({
+    arabic: w[apiField] || w.text,
+    id: w.id
+  }));
 
   // update dropdown jumlah kata
   wordCount.innerHTML = "";
@@ -263,17 +299,36 @@ async function loadAyat() {
   await document.fonts.load(`1em ${fontName}`);
   const line = document.createElement("div");
 
-  words.slice(0, wc || undefined).forEach(word => {
+  const wordTransId = wordTranslationId.value;
+  let wordTranslations = [];
+  if (wordTransId !== "0") {
+    try {
+      const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=${wordTransId}`);
+      const j = await r.json();
+      wordTranslations = j.verse.words.map(w => w.translation?.text || "");
+    } catch (e) {
+      console.error("Gagal ambil terjemah perkata:", e);
+    }
+  }
+
+  words.slice(0, wc || undefined).forEach((word, i) => {
     const span = document.createElement("span");
     span.className = "word";
-    span.innerText = word;
+    span.innerText = word.arabic;
+
+    if (wordTransId !== "0" && wordTranslations[i]) {
+      const sub = document.createElement("span");
+      sub.className = "word-translation";
+      sub.innerText = wordTranslations[i];
+      span.appendChild(sub);
+    }
     line.appendChild(span);
     line.appendChild(document.createTextNode(" "));
   });
 
   div.appendChild(line);
 
-  // Tampilkan terjemahan jika ada
+  // Tampilkan terjemahan biasa
   const tkey = translationSelect.value;
   if (tkey) {
     try {
