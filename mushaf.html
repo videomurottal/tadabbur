@@ -55,6 +55,12 @@
       direction: ltr;
       margin-top: 1em;
     }
+    .footnotes {
+      font-size: 0.85em;
+      color: #666;
+      margin-top: 0.5em;
+      direction: ltr;
+    }
     @media (max-width: 768px) {
       .page-container { font-size: 1.5em; }
     }
@@ -76,10 +82,9 @@
   </label>
   <label>Terjemah
     <select id="translationSelect">
-      <option value="">Tanpa Terjemah</option>
+      <option value="indonesian_complex">Indonesian – Complex</option>
       <option value="indonesian_sabiq">Indonesian – Sabiq</option>
       <option value="indonesian_affairs">Indonesian – Affairs</option>
-      <option value="indonesian_complex">Indonesian – Complex</option>
       <option value="english_rwwad">English – RWWAD</option>
       <option value="english_saheeh">English – Saheeh</option>
       <option value="english_hilali_khan">English – Hilali Khan</option>
@@ -285,7 +290,7 @@ async function loadAyat() {
         transDiv.textContent = jt.result.translation;
         div.appendChild(transDiv);
       }
-      catch (e) {
+    } catch (e) {
       console.error("Gagal ambil terjemahan:", e);
     }
   }
