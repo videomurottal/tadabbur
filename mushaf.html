@@ -199,13 +199,15 @@ async function loadAyat() {
 
   wordStart.innerHTML = "";
   for (let i = 1; i <= words.length; i++) {
-    wordStart.appendChild(`Word ${i}`, i));
+    let option = new Option(`Word ${i}`, i); // label: Word 1, value: 1
+    wordStart.appendChild(option);
   }
   wordStart.value = initialLoad ? 1 : Math.min(prevStart, words.length);
 
   wordEnd.innerHTML = "";
   for (let i = wordStart.value; i <= words.length; i++) {
-    wordEnd.appendChild(new Option(`To ${i}`, i));
+    let option = new Option(`To ${i}`, i); // label: To 2, value: 2
+    wordEnd.appendChild(option);
   }
   wordEnd.value = initialLoad ? 1 : Math.min(prevEnd, words.length);
 
