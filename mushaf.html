@@ -199,30 +199,36 @@ function syncWordEnd() {
   loadAyat();
 }
 
-  // ⬇️ Tambahkan event listener ini di sini
-wordStart.addEventListener("change", () => {
-  let start = parseInt(wordStart.value);
-  wordEnd.innerHTML = "";
-  for (let i = start; i <= words.length; i++) {
-    wordEnd.appendChild(new Option(`To ${i}`, i));
-  }
-  wordEnd.value = start;
+  wordStart.addEventListener("change", () => {
+  updateWordEndOptions();
   loadAyat();
 });
 wordEnd.addEventListener("change", loadAyat);
 
-  // Di dalam loadAyat() setelah words tersedia
+
+// Isi wordStart & wordEnd
 wordStart.innerHTML = "";
 for (let i = 1; i <= words.length; i++) {
   wordStart.appendChild(new Option(`Word ${i}`, i));
 }
-wordStart.value = 1; // Default Word 1
+wordStart.value = 1;
 
-wordEnd.innerHTML = "";
-for (let i = 1; i <= words.length; i++) {
-  wordEnd.appendChild(new Option(`To ${i}`, i));
+updateWordEndOptions();
+
+function updateWordEndOptions() {
+  const start = parseInt(wordStart.value);
+  wordEnd.innerHTML = "";
+  for (let i = start; i <= words.length; i++) {
+    wordEnd.appendChild(new Option(`To ${i}`, i));
+  }
+  if (parseInt(wordEnd.value) < start) {
+    wordEnd.value = start;
+  }
+  if (!wordEnd.value) {
+    wordEnd.value = start < words.length ? start + 1 : start;
+  }
 }
-wordEnd.value = 5; // Default To 5
+
 
 async function loadAyat() {
   const s = surahSelect.value;
