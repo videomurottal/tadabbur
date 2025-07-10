@@ -2,69 +2,343 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Quran WBW + Terjemah</title>
+  <title>Mushaf Dinamis V1/V2 + Terjemah</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: sans-serif; background: #fefcf8; padding: 1em; direction: rtl; text-align: center; }
-    input, select, button { font-size: 1em; margin: 0.5em; padding: 0.3em; }
-    .word { display: inline-block; margin: 0.3em; padding: 0.5em; border-bottom: 1px solid #ccc; }
-    .translation { display: block; font-size: 0.8em; color: #444; }
+    body {
+      background: #fefcf8;
+      padding: 1em;
+      font-family: sans-serif;
+      direction: rtl;
+    }
+    h2 { text-align: center; }
+    .controls {
+      direction: ltr;
+      max-width: 720px;
+      margin: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1em;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    label { font-size: 0.9em; }
+    select, button {
+      font-size: 1em;
+      padding: 0.5em;
+    }
+    .version-buttons {
+      margin-top: 1em;
+      text-align: center;
+    }
+    .page-container {
+      font-size: 2.5em;
+      line-height: 1.6;
+      text-align: center;
+      user-select: text;
+      margin: 2em auto;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: none;
+      word-spacing: -0.08em;
+      max-width: 700px;
+    }
+    .word {
+      display: inline-block;
+      margin: 0;
+      cursor: default;
+    }
+    .translation {
+      font-family: sans-serif;
+      font-size: 1em;
+      color: #333;
+      direction: ltr;
+      text-align: center;
+      margin-top: 1em;
+    }
+    @media (max-width: 768px) {
+      .page-container { font-size: 1.5em; }
+    }
   </style>
 </head>
 <body>
-  <h2>📖 WBW Quran – Urdu & English</h2>
 
-  <label>Surah: <input type="number" id="surah" value="1" min="1" max="114"></label>
-  <label>Ayat: <input type="number" id="ayah" value="1" min="1"></label>
-  <label>Bahasa WBW:
-    <select id="wbwLang">
-      <option value="">Tanpa Terjemah</option>
-      <option value="en">English</option>
-      <option value="ur">Urdu</option>
+<h2>📖 Al-Qur'an Dinamis (V1/V2 + Terjemah)</h2>
+
+<div class="controls">
+  <label>Surah
+    <select id="surahSelect"></select>
+  </label>
+  <label>Ayat
+    <select id="ayahSelect"></select>
+  </label>
+  <label>Jumlah Kata
+    <select id="wordCount"><option value="0">Semua</option></select>
+  </label>
+  <label>Terjemah Lengkap
+    <select id="translationSelect">
+      <option value="indonesian_complex">Indonesian – Complex</option>
+      <option value="indonesian_sabiq">Indonesian – Sabiq</option>
+      <option value="indonesian_affairs">Indonesian – Affairs</option>
+      <option value="english_rwwad">English – RWWAD</option>
+      <option value="english_saheeh">English – Saheeh</option>
+      <option value="english_hilali_khan">English – Hilali Khan</option>
+      <option value="french_rashid">French – Rashid</option>
+      <option value="french_montada">French – Montada</option>
+      <option value="spanish_montada_eu">Spanish – Montada (EU)</option>
+      <option value="spanish_garcia">Spanish – Garcia</option>
+      <option value="spanish_montada_latin">Spanish – Montada (Latin)</option>
+      <option value="portuguese_nasr">Portuguese – Nasr</option>
+      <option value="german_bubenheim">German – Bubenheim</option>
+      <option value="romanian_project">Romanian – Project</option>
+      <option value="dutch_center">Dutch – Center</option>
+      <option value="turkish_rwwad">Turkish – RWWAD</option>
+      <option value="turkish_shaban">Turkish – Shaban</option>
+      <option value="turkish_shahin">Turkish – Shahin</option>
+      <option value="azeri_musayev">Azeri – Musayev</option>
+      <option value="macedonian_group">Macedonian – Group</option>
+      <option value="albanian_nahi">Albanian – Nahi</option>
+      <option value="bosnian_rwwad">Bosnian – RWWAD</option>
+      <option value="bosnian_mihanovich">Bosnian – Mihanovich</option>
+      <option value="serbian_rwwad">Serbian – RWWAD</option>
+      <option value="croatian_rwwad">Croatian – RWWAD</option>
+      <option value="lithuanian_rwwad">Lithuanian – RWWAD</option>
+      <option value="uzbek_rwwad">Uzbek – RWWAD</option>
+      <option value="uzbek_mansour">Uzbek – Mansour</option>
+      <option value="tajik_arifi">Tajik – Arifi</option>
+      <option value="kyrgyz_hakimov">Kyrgyz – Hakimov</option>
+      <option value="tagalog_rwwad">Tagalog – RWWAD</option>
+      <option value="bisayan_rwwad">Bisayan – RWWAD</option>
+      <option value="chinese_suliman">Chinese – Suliman</option>
+      <option value="chinese_makin">Chinese – Makin</option>
+      <option value="uyghur_saleh">Uyghur – Saleh</option>
+      <option value="japanese_saeedsato">Japanese – Saeed Sato</option>
+      <option value="vietnamese_rwwad">Vietnamese – RWWAD</option>
+      <option value="khmer_rwwad">Khmer – RWWAD</option>
+      <option value="persian_ih">Persian – IH</option>
+      <option value="kurdish_bamoki">Kurdish – Bamoki</option>
+      <option value="pashto_rwwad">Pashto – RWWAD</option>
+      <option value="urdu_junagarhi">Urdu – Junagarhi</option>
+      <option value="hindi_omari">Hindi – Omari</option>
+      <option value="telugu_muhammad">Telugu – Muhammad</option>
+      <option value="gujarati_omari">Gujarati – Omari</option>
+      <option value="malayalam_kunhi">Malayalam – Kunhi</option>
+      <option value="kannada_hamza">Kannada – Hamza</option>
+      <option value="assamese_rafeeq">Assamese – Rafeeq</option>
+      <option value="punjabi_arif">Punjabi – Arif</option>
+      <option value="tamil_omar">Tamil – Omar</option>
+      <option value="tamil_baqavi">Tamil – Baqavi</option>
+      <option value="sinhalese_mahir">Sinhalese – Mahir</option>
+      <option value="swahili_barawani">Swahili – Barawani</option>
+      <option value="somali_yacob">Somali – Yacob</option>
+      <option value="amharic_zain">Amharic – Zain</option>
+      <option value="yoruba_mikail">Yoruba – Mikail</option>
+      <option value="hausa_gummi">Hausa – Gummi</option>
+      <option value="oromo_ababor">Oromo – Ababor</option>
+      <option value="afar_hamza">Afar – Hamza</option>
+      <option value="ankobambara_dayyan">Ankobambara – Dayyan</option>
+      <option value="kinyarwanda_assoc">Kinyarwanda – Assoc</option>
+      <option value="ikirundi_gehiti">Kirundi – Gehiti</option>
+      <option value="moore_rwwad">Moore – RWWAD</option>
+      <option value="asante_harun">Asante – Harun</option>
+      <option value="lingala_zakaria">Lingala – Zakaria</option>
     </select>
   </label>
-  <button onclick="loadWBW()">Tampilkan</button>
+  <label>Terjemah Per Kata
+    <select id="wordTranslationId">
+      <option value="33">Indonesian – Islamic Affairs Ministry</option>
+      <option value="20">English – Saheeh International</option>
+    </select>
+  </label>
+</div>
 
-  <div id="output"></div>
+<div class="version-buttons">
+  <button onclick="setVersion('v2')">📜 Gunakan Quran V2</button>
+  <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
+</div>
 
-  <script>
-    async function loadWBW() {
-      const surah = document.getElementById('surah').value;
-      const ayah = document.getElementById('ayah').value;
-      const lang = document.getElementById('wbwLang').value;
-      const out = document.getElementById('output');
-      out.innerHTML = lang ? 'Loading...' : 'Silakan pilih bahasa WBW';
+<div id="pages"></div>
 
-      if (!lang) return;
+<script>
 
-      try {
-        const res = await fetch(`https://api.quranwbw.com/v1/words/${surah}:${ayah}?language=${lang}`);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const j = await res.json();
-        const words = (j.verse && j.verse.words) ? j.verse.words : [];
-        out.innerHTML = '';
+const translationLanguageMap = {
+  "20": "en", "33": "id"
+};
+  
+const surahList = {
+  1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
+  5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
+  9:["At-Tawbah"], 10:["Yūnus"], 11:["Hūd"], 12:["Yūsuf"], 13:["Ar-Raʿd"],
+  14:["Ibrāhīm"], 15:["Al-Ḥijr"], 16:["An-Naḥl"], 17:["Al-Isrāʾ"],
+  18:["Al-Kahf"], 19:["Maryam"], 20:["Ṭā-Hā"], 21:["Al-Anbiyāʾ"],
+  22:["Al-Ḥajj"], 23:["Al-Muʾminūn"], 24:["An-Nūr"], 25:["Al-Furqān"],
+  26:["Ash-Shuʿarāʾ"], 27:["An-Naml"], 28:["Al-Qaṣaṣ"], 29:["Al-ʿAnkabūt"],
+  30:["Ar-Rūm"], 31:["Luqmān"], 32:["As-Sajdah"], 33:["Al-Aḥzāb"],
+  34:["Sabaʾ"], 35:["Fāṭir"], 36:["Yā-Sīn"], 37:["As-Ṣāffāt"],
+  38:["Ṣād"], 39:["Az-Zumar"], 40:["Ghāfir"], 41:["Fuṣṣilat"], 42:["Ash-Shūrā"],
+  43:["Az-Zukhruf"], 44:["Ad-Dukhān"], 45:["Al-Jāthiyah"], 46:["Al-Aḥqāf"],
+  47:["Muḥammad"], 48:["Al-Fatḥ"], 49:["Al-Ḥujurāt"], 50:["Qāf"],
+  51:["Adh-Dhāriyāt"], 52:["Aṭ-Ṭūr"], 53:["An-Najm"], 54:["Al-Qamar"],
+  55:["Ar-Raḥmān"], 56:["Al-Wāqiʿah"], 57:["Al-Ḥadīd"], 58:["Al-Mujādilah"],
+  59:["Al-Ḥashr"], 60:["Al-Mumtaḥanah"], 61:["Aṣ-Ṣaff"], 62:["Al-Jumuʿah"],
+  63:["Al-Munāfiqūn"], 64:["At-Taghābun"], 65:["Aṭ-Ṭalāq"], 66:["At-Taḥrīm"],
+  67:["Al-Mulk"], 68:["Al-Qalam"], 69:["Al-Ḥāqqah"], 70:["Al-Maʿārij"],
+  71:["Nūḥ"], 72:["Al-Jinn"], 73:["Al-Muzzammil"], 74:["Al-Muddaththir"],
+  75:["Al-Qiyāmah"], 76:["Al-Insān"], 77:["Al-Mursalāt"], 78:["An-Nabaʾ"],
+  79:["An-Nāziʿāt"], 80:["ʿAbasa"], 81:["At-Takwīr"], 82:["Al-Infiṭār"],
+  83:["Al-Muṭaffifīn"], 84:["Al-Inshiqāq"], 85:["Al-Burūj"], 86:["Aṭ-Ṭāriq"],
+  87:["Al-Aʿlā"], 88:["Al-Ghāshiyah"], 89:["Al-Fajr"], 90:["Al-Balad"],
+  91:["Ash-Shams"], 92:["Al-Layl"], 93:["Aḍ-Ḍuḥā"], 94:["Ash-Sharḥ"],
+  95:["At-Tīn"], 96:["Al-ʿAlaq"], 97:["Al-Qadr"], 98:["Al-Bayyinah"],
+  99:["Az-Zalzalah"], 100:["Al-ʿĀdiyāt"], 101:["Al-Qāriʿah"], 102:["At-Takāthur"],
+  103:["Al-ʿAṣr"], 104:["Al-Humazah"], 105:["Al-Fīl"], 106:["Quraysh"],
+  107:["Al-Māʿūn"], 108:["Al-Kawthar"], 109:["Al-Kāfirūn"], 110:["An-Naṣr"],
+  111:["Al-Masad"], 112:["Al-Ikhlāṣ"], 113:["Al-Falaq"], 114:["An-Nās"]
+};
 
-        if (words.length === 0) {
-          out.innerText = 'Tidak ada data WBW untuk pilihan ini.';
-          return;
-        }
+const surahSelect = document.getElementById("surahSelect");
+const ayahSelect = document.getElementById("ayahSelect");
+const wordCount = document.getElementById("wordCount");
+const translationSelect = document.getElementById("translationSelect");
+const wordTranslationId = document.getElementById("wordTranslationId");
+let currentVersion = 'v1';
 
-        words.forEach(w => {
-          const span = document.createElement('span');
-          span.className = 'word';
-          span.innerText = w.text_arab || w.text || '';
-          if (w.translation) {
-            const t = document.createElement('span');
-            t.className = 'translation';
-            t.innerText = w.translation;
-            span.appendChild(t);
-          }
-          out.appendChild(span);
-        });
-      } catch (e) {
-        out.innerText = 'Gagal mengambil data.';
-        console.error(e);
-      }
+function setVersion(v) {
+  currentVersion = v;
+  loadAyat();
+}
+
+for (let i in surahList) {
+  const [name] = surahList[i];
+  surahSelect.appendChild(new Option(`${i}. ${name}`, i));
+}
+
+translationSelect.addEventListener("change", () => {
+  wordTranslationId.value = "0";
+  loadAyat();
+});
+
+wordTranslationId.addEventListener("change", () => {
+  translationSelect.value = "";
+  loadAyat();
+});
+
+surahSelect.addEventListener("change", updateAyahDropdown);
+ayahSelect.addEventListener("change", loadAyat);
+wordCount.addEventListener("change", loadAyat);
+
+async function updateAyahDropdown() {
+  const s = surahSelect.value;
+  const res = await fetch(`https://api.quran.com/api/v4/chapters/${s}`);
+  const json = await res.json();
+  const max = json.chapter.verses_count;
+  ayahSelect.innerHTML = "";
+  for (let i = 1; i <= max; i++) {
+    ayahSelect.appendChild(new Option(`Ayat ${i}`, i));
+  }
+  ayahSelect.value = 1;
+  loadAyat();
+}
+
+async function loadAyat() {
+  const s = surahSelect.value;
+  const a = ayahSelect.value;
+  const wc = +wordCount.value;
+  const key = `${s}:${a}`;
+  const container = document.getElementById("pages");
+  container.innerHTML = "";
+
+  const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
+  const page = pageMap[key];
+  const fontName = currentVersion === 'v1' ? `QCF_P${String(page).padStart(3, '0')}` : `QCF2${String(page).padStart(3, '0')}`;
+  const fontUrl = currentVersion === "v1"
+    ? `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`
+    : `https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@refs/heads/main/fontsglyphvs/${fontName}.ttf`;
+
+  const apiField = currentVersion === "v1" ? "code_v1" : "code_v2";
+  const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
+  const words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
+
+  wordCount.innerHTML = "";
+  wordCount.appendChild(new Option("Semua", 0));
+  for (let i = 1; i <= words.length; i++) {
+    wordCount.appendChild(new Option(i, i));
+  }
+  wordCount.value = wc <= words.length ? wc : 0;
+
+  const style = document.createElement("style");
+  style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
+  document.head.appendChild(style);
+
+  const div = document.createElement("div");
+  div.className = "page-container";
+  div.style.fontFamily = fontName;
+  container.appendChild(div);
+
+  await document.fonts.load(`1em ${fontName}`);
+  const line = document.createElement("div");
+
+  const wordTransIdValue = wordTranslationId.value;
+  let wordTranslations = [];
+  if (wordTransIdValue !== "0") {
+    try {
+      const langCode = translationLanguageMap[wordTransIdValue] || "en";
+    try {
+      const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTransIdValue}`);
+      const j = await r.json();
+      const wordsData = j.verse.words;
+      wordTranslations = wordsData.map(w => {
+      // Hanya ambil dari w.translation.text jika ada dan jenis kata adalah 'word'
+      if (w.char_type_name === "word" && w.translation?.text) return w.translation.text;
+      return "";
+    });
+
+
+    } catch (e) {
+      console.error("Gagal ambil terjemah perkata:", e);
     }
-  </script>
+
+    } catch (e) {
+      console.error("Gagal ambil terjemah perkata:", e);
+    }
+  }
+
+  words.slice(0, wc || undefined).forEach(word => {
+    const span = document.createElement("span");
+    span.className = "word";
+    span.innerText = word.arabic;
+    line.appendChild(span);
+    line.appendChild(document.createTextNode(" "));
+  });
+
+  div.appendChild(line);
+
+  if (wordTransIdValue !== "0" && wordTranslations.length && !translationSelect.value) {
+    const perKataDiv = document.createElement("div");
+    perKataDiv.className = "translation";
+    perKataDiv.textContent = wordTranslations.slice(0, wc || undefined).join(" ");
+    div.appendChild(perKataDiv);
+  } else if (translationSelect.value) {
+    try {
+      const r = await fetch(`https://quranenc.com/api/v1/translation/aya/${translationSelect.value}/${s}/${a}`);
+      const jt = await r.json();
+      if (jt.result && jt.result.translation) {
+        const transDiv = document.createElement("div");
+        transDiv.className = "translation";
+        transDiv.textContent = jt.result.translation;
+        div.appendChild(transDiv);
+      }
+    } catch (e) {
+      console.error("Gagal ambil terjemahan:", e);
+    }
+  }
+
+  div.style.display = "block";
+  requestAnimationFrame(() => div.style.opacity = "1");
+}
+
+surahSelect.value = 1;
+updateAyahDropdown();
+</script>
 </body>
 </html>
