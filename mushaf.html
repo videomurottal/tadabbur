@@ -166,6 +166,7 @@
 const translationLanguageMap = {
   "20": "en", "33": "id"
 };
+  
 const surahList = {
   1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
   5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
@@ -205,6 +206,7 @@ const translationSelect = document.getElementById("translationSelect");
 const wordTranslationId = document.getElementById("wordTranslationId");
 let currentVersion = 'v1';
 let words = []; // Global
+let initialLoad = true;
 
 function setVersion(v) {
   currentVersion = v;
@@ -220,6 +222,7 @@ translationSelect.addEventListener("change", () => {
   const hasFullTranslation = translationSelect.value !== "";
   wordStart.disabled = hasFullTranslation;
   wordEnd.disabled = hasFullTranslation;
+  wordTranslationId.disabled = hasFullTranslation;
   loadAyat();
 });
 
@@ -268,15 +271,23 @@ async function loadAyat() {
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
   words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
-  // Set dropdown "Dari kata ke-" & "Sampai kata ke-"
+  // Isi dropdown "Dari kata" dan "Sampai kata" TANPA reset pilihan user
+  const prevStart = +wordStart.value || 1;
+  const prevEnd = +wordEnd.value || 1;
+
   wordStart.innerHTML = "";
-  wordEnd.innerHTML = "";
   for (let i = 1; i <= words.length; i++) {
     wordStart.appendChild(new Option(i, i));
+  }
+  wordStart.value = initialLoad ? 1 : Math.min(prevStart, words.length);
+
+  wordEnd.innerHTML = "";
+  for (let i = wordStart.value; i <= words.length; i++) {
     wordEnd.appendChild(new Option(i, i));
   }
-  wordStart.value = 1;
-  wordEnd.value = 1;
+  wordEnd.value = initialLoad ? 1 : Math.min(prevEnd, words.length);
+
+  initialLoad = false;
 
   const style = document.createElement("style");
   style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
