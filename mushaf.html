@@ -439,36 +439,69 @@ brightnessSlider.addEventListener('input', () => {
   drawCanvas();
 });
 
-// 🖼️ Draw canvas (crop center to 1080x1080 & apply brightness)
+// 🖼️ Draw canvas (background + Quran text + terjemah)
 function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // 🌟 Draw background with brightness
   ctx.save();
-  ctx.filter = `brightness(${brightness})`; // 🔥 Apply brightness
+  ctx.filter = `brightness(${brightness})`;
   const imgW = bgImage.width;
   const imgH = bgImage.height;
-  const size = Math.min(imgW, imgH); // Square crop size
+  const size = Math.min(imgW, imgH);
   const offsetX = (imgW - size) / 2;
   const offsetY = (imgH - size) / 2;
-
   ctx.drawImage(bgImage, offsetX, offsetY, size, size, 0, 0, 1080, 1080);
   ctx.restore();
 
-  // 📝 Add Ayat Quran
+  // 📝 Add Ayat Quran & Translation
   const pageDiv = document.querySelector('.page-container');
   if (pageDiv) {
-    ctx.fillStyle = "white";
-    ctx.font = "48px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
     const ayatText = pageDiv.innerText.trim();
     const lines = ayatText.split('\n');
 
+    // ✨ Teks Quran (atas)
+    ctx.fillStyle = "white";
+    ctx.font = "64px 'Scheherazade New', serif"; // Cantik untuk teks Quran
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     lines.forEach((line, i) => {
-      ctx.fillText(line, 540, 400 + i * 60);
+      ctx.fillText(line, 540, 350 + i * 80);
     });
+
+    // ✨ Terjemahan (bawah)
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.font = "36px sans-serif";
+    ctx.textAlign = "center";
+    const translationDiv = document.querySelector('.translation');
+    if (translationDiv) {
+      const translationText = translationDiv.innerText.trim();
+      const translationLines = wrapText(translationText, 900, ctx);
+      translationLines.forEach((line, i) => {
+        ctx.fillText(line, 540, 750 + i * 50);
+      });
+    }
   }
+}
+
+// 🔥 Wrap text function for long translations
+function wrapText(text, maxWidth, context) {
+  const words = text.split(' ');
+  const lines = [];
+  let currentLine = words[0];
+
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const width = context.measureText(currentLine + " " + word).width;
+    if (width < maxWidth) {
+      currentLine += " " + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  lines.push(currentLine);
+  return lines;
 }
 
 // 💾 Save canvas as PNG
@@ -479,6 +512,7 @@ function saveCanvas() {
   link.click();
 }
 </script>
+
 
   
 </body>
