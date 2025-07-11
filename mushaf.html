@@ -162,24 +162,19 @@ button:hover {
   
 <div class="controls">
   <!-- Baris 1: Surah & Ayat -->
-  <label>Surah
-    <select id="surahSelect"></select>
+  <label><select id="surahSelect"></select>
   </label>
-  <label>Ayat
-    <select id="ayahSelect"></select>
+  <label><select id="ayahSelect"></select>
   </label>
 
   <!-- Baris 2: Dari Kata & Sampai Kata -->
-  <label>Dari Kata
-    <select id="wordStart"></select>
+  <label><select id="wordStart"></select>
   </label>
-  <label>Sampai Kata
-    <select id="wordEnd"></select>
+  <label><select id="wordEnd"></select>
   </label>
 
   <!-- Baris 3: Terjemahan & Tombol Link & Quran V1/V2 -->
-  <label>Terjemahan
-    <select id="wordTranslationId">
+  <label><select id="wordTranslationId">
       <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
       <option value="20">English – Saheeh International</option>
     </select>
@@ -216,12 +211,9 @@ button:hover {
   </label>
 
   <!-- Input URL -->
-<label style="display: flex; flex-direction: column;">
-  Link Gambar
-  <div style="display: flex; flex-direction: row-reverse; gap: 0.5em; align-items: center;">
-    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg" style="flex: 1;">
-    <button type="button" id="urlOkButton">OK</button>
-  </div>
+<label>Link Gambar
+  <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
+  <button type="button" id="setBackgroundFromUrl">OK</button>
   <button type="button" id="toggleContrast">Contrast Gambar</button>
   <input type="range" id="contrastSlider" min="0" max="200" value="100" style="display:none; margin-top: 0.5em;">
 </label>
@@ -508,15 +500,6 @@ updateAyahDropdown().then(() => {
   if (last.wordStart) wordStart.value = last.wordStart;
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
-});
-
-const urlOkButton = document.getElementById("urlOkButton");
-urlOkButton.addEventListener("click", () => {
-  const url = backgroundUrl.value.trim();
-  if (url) {
-    pagesContainer.style.backgroundImage = `url('${url}')`;
-    backgroundSelect.value = "";
-  }
 });
   
 </script>
