@@ -3,37 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <title>Mushaf Dinamis V1/V2 + Terjemah</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body {
       background: #fefcf8;
       padding: 1em;
       font-family: sans-serif;
       direction: rtl;
+      margin: 0;
     }
-    h2 { text-align: center; }
+    h2 {
+      text-align: center;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      margin-bottom: 1rem;
+    }
     .controls {
       direction: ltr;
-      max-width: 720px;
-      margin: auto;
+      max-width: 800px;
+      margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
-      gap: 1em;
+      gap: 0.8em;
       justify-content: center;
       align-items: flex-end;
-    }
-    label { font-size: 0.9em; }
-    select, button {
-      font-size: 1em;
       padding: 0.5em;
+    }
+    label {
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      display: flex;
+      flex-direction: column;
+    }
+    select, button {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      padding: 0.5em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4cafef;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #007acc;
     }
     .version-buttons {
       margin-top: 1em;
       text-align: center;
     }
+    .version-buttons button {
+      margin: 0.5em;
+      padding: 0.6em 1.2em;
+    }
     .page-container {
-      font-size: 2.5em;
-      line-height: 1.6;
+      font-size: clamp(1.8em, 5vw, 2.5em);
+      line-height: 1.8;
       text-align: center;
       user-select: text;
       margin: 2em auto;
@@ -41,7 +67,8 @@
       transition: opacity 0.3s ease;
       display: none;
       word-spacing: -0.08em;
-      max-width: 700px;
+      max-width: 95%;
+      overflow-wrap: break-word;
     }
     .word {
       display: inline-block;
@@ -50,14 +77,18 @@
     }
     .translation {
       font-family: sans-serif;
-      font-size: 1em;
+      font-size: clamp(1rem, 3vw, 1.2rem);
       color: #333;
       direction: ltr;
       text-align: center;
       margin-top: 1em;
+      padding: 0 0.5em;
     }
-    @media (max-width: 768px) {
-      .page-container { font-size: 1.5em; }
+    @media (max-width: 600px) {
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
     }
   </style>
 </head>
@@ -66,15 +97,20 @@
 <h2>📖 Al-Qur'an Dinamis (V1/V2 + Terjemah)</h2>
 
 <div class="controls">
-  <label><select id="surahSelect"></select>
+  <label>Surah
+    <select id="surahSelect"></select>
   </label>
-  <label><select id="ayahSelect"></select>
+  <label>Ayat
+    <select id="ayahSelect"></select>
   </label>
-  <label><select id="wordStart"></select>
+  <label>Dari Kata
+    <select id="wordStart"></select>
   </label>
-  <label><select id="wordEnd"></select>
+  <label>Sampai Kata
+    <select id="wordEnd"></select>
   </label>
-  <label><select id="wordTranslationId">
+  <label>Terjemahan
+    <select id="wordTranslationId">
       <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
       <option value="20">English – Saheeh International</option>
     </select>
