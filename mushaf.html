@@ -49,33 +49,18 @@ button:hover {
 }
 
 #pages {
-  position: relative;
   width: 100%;
   max-width: 540px;
   aspect-ratio: 1 / 1;
   margin: 2em auto;
-  overflow: hidden;
-}
-
-#backgroundLayer {
-  position: absolute;
-  inset: 0;
+  position: relative;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: 0;
-  transition: filter 0.3s ease;
-}
-
-#textLayer {
-  position: relative;
-  z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 100%;
-  height: 100%;
 }
 
 .surah-info {
@@ -164,12 +149,6 @@ button:hover {
   padding: 0 0.5em;
 }
 
-    .button-wrapper {
-  display: flex;
-  align-items: flex-end;
-}
-
-
 @media (max-width: 600px) {
   .controls {
     grid-template-columns: repeat(2, 1fr);
@@ -200,22 +179,19 @@ button:hover {
       <option value="20">English – Saheeh International</option>
     </select>
   </label>
-  <div class="button-wrapper">
-  <button id="customLinkButton">Tombol Link</button>
-</div>
-<div class="button-wrapper">
-  <button onclick="setVersion('v2')">Quran V2</button>
-</div>
-<div class="button-wrapper">
-  <button onclick="setVersion('v1')">Quran V1</button>
-</div>
+  <label>&nbsp;
+    <button id="customLinkButton">Tombol Link</button>
+  </label>
+  <label>&nbsp;
+    <button onclick="setVersion('v2')">Quran V2</button>
+  </label>
+  <label>&nbsp;
+    <button onclick="setVersion('v1')">Quran V1</button>
+  </label>
 </div>
 
 
-<div id="pages">
-  <div id="backgroundLayer"></div>
-  <div id="textLayer"></div>
-</div>
+<div id="pages"></div>
 
 <!-- Baris Background -->
 <div class="controls">
@@ -290,7 +266,7 @@ const toggleContrast = document.getElementById("toggleContrast");
 backgroundSelect.addEventListener("change", () => {
   const bg = backgroundSelect.value;
   if (bg) {
-    backgroundLayer.style.backgroundImage = `url('${bg}')`;
+    pagesContainer.style.backgroundImage = `url('${bg}')`;
     backgroundUrl.value = "";
   } else {
     pagesContainer.style.backgroundImage = "none";
@@ -334,10 +310,10 @@ toggleContrast.addEventListener("click", () => {
 
 // Ubah kontras saat slider digeser
 contrastSlider.addEventListener("input", () => {
-  const value = contrastSlider.value;
-  const contrastValue = value / 100; // 0 = gelap, 1 = normal, 2 = sangat terang
-  backgroundLayer.style.filter = `contrast(${contrastValue})`;
+  const contrastValue = contrastSlider.value / 100; // 1 = normal, <1 gelap, >1 terang
+  pagesContainer.style.filter = `contrast(${contrastValue})`;
 });
+
 
 
   
