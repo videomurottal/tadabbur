@@ -146,6 +146,19 @@
 
 <div id="pages"></div>
 
+<!-- 🔎 Modal Search Ayat -->
+<div id="searchModal" style="
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+  <div style="
+    background:white; padding:1em; max-width:600px; width:90%;
+    border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.3);">
+    <h3 style="margin-top:0;">🔍 Cari Ayat</h3>
+    <input id="searchInput" placeholder="Ketik kata Arab/ID/EN..." style="width:100%;padding:0.5em; margin-bottom:0.5em;"/>
+    <div id="searchResults" style="max-height:300px; overflow-y:auto;"></div>
+    <button onclick="closeSearch()" style="margin-top:0.5em; padding:0.5em 1em; background:#f44336; color:white; border:none; border-radius:4px;">❌ Tutup</button>
+  </div>
+</div>
 
 <!-- 🔥 Loader Overlay -->
 <div id="loaderOverlay" style="
@@ -482,6 +495,21 @@ searchInput.addEventListener('input', async () => {
     </div>
   `).join('');
 });
+
+  document.getElementById('customLinkButton').addEventListener('click', () => {
+  document.getElementById('searchModal').style.display = 'flex';
+});
+
+function closeSearch() {
+  document.getElementById('searchModal').style.display = 'none';
+}
+
+  function gotoAyat(surah, ayah) {
+  surahSelect.value = surah;
+  ayahSelect.value = ayah;
+  loadAyat();
+  closeSearch();
+}
   </script>
   
 </body>
