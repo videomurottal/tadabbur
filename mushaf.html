@@ -396,7 +396,7 @@ updateAyahDropdown().then(() => {
   if (last.wordStart) wordStart.value = last.wordStart;
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
-  loadAyat();
+  // 🟢 Tidak perlu panggil loadAyat() lagi di sini karena sudah dipanggil di updateAyahDropdown()
 });
 </script>
   
