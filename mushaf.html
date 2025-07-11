@@ -211,9 +211,12 @@ button:hover {
   </label>
 
   <!-- Input URL -->
-<label>Link Gambar
-  <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
-  <button type="button" id="setBackgroundFromUrl">OK</button>
+<label style="grid-column: span 2;">
+  Link Gambar
+  <div style="display: flex; gap: 0.5em;">
+    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg" style="flex: 1;">
+    <button id="applyUrlButton">OK</button>
+  </div>
   <button type="button" id="toggleContrast">Contrast Gambar</button>
   <input type="range" id="contrastSlider" min="0" max="200" value="100" style="display:none; margin-top: 0.5em;">
 </label>
@@ -299,7 +302,7 @@ toggleContrast.addEventListener("click", () => {
 
 contrastSlider.addEventListener("input", () => {
   const value = contrastSlider.value;
-  const contrastValue = value / 100; // 0.5 = gelap, 1 = normal, 2 = kontras tinggi
+  const contrastValue = 2 - (value / 100); // 0.5 = gelap, 1 = normal, 2 = kontras tinggi
   pagesContainer.style.filter = `contrast(${contrastValue})`;
 });
 
@@ -504,5 +507,15 @@ updateAyahDropdown().then(() => {
   
 </script>
 
+document.getElementById("applyUrlButton").addEventListener("click", () => {
+  const url = backgroundUrl.value.trim();
+  if (url) {
+    pagesContainer.style.backgroundImage = `url('${url}')`;
+    backgroundSelect.value = "";
+    saveHistory();
+    loadAyat(); // <- ini untuk memuat ulang teks Quran
+  }
+});
+  
 </body>
 </html>
