@@ -19,6 +19,10 @@ h2 {
   margin-bottom: 1rem;
 }
 
+    .translation[contenteditable="true"] {
+  cursor: text;
+}
+
 #pages {
   /* ... (sudah ada background properties) */
   filter: contrast(1); /* Default */
@@ -204,26 +208,7 @@ button:hover {
 
 <div id="pages"></div>
 
-<!-- Baris Background -->
 <div class="controls">
-  <!-- Input URL di awal -->
-  <div class="button-wrapper">
-  <button id="showUrlInput" class="button">Link Gambar</button>
-</div>
-
-<div id="urlInputWrapper" style="display:none; flex-direction: column; gap: 0.5em;">
-  <label>
-    <span style="font-size: 0.9em;">URL Gambar:</span>
-    <input type="url" id="backgroundUrl" placeholder="https://..." style="width: 100%;">
-  </label>
-  <button id="applyUrlButton" class="button">OK</button>
-</div>
-
-  <!-- Tombol/Slider Contrast -->
-  <label><button id="toggleContrast">⚙️ Atur Kontras</button>
-  <input type="range" id="contrastSlider" min="0" max="200" value="100" style="display:none; width: 100%;">
-</label>
-
   <!-- Dropdown Background -->
   <label><select id="backgroundSelect">
       <option value="https://images.pexels.com/photos/1819662/pexels-photo-1819662.jpeg">Wallpaper 1</option>
@@ -237,6 +222,24 @@ button:hover {
   <div class="button-wrapper">
   <button id="uploadTrigger">Upload Gambar</button>
   <input type="file" id="backgroundUpload" accept="image/*" style="display: none;">
+</div>
+
+  <!-- Input URL di awal -->
+  <div class="button-wrapper">
+  <button id="showUrlInput" class="button">Link Gambar</button>
+</div>
+
+    <!-- Tombol/Slider Contrast -->
+  <label><button id="toggleContrast">⚙️ Atur Kontras</button>
+  <input type="range" id="contrastSlider" min="0" max="200" value="100" style="display:none; width: 100%;">
+</label>
+
+<div id="urlInputWrapper" style="display:none; flex-direction: column; gap: 0.5em;">
+  <label>
+    <span style="font-size: 0.9em;">URL Gambar:</span>
+    <input type="url" id="backgroundUrl" placeholder="https://..." style="width: 100%;">
+  </label>
+  <button id="applyUrlButton" class="button">OK</button>
 </div>
 
 <label>
@@ -265,6 +268,21 @@ button:hover {
   <button class="save-option" data-size="4096">4096x4096</button>
 </div>
 
+<!-- Pilihan Font Terjemah -->
+<label>
+  Font Terjemah:
+  <select id="translationFontSelect">
+    <option value="https://fonts.gstatic.com/s/opensans/v28/mem8YaGs126MiZpBA-UFVZ0e.ttf">Open Sans</option>
+    <option value="https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxP.ttf">Roboto</option>
+    <option value="https://fonts.gstatic.com/s/nunito/v25/XRXV3I6Li01BKofA-seUbQ.ttf">Nunito</option>
+  </select>
+</label>
+
+<!-- Ukuran Font Terjemah -->
+<label>
+  Ukuran Terjemah:
+  <input type="range" id="translationFontSize" min="10" max="48" value="20">
+</label>
   
 </div>
 
@@ -524,6 +542,9 @@ async function loadAyat() {
         const perKataDiv = document.createElement("div");
         perKataDiv.className = "translation";
         perKataDiv.textContent = wordTranslations.join(" ");
+        perKataDiv.contentEditable = true;
+        perKataDiv.style.userSelect = "text";
+        perKataDiv.setAttribute("draggable", "false");
         div.appendChild(perKataDiv);
 
         const surahName = surahList[s][0];
@@ -634,6 +655,37 @@ applyUrlButton.addEventListener("click", () => {
     backgroundSelect.value = "";
     saveHistory();
   }
+});
+
+const translationFontSelect = document.getElementById("translationFontSelect");
+const translationFontSize = document.getElementById("translationFontSize");
+
+function loadFontFromUrl(fontUrl, fontName) {
+  const style = document.createElement("style");
+  style.textContent = `
+    @font-face {
+      font-family: '${fontName}';
+      src: url('${fontUrl}');
+    }
+  `;
+  document.head.appendChild(style);
+  document.fonts.load(`1em ${fontName}`);
+}
+
+translationFontSelect.addEventListener("change", () => {
+  const fontUrl = translationFontSelect.value;
+  const fontName = "customTranslationFont";
+  loadFontFromUrl(fontUrl, fontName);
+  document.querySelectorAll(".translation").forEach(el => {
+    el.style.fontFamily = fontName;
+  });
+});
+
+translationFontSize.addEventListener("input", () => {
+  const size = translationFontSize.value + "px";
+  document.querySelectorAll(".translation").forEach(el => {
+    el.style.fontSize = size;
+  });
 });
     
 </script>
