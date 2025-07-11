@@ -239,17 +239,16 @@ button:hover {
   <input type="file" id="backgroundUpload" accept="image/*" style="display: none;">
 </div>
 
-<label>
-  <select id="imageSizeSelect">
-    <option value="1">540 x 540</option>
-    <option value="2" selected>1080 x 1080</option>
-    <option value="4">2160 x 2160</option>
-  </select>
-</label>
-
 <div class="button-wrapper">
-  <button id="saveImageButton">Download Gambar</button>
+  <button id="saveImageTrigger">Download Gambar</button>
 </div>
+
+<div id="saveSizeOptions" style="display:none; gap: 0.5em; flex-wrap: wrap;">
+  <button class="save-option" data-size="1080">1080x1080</button>
+  <button class="save-option" data-size="2048">2048x2048</button>
+  <button class="save-option" data-size="4096">4096x4096</button>
+</div>
+
 
 <label>
   <select id="colorTarget">
@@ -566,26 +565,48 @@ updateAyahDropdown().then(() => {
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script>
-document.getElementById("saveImageButton").addEventListener("click", () => {
-  const scale = parseInt(document.getElementById("imageSizeSelect").value);
-  const s = surahSelect.value;
-  const a = ayahSelect.value;
-  const surahName = surahList[s][0].replace(/\s+/g, '-'); // Ganti spasi dengan strip
-  const filename = `${surahName}-${a}-${scale * 540}px.png`;
+<script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/src/dom-to-image.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
-  html2canvas(pagesContainer, {
-    scale: scale,
-    useCORS: true
-  }).then(canvas => {
-    const link = document.createElement("a");
-    link.download = filename;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+  <script>
+
+const saveImageTrigger = document.getElementById("saveImageTrigger");
+const saveSizeOptions = document.getElementById("saveSizeOptions");
+
+saveImageTrigger.addEventListener("click", () => {
+  saveSizeOptions.style.display = "flex";
+});
+
+document.querySelectorAll(".save-option").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const size = parseInt(btn.dataset.size);
+    saveImageAsPng(size);
+    saveSizeOptions.style.display = "none";
   });
 });
 
+function saveImageAsPng(size = 1080) {
+  const node = document.getElementById("pages");
+  const s = surahSelect.value;
+  const a = ayahSelect.value;
+  const surahName = surahList[s][0].replace(/[^a-zA-Z0-9]/g, "-");
+  const filename = `${surahName}-${a}.png`;
 
+  domtoimage.toBlob(node, {
+    width: size,
+    height: size,
+    style: {
+      transform: "scale(1)",
+      transformOrigin: "top left",
+      width: size + "px",
+      height: size + "px"
+    }
+  }).then(function (blob) {
+    window.saveAs(blob, filename);
+  });
+}
+
+    
     document.getElementById("applyColor").addEventListener("click", () => {
   const target = document.getElementById("colorTarget").value;
   const color = document.getElementById("colorPicker").value;
