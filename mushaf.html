@@ -194,10 +194,10 @@ button:hover {
   <button id="customLinkButton">Tombol Link</button>
 </div>
 <div class="button-wrapper">
-  <button onclick="setVersion('v2')">Quran V2</button>
+  <button onclick="setVersion('v1')">Quran V1</button>
 </div>
 <div class="button-wrapper">
-  <button onclick="setVersion('v1')">Quran V1</button>
+  <button onclick="setVersion('v2')">Quran V2</button>
 </div>
 </div>
 
@@ -225,10 +225,10 @@ button:hover {
   </label>
 
   <!-- Upload File -->
-  <label for="backgroundUpload" style="display: inline-block;">
-  <button type="button">Upload Gambar</button>
-</label>
-<input type="file" id="backgroundUpload" accept="image/*" style="display: none;">
+  <div class="button-wrapper">
+  <button id="uploadTrigger">Upload Gambar</button>
+  <input type="file" id="backgroundUpload" accept="image/*" style="display: none;">
+</div>
 
 <label>
   <select id="imageSizeSelect">
@@ -586,6 +586,11 @@ document.getElementById("saveImageButton").addEventListener("click", () => {
   });
 });
 
+// Trigger input file saat tombol diklik
+document.getElementById("uploadTrigger").addEventListener("click", function () {
+  document.getElementById("backgroundUpload").click();
+});
+    
 </script>
 
 </body>
