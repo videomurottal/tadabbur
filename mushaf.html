@@ -279,9 +279,22 @@ button:hover {
 </label>
 
 <!-- Ukuran Font Terjemah -->
+
+<!-- Ukuran Font Ayat -->
+<label>
+  Ukuran Ayat:
+  <input type="range" id="quranFontSize" min="18" max="72" value="36">
+</label>
+  
 <label>
   Ukuran Terjemah:
   <input type="range" id="translationFontSize" min="10" max="48" value="20">
+</label>
+
+<!-- Ukuran Font Info Surah -->
+<label>
+  Ukuran Info Surah:
+  <input type="range" id="infoFontSize" min="10" max="32" value="16">
 </label>
   
 </div>
@@ -553,6 +566,11 @@ async function loadAyat() {
         referenceDiv.textContent = `${surahName}: ${a}`;
         div.appendChild(referenceDiv);
 
+        // Atur font size langsung sesuai slider
+        div.style.fontSize = document.getElementById("fontSizeAyat").value + "px";
+        perKataDiv.style.fontSize = document.getElementById("fontSizeTerjemah").value + "px";
+        referenceDiv.style.fontSize = document.getElementById("fontSizeInfo").value + "px";
+
         const brandDiv = document.createElement("div");
         brandDiv.className = "brand-watermark";
         brandDiv.textContent = "videomurottal.com";
@@ -681,10 +699,21 @@ translationFontSelect.addEventListener("change", () => {
   });
 });
 
-translationFontSize.addEventListener("input", () => {
-  const size = translationFontSize.value + "px";
+ document.getElementById("quranFontSize").addEventListener("input", e => {
+   document.querySelectorAll(".quran-v1, .quran-v2").forEach(el => {
+     el.style.fontSize = `${e.target.value}px`;
+  });
+});
+
+document.getElementById("translationFontSize").addEventListener("input", e => {
   document.querySelectorAll(".translation").forEach(el => {
-    el.style.fontSize = size;
+    el.style.fontSize = `${e.target.value}px`;
+  });
+});
+
+document.getElementById("infoFontSize").addEventListener("input", e => {
+  document.querySelectorAll(".surah-info").forEach(el => {
+    el.style.fontSize = `${e.target.value}px`;
   });
 });
     
