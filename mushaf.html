@@ -19,9 +19,6 @@ h2 {
   margin-bottom: 1rem;
 }
 
-    .page-container {
-  position: relative;
-}
     .translation[contenteditable="true"] {
   cursor: text;
 }
@@ -77,6 +74,20 @@ button:hover {
   margin-top: 0.5em;
   text-align: center;
   direction: ltr;
+}
+
+.brand-watermark {
+  font-size: 0.4em;
+  font-family: sans-serif;
+  color: #999;
+  position: absolute;     /* ⬅️ Supaya tidak mendorong kotak */
+  bottom: 0.5em;           /* ⬅️ Turunkan ke bawah */
+  left: 50%;              
+  transform: translateX(-50%); /* ⬅️ Tengahkan secara horizontal */
+  text-align: center;
+  font-style: italic;
+  direction: ltr;
+  user-select: none;
 }
 
 .controls {
@@ -147,23 +158,6 @@ button:hover {
   margin-top: 0.5em;
   padding: 0 0.5em;
 }
-
-    .brand-watermark {
-  position: absolute;
-  bottom: 0.2em;                    /* ⬅️ Lebih dekat ke bawah */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.8rem;
-  font-family: sans-serif;
-  font-style: italic;
-  color: rgba(255, 255, 255, 0.6);
-  text-align: center;
-  direction: ltr;
-  user-select: none;
-  z-index: 10;
-  pointer-events: none;
-}
-
 
     .button-wrapper {
   display: flex;
@@ -572,15 +566,15 @@ async function loadAyat() {
         referenceDiv.textContent = `${surahName}: ${a}`;
         div.appendChild(referenceDiv);
 
-        const brandDiv = document.createElement("div");
-        brandDiv.className = "brand-watermark";
-        brandDiv.textContent = "videomurottal.com";
-        div.appendChild(brandDiv);
-        
         // Atur font size langsung sesuai slider
         div.style.fontSize = document.getElementById("fontSizeAyat").value + "px";
         perKataDiv.style.fontSize = document.getElementById("fontSizeTerjemah").value + "px";
         referenceDiv.style.fontSize = document.getElementById("fontSizeInfo").value + "px";
+
+        const brandDiv = document.createElement("div");
+        brandDiv.className = "brand-watermark";
+        brandDiv.textContent = "videomurottal.com";
+        div.appendChild(brandDiv);
 
         
       } catch (e) {
