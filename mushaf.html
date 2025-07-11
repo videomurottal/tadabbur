@@ -157,6 +157,32 @@
       align-items: center;
       flex-direction: column;
     }
+
+    .background-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8em;
+      align-items: flex-start;
+      margin-top: 1em;
+    }
+
+    .background-row label {
+      flex: 1 1 200px;
+      display: flex;
+      flex-direction: column;
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+    }
+
+    .background-row input,
+    .background-row select {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      padding: 0.5em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
  
     @media (max-width: 600px) {
       .controls, .version-buttons {
@@ -206,7 +232,7 @@
 
 <div id="pages"></div>
 
-<div class="controls" style="margin-top: 1em;">
+<div class="background-row">
   <label>Gambar Latar
     <select id="backgroundSelect">
       <option value="">Putih Polos</option>
@@ -216,12 +242,11 @@
       <option value="https://i.imgur.com/1LJ3FcC.jpg">Abstrak Emas</option>
     </select>
   </label>
-  <!-- Upload File -->
+
   <label>Upload Background
     <input type="file" id="backgroundUpload" accept="image/*">
   </label>
 
-  <!-- Input URL -->
   <label>Link Background
     <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
   </label>
