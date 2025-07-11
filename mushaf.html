@@ -20,7 +20,8 @@ h2 {
 }
 
 #pages {
-  filter: contrast(1);
+  /* ... (sudah ada background properties) */
+  filter: contrast(1); /* Default */
   transition: filter 0.3s ease;
 }
     
@@ -218,11 +219,8 @@ button:hover {
 <label>Link Gambar
   <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
   <button type="button" id="setBackgroundFromUrl">OK</button>
-</label>
-  <label style="position: relative;">
   <button type="button" id="toggleContrast">Contrast Gambar</button>
-  <input type="range" id="contrastSlider" min="50" max="200" value="100"
-         style="position: absolute; bottom: 2.5em; left: 50%; transform: translateX(-50%) rotate(-90deg); display: none; width: 120px;">
+  <input type="range" id="contrastSlider" min="50" max="200" value="100" style="display:none; margin-top: 0.5em;">
 </label>
 </div>
 
@@ -294,6 +292,20 @@ document.getElementById("setBackgroundFromUrl").addEventListener("click", () => 
     pagesContainer.style.backgroundImage = `url('${url}')`;
     backgroundSelect.value = "";
   }
+});
+
+  const contrastSlider = document.getElementById("contrastSlider");
+const toggleContrast = document.getElementById("toggleContrast");
+
+// Toggle slider tampil/sembunyi
+toggleContrast.addEventListener("click", () => {
+  contrastSlider.style.display = contrastSlider.style.display === "none" ? "block" : "none";
+});
+
+// Saat slider digeser, ubah filter contrast
+contrastSlider.addEventListener("input", () => {
+  const value = contrastSlider.value;
+  pagesContainer.style.filter = `contrast(${value}%)`;
 });
 
   
@@ -493,20 +505,6 @@ updateAyahDropdown().then(() => {
   if (last.wordStart) wordStart.value = last.wordStart;
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
-});
-
-const contrastSlider = document.getElementById("contrastSlider");
-const toggleContrastBtn = document.getElementById("toggleContrast");
-
-// Toggle tampilkan slider
-toggleContrastBtn.addEventListener("click", () => {
-  contrastSlider.style.display = contrastSlider.style.display === "none" ? "block" : "none";
-});
-
-// Saat slider berubah, ubah kontras
-contrastSlider.addEventListener("input", () => {
-  const contrastValue = contrastSlider.value;
-  pagesContainer.style.filter = `contrast(${contrastValue}%)`;
 });
   
 </script>
