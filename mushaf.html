@@ -795,32 +795,36 @@ document.getElementById("infoFontSize").addEventListener("input", e => {
 async function loadQuranEncTranslation(translationKey) {
   const surah = document.getElementById("surahSelect").value;
   const ayah = document.getElementById("ayahSelect").value;
-
   const url = `https://quranenc.com/api/v1/translation/aya/${translationKey}/${surah}/${ayah}`;
 
   try {
+    // Bersihkan terjemahan lama
+    document.querySelectorAll(".translation").forEach(el => el.remove());
+
     const res = await fetch(url);
     const data = await res.json();
-
     const translationText = data.translation;
 
-    // Cek apakah elemen translationOutput sudah ada
-    let transDiv = document.getElementById("translationOutput");
-    if (!transDiv) {
-      transDiv = document.createElement("div");
-      transDiv.id = "translationOutput";
-      document.querySelector("#pages").appendChild(transDiv);
+    const container = document.querySelector(".page-container");
+    if (!container) {
+      console.error("page-container tidak ditemukan");
+      return;
     }
 
+    const transDiv = document.createElement("div");
     transDiv.className = "translation";
     transDiv.contentEditable = true;
     transDiv.innerText = translationText;
     transDiv.setAttribute("draggable", "false");
     transDiv.style.userSelect = "text";
+    transDiv.style.fontSize = document.getElementById("translationFontSize").value + "px";
+
+    container.appendChild(transDiv);
   } catch (err) {
     console.error("Gagal mengambil terjemahan QuranEnc:", err);
   }
 }
+
     
 </script>
   
