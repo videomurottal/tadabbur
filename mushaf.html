@@ -215,23 +215,9 @@ button:hover {
   </label>
 
   <!-- Input URL -->
-  <label style="display: flex; flex-direction: column;">Link Gambar
-  <div style="position: relative;">
-    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg" style="padding-right: 4em;">
-    <button id="applyUrlButton" style="
-      position: absolute;
-      right: 0.3em;
-      top: 50%;
-      transform: translateY(-50%);
-      padding: 0.4em 0.8em;
-      font-size: 0.9em;
-      border: none;
-      background-color: #4cafef;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-    ">OK</button>
-  </div>
+<label>Link Gambar
+  <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
+  <button type="button" id="setBackgroundFromUrl">OK</button>
 </label>
   <label style="position: relative;">
   <button type="button" id="toggleContrast">Contrast Gambar</button>
@@ -522,16 +508,6 @@ contrastSlider.addEventListener("input", () => {
   const contrastValue = contrastSlider.value;
   pagesContainer.style.filter = `contrast(${contrastValue}%)`;
 });
-
-  document.getElementById("applyUrlButton").addEventListener("click", () => {
-  const url = backgroundUrl.value.trim();
-  if (url) {
-    pagesContainer.style.backgroundImage = `url('${url}')`;
-    backgroundSelect.value = "";
-    saveHistory();
-  }
-});
-
   
 </script>
 
