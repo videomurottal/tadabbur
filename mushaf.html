@@ -133,6 +133,7 @@
 
     .brand-watermark {
       font-size: 0.85em;
+      font-family: sans-serif;
       color: #999;
       margin-top: 0.3em;
       text-align: center;
@@ -215,6 +216,15 @@
       <option value="https://i.imgur.com/1LJ3FcC.jpg">Abstrak Emas</option>
     </select>
   </label>
+  <!-- Upload File -->
+  <label>Upload Background
+    <input type="file" id="backgroundUpload" accept="image/*">
+  </label>
+
+  <!-- Input URL -->
+  <label>Link Background
+    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
+  </label>
 </div>
 
 
@@ -247,6 +257,46 @@
 
 <script>
 
+const backgroundSelect = document.getElementById("backgroundSelect");
+const backgroundUpload = document.getElementById("backgroundUpload");
+const backgroundUrl = document.getElementById("backgroundUrl");
+const pagesContainer = document.getElementById("pages");
+
+// Dropdown
+backgroundSelect.addEventListener("change", () => {
+  const bg = backgroundSelect.value;
+  if (bg) {
+    pagesContainer.style.backgroundImage = `url('${bg}')`;
+    backgroundUrl.value = "";
+  } else {
+    pagesContainer.style.backgroundImage = "none";
+  }
+  saveHistory(); // hanya dropdown yang disimpan
+});
+
+// Upload
+backgroundUpload.addEventListener("change", () => {
+  const file = backgroundUpload.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      pagesContainer.style.backgroundImage = `url('${e.target.result}')`;
+      backgroundSelect.value = "";
+      backgroundUrl.value = "";
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Input Link
+backgroundUrl.addEventListener("change", () => {
+  const url = backgroundUrl.value.trim();
+  if (url) {
+    pagesContainer.style.backgroundImage = `url('${url}')`;
+    backgroundSelect.value = "";
+  }
+});
+  
 const backgroundSelect = document.getElementById("backgroundSelect");
 backgroundSelect.addEventListener("change", () => {
   const bg = backgroundSelect.value;
