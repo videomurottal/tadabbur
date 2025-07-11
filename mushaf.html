@@ -17,6 +17,83 @@
       font-size: clamp(1.5rem, 4vw, 2.5rem);
       margin-bottom: 1rem;
     }
+
+    .quran-v1, .quran-v2, .translation {
+      font-size: 24px; /* default */
+      touch-action: none; /* penting untuk gesture */
+    }
+
+    #editor {
+      touch-action: none;
+      overflow: hidden;
+      position: relative;
+    }
+
+
+    .editor-text:focus {
+      outline: 1px dashed #ccc;
+    }
+
+    @media (max-width: 600px) {
+      #editorContainer {
+        width: 100vw;
+        height: 100vw;
+      }
+    }
+
+
+    .editor-text {
+      position: absolute;
+      cursor: move;
+      padding: 0.2em 0.5em;
+      user-select: text;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+
+    #editorContainer {
+      width: 1080px;
+      height: 1080px;
+      margin: 2em auto;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      filter: contrast(1);
+      overflow: hidden;
+      border: 2px solid #ccc;
+      touch-action: none;
+    }
+
+    #editorContainer {
+      filter: contrast(1);
+      transition: filter 0.3s ease;
+    }
+
+    .editor-text {
+      position: absolute;
+      cursor: move;
+      font-size: 24px;
+      user-select: none;
+    }
+
+    #watermark {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    
+    .draggable-text {
+      cursor: move;
+      user-select: text;
+      touch-action: none;
+    }
+
     .controls {
       direction: ltr;
       max-width: 800px;
@@ -136,8 +213,36 @@
       }
     }
   </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
+
+<div class="background-controls" style="max-width: 800px; margin: auto; padding: 1em;">
+  <label>Background Default:
+    <select id="defaultBackgroundSelect">
+      <option value="bg1">Background 1</option>
+      <option value="bg2">Background 2</option>
+      <option value="bg3">Background 3</option>
+      <option value="bg4">Background 4</option>
+    </select>
+  </label>
+
+  <label>Ganti via Link:
+    <input type="text" id="backgroundUrlInput" placeholder="https://example.com/bg.jpg">
+    <button onclick="setBackgroundFromUrl()">Gunakan Link</button>
+  </label>
+
+  <label>Upload Background:
+    <input type="file" id="backgroundFileInput" accept="image/*">
+  </label>
+
+  <label>Kontras Background:
+    <input type="range" id="contrastSlider" min="0.5" max="2" step="0.1" value="1">
+  </label>
+</div>
+
+  
   <h2>📖 Al-Qur'an Dinamis (V1/V2 + Terjemah)</h2>
   <div class="controls">
     <label>Surah
@@ -197,12 +302,174 @@
     <button onclick="setVersion('v2')">📜 Gunakan Quran V2</button>
     <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
   </div>
+  <!-- 🎨 Dropdown Warna -->
+<div id="colorControls" style="display:none; text-align:center; margin-top:1em;">
+  <label style="font-size: 1.1rem;">🎨 Ganti Warna Teks:
+    <select id="colorPicker">
+      <option value="#000000">Hitam</option>
+      <option value="#ffffff">Putih</option>
+      <option value="#ff0000">Merah</option>
+      <option value="#0000ff">Biru</option>
+      <option value="#008000">Hijau</option>
+      <option value="#ff00ff">Magenta</option>
+      <option value="#ffa500">Oranye</option>
+      <option value="#808080">Abu-abu</option>
+    </select>
+  </label>
+  <button onclick="applySelectedColor()">✅ OK</button>
+</div>
+
+  <!-- 🔠 Dropdown Ganti Font Terjemahan -->
+<div style="text-align:center; margin-top:1em;">
+  <label style="font-size: 1.1rem;">🔤 Ganti Font Terjemahan:
+    <select id="fontSelector">
+      <option value="">(Default)</option>
+      <option value="Font 1 – Amiri">Font 1 – Amiri</option>
+      <option value="Font 2 – Cairo">Font 2 – Cairo</option>
+      <option value="Font 3 – Lato">Font 3 – Lato</option>
+      <option value="Font 4 – Noto Sans">Font 4 – Noto Sans</option>
+    </select>
+  </label>
+</div>
+
+<!-- 💾 Tombol Simpan Gambar -->
+<div style="text-align:center; margin-top:1em;">
+  <button id="saveImageBtn">💾 Simpan Gambar</button>
+</div>
+
+  <div class="controls" style="margin-top:1em; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+  <label>Background Default
+    <select id="bgSelect">
+      <option value="">Pilih</option>
+      <option value="bg1">BG 1</option>
+      <option value="bg2">BG 2</option>
+      <option value="bg3">BG 3</option>
+      <option value="bg4">BG 4</option>
+    </select>
+  </label>
+  <label>Upload Background
+    <input type="file" id="bgUpload" accept="image/*">
+  </label>
+  <label>URL Gambar
+    <input type="text" id="bgUrl" placeholder="https://...">
+    <button onclick="setBgFromURL()">OK</button>
+  </label>
+  <label>Kontras Gambar
+    <input type="range" min="0.5" max="2" step="0.1" value="1" id="bgContrast">
+  </label>
+</div>
+  
   <div id="pages"></div>
+
+
+<!-- 🔲 Area Editor 1080x1080 -->
+<div id="editorCanvas" style="
+  width: 1080px;
+  height: 1080px;
+  margin: 2em auto;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid #ccc;
+  box-shadow: 0 0 12px rgba(0,0,0,0.2);
+  overflow: hidden;">
+  <!-- Teks Quran & Terjemah & Sumber dimasukkan ke sini lewat JS -->
+  <div id="quranText" class="draggable-text" contenteditable="true"
+       style="position:absolute; top:100px; left:50px; color:#000; font-size:36px; text-align:center;">
+    [Teks Quran di sini]
+  </div>
+
+  <div id="translationText" class="draggable-text" contenteditable="true"
+       style="position:absolute; top:300px; left:50px; color:#333; font-size:28px; text-align:center; font-family: sans-serif;">
+    [Terjemah di sini]
+  </div>
+
+  <div id="sourceText" class="draggable-text" contenteditable="true"
+       style="position:absolute; top:950px; left:50px; color:#444; font-size:20px; font-style:italic;">
+    Al-Fatihah: 1
+  </div>
+
+  <div id="watermark" style="
+    position:absolute;
+    bottom:10px;
+    right:10px;
+    font-size: 18px;
+    font-family: sans-serif;
+    opacity: 0.25;
+    pointer-events: none;
+    user-select: none;">
+    videomurottal.com
+  </div>
+</div>
+
+
+
+  
   <div id="loaderOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.8);display:flex;justify-content:center;align-items:center;z-index:9999;display:none;">
     <div style="border:8px solid #f3f3f3;border-top:8px solid #4cafef;border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite;"></div>
   </div>
   <style>@keyframes spin {0% { transform: rotate(0deg); }100% { transform: rotate(360deg); }}</style>
+ 
   <script>
+
+document.getElementById("saveImageBtn").addEventListener("click", function () {
+  const editor = document.getElementById("editorContainer");
+  if (!editor) return alert("Editor tidak ditemukan!");
+
+  html2canvas(editor, {
+    backgroundColor: null, // transparan jika tidak pakai background
+    scale: 2,               // kualitas tinggi
+    useCORS: true           // untuk gambar dari URL luar
+  }).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "quran_image.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }).catch(err => {
+    alert("Gagal menyimpan gambar: " + err.message);
+  });
+});
+    
+const customFonts = {
+  "Font 1 – Amiri": "https://cdn.jsdelivr.net/gh/google/fonts/ofl/amiri/Amiri-Regular.ttf",
+  "Font 2 – Cairo": "https://cdn.jsdelivr.net/gh/google/fonts/ofl/cairo/Cairo-Regular.ttf",
+  "Font 3 – Lato": "https://cdn.jsdelivr.net/gh/google/fonts/ofl/lato/Lato-Regular.ttf",
+  "Font 4 – Noto Sans": "https://cdn.jsdelivr.net/gh/google/fonts/ofl/notosans/NotoSans-Regular.ttf"
+};
+
+document.getElementById("fontSelector").addEventListener("change", async function () {
+  const fontName = this.value;
+  if (fontName && customFonts[fontName]) {
+    const fontUrl = customFonts[fontName];
+
+    // Buat font-face dynamic
+    const styleId = `font-${fontName.replace(/\s+/g, "-")}`;
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        @font-face {
+          font-family: "${fontName}";
+          src: url("${fontUrl}") format("truetype");
+        }
+      `;
+      document.head.appendChild(style);
+      await document.fonts.load(`1em ${fontName}`);
+    }
+
+    // Terapkan ke semua elemen terjemahan
+    document.querySelectorAll(".translation").forEach(el => {
+      el.style.fontFamily = `"${fontName}", sans-serif`;
+    });
+  } else {
+    // Reset ke default
+    document.querySelectorAll(".translation").forEach(el => {
+      el.style.fontFamily = "sans-serif";
+    });
+  }
+});
+
+    
 // --- VARIABEL DASAR ---
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
@@ -299,7 +566,9 @@ async function loadAyat() {
   pages.innerHTML = "";
   const div = document.createElement("div");
   div.className = `page-container quran-${currentVersion}`;
-  pages.appendChild(div);
+  div.style.fontFamily = fontName;
+  div.id = "editor"; // 🆕 Tambahkan kontainer utama
+  container.appendChild(div);
 
   const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=code_${currentVersion}`).then(r => r.json());
   words = data.verse.words.map(w => ({ arabic: w[`code_${currentVersion}`] || w.text }));
@@ -307,15 +576,14 @@ async function loadAyat() {
   const startIdx = (+wordStart.value || 1) - 1;
   const endIdx = (+wordEnd.value || startIdx + 1);
   const line = document.createElement("div");
-  for (let i = startIdx; i < endIdx; i++) {
+  line.id = "quranText"; // 🆕 Tambahkan ID
+  words.slice(startIdx, endIdx).forEach(word => {
     const span = document.createElement("span");
     span.className = "word";
-    span.innerText = words[i].arabic;
-    span.contentEditable = true;
-    makeDraggable(span);
+    span.innerText = word.arabic;
     line.appendChild(span);
     line.appendChild(document.createTextNode(" "));
-  }
+  });
   div.appendChild(line);
 
   const lang = wordTranslationId.value === "33" ? "id" : "en";
@@ -323,6 +591,7 @@ async function loadAyat() {
   const wordTranslations = j.verse.words.map(w => w.translation?.text || "").slice(startIdx, endIdx);
   const transDiv = document.createElement("div");
   transDiv.className = "translation";
+  transDiv.id = "translationText"; // ✅ Tambahkan ID agar bisa diakses global
   transDiv.contentEditable = true;
   transDiv.innerText = wordTranslations.join(" ");
   makeDraggable(transDiv);
@@ -360,6 +629,246 @@ function makeDraggable(el) {
     el.style.position = 'absolute';
   });
 }
+
+function updateSourceText() {
+  const surahNumber = surahSelect.value;
+  const surahName = surahList[surahNumber]?.[0] || '';
+  const ayahNumber = ayahSelect.value;
+
+  let sourceEl = document.getElementById("sourceText");
+  if (!sourceEl) {
+    sourceEl = document.createElement("div");
+    sourceEl.id = "sourceText";
+    sourceEl.className = "editor-text";
+    sourceEl.style.bottom = "10px";
+    sourceEl.style.left = "10px";
+    sourceEl.style.position = "absolute";
+    sourceEl.style.opacity = "0.5";
+    sourceEl.style.fontSize = "20px";
+    sourceEl.style.pointerEvents = "none"; // Tidak bisa diklik/diedit
+
+    // 👉 Tambahkan ini di bawah style:
+    sourceEl.contentEditable = true;
+    sourceEl.style.pointerEvents = "auto";
+    makeDraggable(sourceEl);
+    
+    editor.appendChild(sourceEl);
+  }
+
+  sourceEl.textContent = `${surahName}: ${ayahNumber}`;
+}
+
+    loadAyat().then(() => {
+  updateSourceText();
+});
+    
   </script>
+
+
+<script>
+function makeDraggable(el) {
+  let isDragging = false, startX, startY, initialX, initialY;
+
+  const onMouseDown = (e) => {
+    isDragging = true;
+    startX = e.clientX || e.touches[0].clientX;
+    startY = e.clientY || e.touches[0].clientY;
+    const rect = el.getBoundingClientRect();
+    initialX = rect.left - el.parentElement.getBoundingClientRect().left;
+    initialY = rect.top - el.parentElement.getBoundingClientRect().top;
+    e.preventDefault();
+  };
+
+  const onMouseMove = (e) => {
+    if (!isDragging) return;
+    const x = (e.clientX || e.touches[0].clientX) - startX + initialX;
+    const y = (e.clientY || e.touches[0].clientY) - startY + initialY;
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+  };
+
+  const onMouseUp = () => { isDragging = false; };
+
+  el.addEventListener("mousedown", onMouseDown);
+  el.addEventListener("touchstart", onMouseDown);
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("touchmove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp);
+  window.addEventListener("touchend", onMouseUp);
+}
+
+// Terapkan ke elemen-elemen teks
+['quranText', 'translationText', 'sourceText'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) makeDraggable(el);
+});
+
+
+const editor = document.createElement('div');
+editor.id = 'editorContainer';
+document.body.appendChild(editor);
+
+const watermark = document.createElement('div');
+watermark.id = 'watermark';
+watermark.textContent = 'videomurottal.com';
+editor.appendChild(watermark);
+
+const editorContainer = document.getElementById("editorContainer");
+
+// Daftar gambar latar default
+const defaultBGs = {
+  bg1: "https://your-cdn.com/bg1.jpg",
+  bg2: "https://your-cdn.com/bg2.jpg",
+  bg3: "https://your-cdn.com/bg3.jpg",
+  bg4: "https://your-cdn.com/bg4.jpg"
+};
+
+// Dropdown
+document.getElementById("bgSelect").addEventListener("change", (e) => {
+  const val = e.target.value;
+  if (defaultBGs[val]) {
+    editorContainer.style.backgroundImage = `url("${defaultBGs[val]}")`;
+    editorContainer.style.backgroundSize = "cover";
+  }
+});
+
+// Upload
+document.getElementById("bgUpload").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (evt) {
+    editorContainer.style.backgroundImage = `url("${evt.target.result}")`;
+    editorContainer.style.backgroundSize = "cover";
+  };
+  reader.readAsDataURL(file);
+});
+
+// URL input
+function setBgFromURL() {
+  const url = document.getElementById("bgUrl").value;
+  if (url) {
+    editorContainer.style.backgroundImage = `url("${url}")`;
+    editorContainer.style.backgroundSize = "cover";
+  }
+}
+
+// Kontras slider
+document.getElementById("bgContrast").addEventListener("input", (e) => {
+  const value = e.target.value;
+  editorContainer.style.filter = `contrast(${value})`;
+});
+
+  function makeDraggable(el) {
+  el.onmousedown = dragMouseDown;
+  el.ontouchstart = dragTouchStart;
+
+  function dragMouseDown(e) {
+    e.preventDefault();
+    let pos3 = e.clientX;
+    let pos4 = e.clientY;
+
+    document.onmouseup = closeDrag;
+    document.onmousemove = drag;
+
+    function drag(e) {
+      e.preventDefault();
+      let dx = e.clientX - pos3;
+      let dy = e.clientY - pos4;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      el.style.top = (el.offsetTop + dy) + "px";
+      el.style.left = (el.offsetLeft + dx) + "px";
+    }
+
+    function closeDrag() {
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
+
+  function dragTouchStart(e) {
+    const touch = e.touches[0];
+    let startX = touch.clientX;
+    let startY = touch.clientY;
+
+    function dragMove(e) {
+      const t = e.touches[0];
+      let dx = t.clientX - startX;
+      let dy = t.clientY - startY;
+      startX = t.clientX;
+      startY = t.clientY;
+      el.style.top = (el.offsetTop + dy) + "px";
+      el.style.left = (el.offsetLeft + dx) + "px";
+    }
+
+    function dragEnd() {
+      document.removeEventListener("touchmove", dragMove);
+      document.removeEventListener("touchend", dragEnd);
+    }
+
+    document.addEventListener("touchmove", dragMove);
+    document.addEventListener("touchend", dragEnd);
+  }
+}
+
+  let selectedTextElement = null;
+
+document.addEventListener("click", function (e) {
+  const target = e.target;
+  if (
+    target.classList.contains("word") ||
+    target.classList.contains("translation") ||
+    target.id === "sourceText"
+  ) {
+    selectedTextElement = target;
+    document.getElementById("colorControls").style.display = "block";
+  } else {
+    // Klik di luar -> sembunyikan color picker
+    if (!document.getElementById("colorControls").contains(target)) {
+      document.getElementById("colorControls").style.display = "none";
+    }
+  }
+});
+
+function applySelectedColor() {
+  const color = document.getElementById("colorPicker").value;
+  if (selectedTextElement) {
+    selectedTextElement.style.color = color;
+  }
+}
+
+  
+</script>
+
+<script src="https://cdn.jsdelivr.net/gh/nelsonkam/pinch.js@master/pinch.min.js"></script>
+
+  <script>
+  function initPinchZoom() {
+    const quranEl = document.getElementById('quranText');
+    const translationEl = document.getElementById('translationText');
+
+    let quranFontSize = parseFloat(window.getComputedStyle(quranEl).fontSize);
+    let translationFontSize = parseFloat(window.getComputedStyle(translationEl).fontSize);
+
+    const pinch = new Pinch(document.getElementById('editor'), {
+      onPinch: function (scale) {
+        if (scale !== 1) {
+          quranEl.style.fontSize = (quranFontSize * scale).toFixed(2) + 'px';
+          translationEl.style.fontSize = (translationFontSize * scale).toFixed(2) + 'px';
+        }
+      },
+      onPinchEnd: function (scale) {
+        if (scale !== 1) {
+          quranFontSize *= scale;
+          translationFontSize *= scale;
+        }
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initPinchZoom);
+</script>
+
 </body>
 </html>
