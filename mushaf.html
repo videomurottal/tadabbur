@@ -190,6 +190,21 @@ button:hover {
 
   <!-- Baris 3: Terjemahan & Tombol Link & Quran V1/V2 -->
   <label><select id="wordTranslationId">
+
+<select id="translationSelect">
+  <option value="">Tanpa Terjemah Ayat</option>
+  <option value="indonesian_sabiq">Indonesian – Sabiq</option>
+  ...
+</select>
+
+<select id="wordTranslationId">
+  <option value="">Tanpa Terjemah Perkata</option>
+  <option value="id">Bahasa Indonesia</option>
+  <option value="en">English</option>
+</select>
+
+
+    
       <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
       <option value="20">English – Saheeh International</option>
     <option value="qenc:indonesian_sabiq">Indonesian – Sabiq (QuranEnc)</option>
@@ -569,93 +584,67 @@ async function updateAyahDropdown() {
   loadAyat();
 }
 
-async function loadAyat() {
-  showLoader();
-  try {
-    const s = surahSelect.value, a = ayahSelect.value, key = `${s}:${a}`;
-    const container = document.getElementById("pages");
-    container.innerHTML = "";
+<script>
+  async function loadAyat() {
+    const surahNumber = parseInt(surahSelect.value);
+    const ayahNumber = parseInt(ayahSelect.value);
 
-    const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
-    const page = pageMap[key];
-    const fontName = currentVersion === 'v1' ? `QCF_P${String(page).padStart(3, '0')}` : `QCF2${String(page).padStart(3, '0')}`;
-    const fontUrl = currentVersion === 'v1'
-      ? `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`
-      : `https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@refs/heads/main/fontsglyphvs/${fontName}.ttf`;
+    // Bersihkan area sebelum render
+    pages.innerHTML = "";
 
-    const apiField = currentVersion === "v1" ? "code_v1" : "code_v2";
-    const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
-    words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
-
-    const prevStart = +wordStart.value || 1, prevEnd = +wordEnd.value || 1;
-    wordStart.innerHTML = "";
-    for (let i = 1; i <= words.length; i++) wordStart.appendChild(new Option(`Word ${i}`, i));
-    wordStart.value = initialLoad ? 1 : Math.min(prevStart, words.length);
-    wordEnd.innerHTML = "";
-    for (let i = wordStart.value; i <= words.length; i++) wordEnd.appendChild(new Option(`To ${i}`, i));
-    wordEnd.value = initialLoad ? 1 : Math.min(prevEnd, words.length);
-    initialLoad = false;
-
-    const style = document.createElement("style");
-    style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
-    document.head.appendChild(style);
+    // Ambil data ayat Arab
+    const arabicText = await getArabicText(surahNumber, ayahNumber);
 
     const div = document.createElement("div");
-    div.className = `page-container quran-${currentVersion} quran-text`;
-    div.style.fontFamily = fontName;
-    container.appendChild(div);
+    div.className = "page-container";
 
-    await document.fonts.load(`1em ${fontName}`);
+    const arabicDiv = document.createElement("div");
+    arabicDiv.className = "arabic-text";
+    arabicDiv.innerText = arabicText;
+    makeDraggable(arabicDiv);
+    div.appendChild(arabicDiv);
 
-    const startIdx = (+wordStart.value || 1) - 1;
-    const endIdx = (+wordEnd.value || startIdx + 1);
-    const line = document.createElement("div");
-    words.slice(startIdx, endIdx).forEach(word => {
-      const span = document.createElement("span");
-      span.className = "word";
-      span.innerText = word.arabic;
-      line.appendChild(span);
-      line.appendChild(document.createTextNode(" "));
-    });
-    div.appendChild(line);
+    // Ambil Terjemahan per ayat
+    const translationKey = translationSelect?.value;
+    if (translationKey) {
+      const res = await fetch(`https://quranenc.com/api/v1/translation/aya/${translationKey}/${surahNumber}/${ayahNumber}`);
+      const data = await res.json();
+      const translation = data?.result?.translation || "";
 
-    if (wordTranslationId.value) {
-      const langCode = translationLanguageMap[wordTranslationId.value];
+      const transDiv = document.createElement("div");
+      transDiv.className = "translation";
+      transDiv.contentEditable = true;
+      transDiv.innerText = translation;
+      makeDraggable(transDiv);
+      div.appendChild(transDiv);
+    }
+
+    // Ambil Terjemah Per Kata
+    const wordTranslationId = document.getElementById("wordTranslationId");
+    const langCode = wordTranslationId?.value || "";
+
+    if (langCode) {
       try {
-        const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTranslationId.value}`);
-        const j = await r.json();
-        const wordsData = j.verse.words;
-        const wordTranslations = wordsData.map(w => w.translation?.text || "").slice(startIdx, endIdx);
-        const perKataDiv = document.createElement("div");
-        perKataDiv.className = "translation";
-        perKataDiv.textContent = wordTranslations.join(" ");
-        perKataDiv.contentEditable = true;
-        perKataDiv.style.userSelect = "text";
-        perKataDiv.setAttribute("draggable", "false");
-        div.appendChild(perKataDiv);
+        const wordRes = await fetch(`https://api.quran.com/api/v4/verses/by_key/${surahNumber}:${ayahNumber}?words=true&language=${langCode}&translations=33`);
+        const wordData = await wordRes.json();
+        const words = wordData?.verse?.words || [];
 
-        const surahName = surahList[s][0];
-        const referenceDiv = document.createElement("div");
-        referenceDiv.className = "surah-info";
-        referenceDiv.textContent = `${surahName}: ${a}`;
-        div.appendChild(referenceDiv);
-
-        // Atur font size langsung sesuai slider
-        div.style.fontSize = document.getElementById("fontSizeAyat").value + "px";
-        perKataDiv.style.fontSize = document.getElementById("fontSizeTerjemah").value + "px";
-        referenceDiv.style.fontSize = document.getElementById("fontSizeInfo").value + "px";
-
-        const brandDiv = document.createElement("div");
-        brandDiv.className = "brand-watermark";
-        brandDiv.textContent = "videomurottal.com";
-        div.appendChild(brandDiv);
-
-        document.querySelectorAll('.translation').forEach(el => el.remove());
-        
+        const wordTranslations = words.map(w => w.translation?.text || "");
+        const transDiv = document.createElement("div");
+        transDiv.className = "translation";
+        transDiv.contentEditable = true;
+        transDiv.innerText = wordTranslations.join(" ");
+        makeDraggable(transDiv);
+        div.appendChild(transDiv);
       } catch (e) {
         console.error("Gagal ambil terjemah perkata:", e);
       }
     }
+
+    pages.appendChild(div);
+  }
+</script>
+
 
     div.style.display = "block";
     requestAnimationFrame(() => div.style.opacity = "1");
