@@ -140,7 +140,21 @@
       direction: ltr;
     }
 
+    #pages {
+      width: 1080px;
+      height: 1080px;
+      margin: 2em auto;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
 
+    
     @media (max-width: 600px) {
       .controls, .version-buttons {
         grid-template-columns: repeat(2, 1fr);
@@ -189,7 +203,20 @@
 
 <div id="pages"></div>
 
+<div class="controls" style="margin-top: 1em;">
+  <label>Gambar Latar
+    <select id="backgroundSelect">
+      <option value="">Putih Polos</option>
+      <option value="https://i.imgur.com/tSvrYQz.jpg">Biru Langit</option>
+      <option value="https://i.imgur.com/gHxGzZk.jpg">Gradasi Hijau</option>
+      <option value="https://i.imgur.com/w1kXIbq.jpg">Cahaya Ilahi</option>
+      <option value="https://i.imgur.com/1LJ3FcC.jpg">Abstrak Emas</option>
+    </select>
+  </label>
+</div>
 
+
+  
 <!-- 🔥 Loader Overlay -->
 <div id="loaderOverlay" style="
   position: fixed;
@@ -217,6 +244,14 @@
 </style>
 
 <script>
+
+const backgroundSelect = document.getElementById("backgroundSelect");
+backgroundSelect.addEventListener("change", () => {
+  const bg = backgroundSelect.value;
+  const container = document.getElementById("pages");
+  container.style.backgroundImage = bg ? `url('${bg}')` : "none";
+});
+  
 function saveHistory() {
   const history = {
     surah: surahSelect.value,
@@ -224,6 +259,7 @@ function saveHistory() {
     wordStart: wordStart.value,
     wordEnd: wordEnd.value,
     translation: wordTranslationId.value,
+    background: backgroundSelect.value,
     version: currentVersion
   };
   localStorage.setItem('quranHistory', JSON.stringify(history));
@@ -233,6 +269,8 @@ function loadHistory() {
   const history = JSON.parse(localStorage.getItem('quranHistory') || '{}');
   if (history.surah) surahSelect.value = history.surah;
   if (history.version) currentVersion = history.version;
+  if (history.background) backgroundSelect.value = history.background;
+  document.getElementById("pages").style.backgroundImage = history.background ? `url('${history.background}')` : "none";
   return history;
 }
 
