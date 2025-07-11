@@ -227,6 +227,19 @@ button:hover {
   <!-- Upload File -->
   <label><input type="file" id="backgroundUpload" accept="image/*">
   </label>
+
+<label>
+  <select id="imageSizeSelect">
+    <option value="1">540 x 540</option>
+    <option value="2" selected>1080 x 1080</option>
+    <option value="4">2160 x 2160</option>
+  </select>
+</label>
+
+<div class="button-wrapper">
+  <button id="saveImageButton">💾 Simpan Gambar</button>
+</div>
+  
 </div>
 
 
@@ -523,5 +536,26 @@ updateAyahDropdown().then(() => {
   
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+document.getElementById("saveImageButton").addEventListener("click", () => {
+  const scale = parseInt(document.getElementById("imageSizeSelect").value);
+  const s = surahSelect.value;
+  const a = ayahSelect.value;
+  const surahName = surahList[s][0].replace(/\s+/g, '-'); // Ganti spasi dengan strip
+  const filename = `${surahName}-${a}-${scale * 540}px.png`;
+
+  html2canvas(pagesContainer, {
+    scale: scale,
+    useCORS: true
+  }).then(canvas => {
+    const link = document.createElement("a");
+    link.download = filename;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+});
+</script>
+  
 </body>
 </html>
