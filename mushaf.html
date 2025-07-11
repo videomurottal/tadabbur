@@ -6,172 +6,148 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body {
-      background: #fefcf8;
-      padding: 1em;
-      font-family: sans-serif;
-      direction: rtl;
-      margin: 0;
-    }
-    h2 {
-      text-align: center;
-      font-size: clamp(1.5rem, 4vw, 2.5rem);
-      margin-bottom: 1rem;
-    }
+  background: #fefcf8;
+  padding: 1em;
+  font-family: sans-serif;
+  direction: rtl;
+  margin: 0;
+}
 
-    input[type="file"],
-    input[type="url"] {
-      font-size: clamp(1rem, 3vw, 1.2rem);
-      padding: 0.5em;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      width: 100%;
-      box-sizing: border-box;
-    }
+h2 {
+  text-align: center;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  margin-bottom: 1rem;
+}
 
-    
-    #pages {
-      width: 100%;
-      max-width: 540px;
-      aspect-ratio: 1 / 1;
-      margin: 2em auto;
-      position: relative;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
+input[type="file"],
+input[type="url"],
+select,
+button {
+  font-size: clamp(1rem, 3vw, 1.2rem);
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
 
-    
-    .surah-info {
-      font-size: 0.9em;
-      font-family: sans-serif;
-      color: #666;
-      margin-top: 0.5em;
-      text-align: center;
-      direction: ltr;
-    }
+button {
+  background-color: #4cafef;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
 
-    .brand-watermark {
-      font-size: 0.85em;
-      font-family: sans-serif;
-      color: #999;
-      margin-top: 0.3em;
-      text-align: center;
-      font-style: italic;
-      direction: ltr;
-    }
-    .controls {
-      direction: ltr;
-      max-width: 800px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 0.8em;
-      justify-content: center;
-      align-items: center;
-      padding: 0.5em;
-    }
-    .controls label {
-      font-size: clamp(0.85rem, 2.5vw, 1rem);
-      display: flex;
-      flex-direction: column;
-    }
-    select, button {
-      font-size: clamp(1rem, 3vw, 1.2rem);
-      padding: 0.5em;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    button {
-      background-color: #4cafef;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background-color: #007acc;
-    }
-    .version-buttons {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 0.8em;
-      margin-top: 1em;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .version-buttons button {
-      padding: 0.8em;
-      border-radius: 8px;
-      background-color: #4cafef;
-      color: #fff;
-      border: none;
-      font-size: clamp(1rem, 2.5vw, 1.1rem);
-      cursor: pointer;
-    }
-    .version-buttons button:hover {
-      background-color: #007acc;
-    }
+button:hover {
+  background-color: #007acc;
+}
 
-    /* Quran V1 */
-    .quran-v1 {
-      font-size: clamp(1.8em, 5vw, 2.5em);
-      line-height: 2;          /* 🔥 Spasi antar baris */
-      word-spacing: 0.15em;    /* 🔥 Spasi antar kata */
-      text-align: center;
-      user-select: text;
-      margin: 2em auto;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      display: none;
-      max-width: 95%;
-      overflow-wrap: break-word;
-    }
+#pages {
+  width: 100%;
+  max-width: 540px;
+  aspect-ratio: 1 / 1;
+  margin: 2em auto;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 
-    /* Quran V2 */
-    .quran-v2 {
-      font-size: clamp(1.8em, 5vw, 2.5em);
-      line-height: 2.2;        /* 🔥 Spasi antar baris V2 */
-      word-spacing: 0.2em;     /* 🔥 Spasi antar kata V2 */
-      text-align: center;
-      user-select: text;
-      margin: 2em auto;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      display: none;
-      max-width: 95%;
-      overflow-wrap: break-word;
-    }
+.surah-info {
+  font-size: 0.9em;
+  font-family: sans-serif;
+  color: #666;
+  margin-top: 0.5em;
+  text-align: center;
+  direction: ltr;
+}
 
-    .word {
-      display: inline-block;
-      margin: 0;
-      cursor: default;
-    }
+.brand-watermark {
+  font-size: 0.85em;
+  font-family: sans-serif;
+  color: #999;
+  margin-top: 0.3em;
+  text-align: center;
+  font-style: italic;
+  direction: ltr;
+}
 
-    /* Terjemahan */
-    .translation {
-      font-family: sans-serif;
-      font-size: clamp(1rem, 3vw, 1.2rem);
-      color: #333;
-      direction: ltr;
-      text-align: center;
-      line-height: 1.8;        /* 🔥 Spasi antar baris terjemah */
-      word-spacing: 0.2em;     /* 🔥 Spasi antar kata terjemah */
-      margin-top: 1.5em;
-      padding: 0 0.5em;
-    }
+.controls {
+  direction: ltr;
+  max-width: 800px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.8em;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5em;
+}
 
-    @media (max-width: 600px) {
-      .controls {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+.controls label {
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Quran V1 */
+.quran-v1 {
+  font-size: clamp(1.8em, 5vw, 2.5em);
+  line-height: 2;
+  word-spacing: 0.15em;
+  text-align: center;
+  user-select: text;
+  margin: 2em auto;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: none;
+  max-width: 95%;
+  overflow-wrap: break-word;
+}
+
+/* Quran V2 */
+.quran-v2 {
+  font-size: clamp(1.8em, 5vw, 2.5em);
+  line-height: 2.2;
+  word-spacing: 0.2em;
+  text-align: center;
+  user-select: text;
+  margin: 2em auto;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: none;
+  max-width: 95%;
+  overflow-wrap: break-word;
+}
+
+.word {
+  display: inline-block;
+  margin: 0;
+  cursor: default;
+}
+
+/* Terjemahan */
+.translation {
+  font-family: sans-serif;
+  font-size: clamp(1rem, 3vw, 1.2rem);
+  color: #333;
+  direction: ltr;
+  text-align: center;
+  line-height: 1.8;
+  word-spacing: 0.2em;
+  margin-top: 1.5em;
+  padding: 0 0.5em;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
   </style>
 </head>
 <body>
@@ -193,7 +169,7 @@
     <select id="wordEnd"></select>
   </label>
 
-  <!-- Baris 3: Terjemahan & Tombol Link -->
+  <!-- Baris 3: Terjemahan & Tombol Link & Quran V1/V2 -->
   <label>Terjemahan
     <select id="wordTranslationId">
       <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
@@ -203,13 +179,14 @@
   <label>&nbsp;
     <button id="customLinkButton">🔗 Tombol Link</button>
   </label>
-  <label>
-  <button onclick="setVersion('v2')">Quran V2</button>
+  <label>&nbsp;
+    <button onclick="setVersion('v2')">Quran V2</button>
   </label>
-  <label>
-  <button onclick="setVersion('v1')">Quran V1</button>
+  <label>&nbsp;
+    <button onclick="setVersion('v1')">Quran V1</button>
   </label>
 </div>
+
 
 <div id="pages"></div>
 
