@@ -175,6 +175,26 @@
 </style>
 
 <script>
+
+function saveHistory() {
+  const history = {
+    surah: surahSelect.value,
+    ayah: ayahSelect.value,
+    wordStart: wordStart.value,
+    wordEnd: wordEnd.value,
+    translation: wordTranslationId.value,
+    version: currentVersion
+  };
+  localStorage.setItem('quranHistory', JSON.stringify(history));
+}
+
+function loadHistory() {
+  const history = JSON.parse(localStorage.getItem('quranHistory') || '{}');
+  if (history.surah) surahSelect.value = history.surah;
+  if (history.version) currentVersion = history.version;
+  return history;
+}
+
 const loaderOverlay = document.getElementById('loaderOverlay');
 
 function showLoader() {
@@ -238,8 +258,14 @@ for (let i in surahList) {
   surahSelect.appendChild(new Option(`${i}. ${name}`, i));
 }
 
-surahSelect.addEventListener("change", updateAyahDropdown);
-ayahSelect.addEventListener("change", loadAyat);
+surahSelect.addEventListener("change", () => {
+  updateAyahDropdown();
+  saveHistory();
+});
+ayahSelect.addEventListener("change", () => {
+  loadAyat();
+  saveHistory();
+});
 
 wordStart.addEventListener("change", () => {
   const startVal = +wordStart.value;
@@ -249,9 +275,18 @@ wordStart.addEventListener("change", () => {
   }
   wordEnd.value = startVal;
   loadAyat();
+  saveHistory(); // ✅ Simpan histori setiap ganti
 });
-wordEnd.addEventListener("change", loadAyat);
-wordTranslationId.addEventListener("change", loadAyat);
+
+wordEnd.addEventListener("change", () => {
+  loadAyat();
+  saveHistory(); // ✅ Simpan histori setiap ganti
+});
+
+wordTranslationId.addEventListener("change", () => {
+  loadAyat();
+  saveHistory(); // ✅ Simpan histori setiap ganti
+});
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
@@ -355,8 +390,14 @@ async function loadAyat() {
   }
 }
 
-surahSelect.value = 1;
-updateAyahDropdown();
+const last = loadHistory();
+updateAyahDropdown().then(() => {
+  if (last.ayah) ayahSelect.value = last.ayah;
+  if (last.wordStart) wordStart.value = last.wordStart;
+  if (last.wordEnd) wordEnd.value = last.wordEnd;
+  if (last.translation) wordTranslationId.value = last.translation;
+  loadAyat();
+});
 </script>
   
 </body>
