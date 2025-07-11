@@ -207,8 +207,17 @@ button:hover {
 <!-- Baris Background -->
 <div class="controls">
   <!-- Input URL di awal -->
-  <label><input type="url" id="backgroundUrl" placeholder="Link Gambar Enter">
+  <div class="button-wrapper">
+  <button id="showUrlInput" class="button">Link Gambar</button>
+</div>
+
+<div id="urlInputWrapper" style="display:none; flex-direction: column; gap: 0.5em;">
+  <label>
+    <span style="font-size: 0.9em;">URL Gambar:</span>
+    <input type="url" id="backgroundUrl" placeholder="https://..." style="width: 100%;">
   </label>
+  <button id="applyUrlButton" class="button">OK</button>
+</div>
 
   <!-- Tombol/Slider Contrast -->
   <label><button id="toggleContrast">⚙️ Atur Kontras</button>
@@ -590,8 +599,25 @@ document.getElementById("saveImageButton").addEventListener("click", () => {
 document.getElementById("uploadTrigger").addEventListener("click", function () {
   document.getElementById("backgroundUpload").click();
 });
+
+const showUrlInput = document.getElementById("showUrlInput");
+const urlInputWrapper = document.getElementById("urlInputWrapper");
+const applyUrlButton = document.getElementById("applyUrlButton");
+
+showUrlInput.addEventListener("click", () => {
+  urlInputWrapper.style.display = "flex";
+});
+
+applyUrlButton.addEventListener("click", () => {
+  const url = document.getElementById("backgroundUrl").value.trim();
+  if (url) {
+    pagesContainer.style.backgroundImage = `url('${url}')`;
+    backgroundSelect.value = "";
+    saveHistory();
+  }
+});
     
 </script>
-
+  
 </body>
 </html>
