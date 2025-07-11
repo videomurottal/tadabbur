@@ -141,8 +141,9 @@
     }
 
     #pages {
-      width: 1080px;
-      height: 1080px;
+      width: 100%;
+      max-width: 1080px;
+      aspect-ratio: 1 / 1;  /* Jaga rasio 1:1 */
       margin: 2em auto;
       position: relative;
       background-size: cover;
@@ -153,6 +154,7 @@
       align-items: center;
       flex-direction: column;
     }
+
 
     
     @media (max-width: 600px) {
