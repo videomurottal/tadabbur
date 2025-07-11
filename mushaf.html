@@ -237,8 +237,26 @@ button:hover {
 </label>
 
 <div class="button-wrapper">
-  <button id="saveImageButton">💾 Simpan Gambar</button>
+  <button id="saveImageButton">Download Gambar</button>
 </div>
+
+<label>
+  <select id="colorTarget">
+    <option value="quran-text">Ayat</option>
+    <option value="translation">Terjemah</option>
+    <option value="surah-info">Info Surah</option>
+  </select>
+</label>
+
+<label>
+  <input type="color" id="colorPicker" value="#ffffff">
+</label>
+
+<div class="button-wrapper">
+  <button id="applyColor">Ubah Warna</button>
+</div>
+
+
   
 </div>
 
@@ -470,7 +488,7 @@ async function loadAyat() {
     document.head.appendChild(style);
 
     const div = document.createElement("div");
-    div.className = `page-container quran-${currentVersion}`; // ✅ Kelas dinamis V1/V2
+    div.className = `page-container quran-${currentVersion} quran-text`;
     div.style.fontFamily = fontName;
     container.appendChild(div);
 
@@ -555,7 +573,18 @@ document.getElementById("saveImageButton").addEventListener("click", () => {
     link.click();
   });
 });
+
+
+    document.getElementById("applyColor").addEventListener("click", () => {
+  const target = document.getElementById("colorTarget").value;
+  const color = document.getElementById("colorPicker").value;
+  const elements = document.querySelectorAll(`.${target}`);
+  elements.forEach(el => {
+    el.style.color = color;
+  });
+});
+
 </script>
-  
+
 </body>
 </html>
