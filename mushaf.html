@@ -18,6 +18,40 @@
       margin-bottom: 1rem;
     }
 
+    #pages {
+      width: 100%;
+      max-width: 540px;
+      aspect-ratio: 1 / 1;
+      margin: 2em auto;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    
+    .surah-info {
+      font-size: 0.9em;
+      font-family: sans-serif;
+      color: #666;
+      margin-top: 0.5em;
+      text-align: center;
+      direction: ltr;
+    }
+
+    .brand-watermark {
+      font-size: 0.85em;
+      font-family: sans-serif;
+      color: #999;
+      margin-top: 0.3em;
+      text-align: center;
+      font-style: italic;
+      direction: ltr;
+    }
     .controls {
       direction: ltr;
       max-width: 800px;
@@ -122,41 +156,6 @@
       padding: 0 0.5em;
     }
 
-    .surah-info {
-      font-size: 0.5em;
-      font-family: sans-serif;
-      color: #666;
-      margin-top: 0.5em;
-      text-align: center;
-      direction: ltr;
-    }
-
-    .brand-watermark {
-      font-size: 0.85em;
-      font-family: sans-serif;
-      color: #999;
-      margin-top: 0.3em;
-      text-align: center;
-      font-style: italic;
-      direction: ltr;
-    }
-
-    #pages {
-      width: 540px;
-      height: 540px;
-      transform: scale(0.6); /* Sesuaikan nilai skalanya */
-      transform-origin: top center;
-      margin: 2em auto;
-      position: relative;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
- 
     @media (max-width: 600px) {
       .controls, .version-buttons {
         grid-template-columns: repeat(2, 1fr);
@@ -206,6 +205,7 @@
 <div id="pages"></div>
 
 <div class="controls" style="margin-top: 1em;">
+  <!-- Dropdown Background -->
   <label>Gambar Latar
     <select id="backgroundSelect">
       <option value="">Putih Polos</option>
@@ -215,6 +215,7 @@
       <option value="https://i.imgur.com/1LJ3FcC.jpg">Abstrak Emas</option>
     </select>
   </label>
+
   <!-- Upload File -->
   <label>Upload Background
     <input type="file" id="backgroundUpload" accept="image/*">
@@ -295,6 +296,7 @@ backgroundUrl.addEventListener("change", () => {
     backgroundSelect.value = "";
   }
 });
+
   
 function saveHistory() {
   const history = {
@@ -470,6 +472,7 @@ async function loadAyat() {
         brandDiv.className = "brand-watermark";
         brandDiv.textContent = "videomurottal.com";
         div.appendChild(brandDiv);
+
         
       } catch (e) {
         console.error("Gagal ambil terjemah perkata:", e);
