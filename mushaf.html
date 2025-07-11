@@ -380,5 +380,106 @@ updateAyahDropdown().then(() => {
 });
 </script>
 
+<!-- 🌟 Quran Ayat Designer -->
+<h2 style="margin-top:3em;text-align:center;">🖼️ Quran Ayat Designer (1080x1080)</h2>
+<div class="designer-controls" style="text-align:center; margin:1em 0;">
+  <input type="file" id="bgUpload" accept="image/*" style="display:none;">
+  <button onclick="document.getElementById('bgUpload').click()">📤 Upload Gambar</button>
+  <button onclick="promptLink()">🔗 Gambar dari Link</button>
+  <button onclick="saveCanvas()">💾 Save Gambar</button><br><br>
+  🔆 Kecerahan:
+  <input type="range" id="brightnessSlider" min="50" max="200" value="100" step="1" style="width:200px;">
+</div>
+
+<canvas id="quranCanvas" width="1080" height="1080" style="
+  display:block; margin:0 auto; border:1px solid #ccc; max-width:100%; background:#222;"></canvas>
+
+<script>
+// 🎨 Canvas & Context
+const canvas = document.getElementById('quranCanvas');
+const ctx = canvas.getContext('2d');
+
+// 🌄 Default background
+let bgImage = new Image();
+bgImage.src = 'https://i.imgur.com/7yM6R7K.jpg'; // Default 1080x1080
+let brightness = 1.0; // Default brightness 100%
+bgImage.onload = drawCanvas;
+
+// 📤 Upload handler
+document.getElementById('bgUpload').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = event => loadImage(event.target.result);
+  reader.readAsDataURL(file);
+});
+
+// 🔗 Link handler
+function promptLink() {
+  const url = prompt("Masukkan URL gambar (jpg/png):");
+  if (url) loadImage(url);
+}
+
+// 📥 Load image (crop center if needed)
+function loadImage(src) {
+  const img = new Image();
+  img.crossOrigin = "anonymous"; // Support cross-origin images
+  img.onload = () => {
+    bgImage = img;
+    drawCanvas();
+  };
+  img.onerror = () => alert("Gagal memuat gambar. Pastikan URL benar dan izinkan CORS.");
+  img.src = src;
+}
+
+// 🔆 Brightness control
+const brightnessSlider = document.getElementById('brightnessSlider');
+brightnessSlider.addEventListener('input', () => {
+  brightness = brightnessSlider.value / 100; // Convert 50-200 to 0.5-2.0
+  drawCanvas();
+});
+
+// 🖼️ Draw canvas (crop center to 1080x1080 & apply brightness)
+function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  ctx.filter = `brightness(${brightness})`; // 🔥 Apply brightness
+  const imgW = bgImage.width;
+  const imgH = bgImage.height;
+  const size = Math.min(imgW, imgH); // Square crop size
+  const offsetX = (imgW - size) / 2;
+  const offsetY = (imgH - size) / 2;
+
+  ctx.drawImage(bgImage, offsetX, offsetY, size, size, 0, 0, 1080, 1080);
+  ctx.restore();
+
+  // 📝 Add Ayat Quran
+  const pageDiv = document.querySelector('.page-container');
+  if (pageDiv) {
+    ctx.fillStyle = "white";
+    ctx.font = "48px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const ayatText = pageDiv.innerText.trim();
+    const lines = ayatText.split('\n');
+
+    lines.forEach((line, i) => {
+      ctx.fillText(line, 540, 400 + i * 60);
+    });
+  }
+}
+
+// 💾 Save canvas as PNG
+function saveCanvas() {
+  const link = document.createElement('a');
+  link.download = 'quran-1080x1080.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+</script>
+
+  
 </body>
 </html>
