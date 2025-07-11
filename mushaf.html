@@ -131,6 +131,16 @@
       direction: ltr;
     }
 
+    .brand-watermark {
+      font-size: 0.85em;
+      color: #999;
+      margin-top: 0.3em;
+      text-align: center;
+      font-style: italic;
+      direction: ltr;
+    }
+
+
     @media (max-width: 600px) {
       .controls, .version-buttons {
         grid-template-columns: repeat(2, 1fr);
@@ -373,6 +383,11 @@ async function loadAyat() {
         referenceDiv.className = "surah-info";
         referenceDiv.textContent = `${surahName}:${a}`;
         div.appendChild(referenceDiv);
+
+        const brandDiv = document.createElement("div");
+        brandDiv.className = "brand-watermark";
+        brandDiv.textContent = "videomurottal.com";
+        div.appendChild(brandDiv);
         
       } catch (e) {
         console.error("Gagal ambil terjemah perkata:", e);
