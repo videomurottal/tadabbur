@@ -19,6 +19,25 @@ h2 {
   margin-bottom: 1rem;
 }
 
+    .input-with-button {
+  position: relative;
+}
+
+.input-with-button input {
+  padding-right: 2.5em;
+}
+
+.input-with-button button {
+  position: absolute;
+  right: 0.3em;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
 #pages {
   /* ... (sudah ada background properties) */
   filter: contrast(1); /* Default */
@@ -202,8 +221,11 @@ button:hover {
 <div class="controls">
   <!-- Input URL di awal -->
   <label>Link Gambar
+  <div class="input-with-button">
     <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
-  </label>
+    <button type="button" id="setBackgroundFromUrl" title="Gunakan link">✅</button>
+  </div>
+</label>
 
   <!-- Tombol/Slider Contrast -->
   <label>Kontras Gambar
@@ -519,6 +541,18 @@ updateAyahDropdown().then(() => {
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
 });
+
+const setBackgroundFromUrlBtn = document.getElementById("setBackgroundFromUrl");
+if (setBackgroundFromUrlBtn) {
+  setBackgroundFromUrlBtn.addEventListener("click", () => {
+    const url = backgroundUrl.value.trim();
+    if (url) {
+      pagesContainer.style.backgroundImage = `url('${url}')`;
+      backgroundSelect.value = "";
+      saveHistory();
+    }
+  });
+}
   
 </script>
 
