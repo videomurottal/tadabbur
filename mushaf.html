@@ -21,14 +21,14 @@
       direction: ltr;
       max-width: 800px;
       margin: 0 auto;
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 0.8em;
       justify-content: center;
-      align-items: flex-end;
+      align-items: center;
       padding: 0.5em;
     }
-    label {
+    .controls label {
       font-size: clamp(0.85rem, 2.5vw, 1rem);
       display: flex;
       flex-direction: column;
@@ -45,21 +45,31 @@
       background-color: #4cafef;
       color: #fff;
       cursor: pointer;
+      transition: background 0.3s ease;
     }
     button:hover {
       background-color: #007acc;
     }
     .version-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.8em;
       margin-top: 1em;
-      text-align: center;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
     }
-
     .version-buttons button {
-      margin: 0.5em auto;
-      padding: 0.6em 1.2em;
-      width: 90%;           /* Mobile: hampir full */
-      max-width: 350px;     /* Desktop: batas maksimal */
-      display: block;
+      padding: 0.8em;
+      border-radius: 8px;
+      background-color: #4cafef;
+      color: #fff;
+      border: none;
+      font-size: clamp(1rem, 2.5vw, 1.1rem);
+      cursor: pointer;
+    }
+    .version-buttons button:hover {
+      background-color: #007acc;
     }
     .page-container {
       font-size: clamp(1.8em, 5vw, 2.5em);
@@ -89,9 +99,8 @@
       padding: 0 0.5em;
     }
     @media (max-width: 600px) {
-      .controls {
-        flex-direction: column;
-        align-items: stretch;
+      .controls, .version-buttons {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
@@ -101,26 +110,35 @@
 <h2>📖 Al-Qur'an Dinamis (V1/V2 + Terjemah)</h2>
 
 <div class="controls">
+  <!-- Baris 1: Surah & Ayat -->
   <label>Surah
     <select id="surahSelect"></select>
   </label>
   <label>Ayat
     <select id="ayahSelect"></select>
   </label>
+
+  <!-- Baris 2: Dari Kata & Sampai Kata -->
   <label>Dari Kata
     <select id="wordStart"></select>
   </label>
   <label>Sampai Kata
     <select id="wordEnd"></select>
   </label>
+
+  <!-- Baris 3: Terjemahan & Tombol Link -->
   <label>Terjemahan
     <select id="wordTranslationId">
       <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
       <option value="20">English – Saheeh International</option>
     </select>
   </label>
+  <label>&nbsp;
+    <button id="customLinkButton">🔗 Tombol Link</button>
+  </label>
 </div>
 
+<!-- Baris 4: Tombol Gunakan Quran V1/V2 -->
 <div class="version-buttons">
   <button onclick="setVersion('v2')">📜 Gunakan Quran V2</button>
   <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
