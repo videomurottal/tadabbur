@@ -147,6 +147,16 @@
 <div id="pages"></div>
 
 <script>
+
+const loaderOverlay = document.getElementById('loaderOverlay');
+
+function showLoader() {
+  loaderOverlay.style.display = 'flex';
+}
+function hideLoader() {
+  loaderOverlay.style.display = 'none';
+}
+  
 const translationLanguageMap = {
   "20": "en", "33": "id"
 };
@@ -230,89 +240,125 @@ async function updateAyahDropdown() {
 }
 
 async function loadAyat() {
-  const s = surahSelect.value;
-  const a = ayahSelect.value;
-  const key = `${s}:${a}`;
-  const container = document.getElementById("pages");
-  container.innerHTML = "";
+  showLoader(); // 🔥 Munculkan loader
+  try {
+    const s = surahSelect.value;
+    const a = ayahSelect.value;
+    const key = `${s}:${a}`;
+    const container = document.getElementById("pages");
+    container.innerHTML = "";
 
-  const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
-  const page = pageMap[key];
-  const fontName = currentVersion === 'v1' ? `QCF_P${String(page).padStart(3, '0')}` : `QCF2${String(page).padStart(3, '0')}`;
-  const fontUrl = currentVersion === "v1"
-    ? `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`
-    : `https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@refs/heads/main/fontsglyphvs/${fontName}.ttf`;
+    const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
+    const page = pageMap[key];
+    const fontName = currentVersion === 'v1' ? `QCF_P${String(page).padStart(3, '0')}` : `QCF2${String(page).padStart(3, '0')}`;
+    const fontUrl = currentVersion === "v1"
+      ? `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`
+      : `https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@refs/heads/main/fontsglyphvs/${fontName}.ttf`;
 
-  const apiField = currentVersion === "v1" ? "code_v1" : "code_v2";
-  const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
-  words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
+    const apiField = currentVersion === "v1" ? "code_v1" : "code_v2";
+    const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
+    words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
-  const prevStart = +wordStart.value || 1;
-  const prevEnd = +wordEnd.value || 1;
+    const prevStart = +wordStart.value || 1;
+    const prevEnd = +wordEnd.value || 1;
 
-  wordStart.innerHTML = "";
-  for (let i = 1; i <= words.length; i++) {
-    let option = new Option(`Word ${i}`, i); // label: Word 1, value: 1
-    wordStart.appendChild(option);
-  }
-  wordStart.value = initialLoad ? 1 : Math.min(prevStart, words.length);
-
-  wordEnd.innerHTML = "";
-  for (let i = wordStart.value; i <= words.length; i++) {
-    let option = new Option(`To ${i}`, i); // label: To 2, value: 2
-    wordEnd.appendChild(option);
-  }
-  wordEnd.value = initialLoad ? 1 : Math.min(prevEnd, words.length);
-
-  initialLoad = false;
-
-  const style = document.createElement("style");
-  style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
-  document.head.appendChild(style);
-
-  const div = document.createElement("div");
-  div.className = "page-container";
-  div.style.fontFamily = fontName;
-  container.appendChild(div);
-
-  await document.fonts.load(`1em ${fontName}`);
-
-  const startIdx = (+wordStart.value || 1) - 1;
-  const endIdx = (+wordEnd.value || startIdx + 1);
-
-  const line = document.createElement("div");
-  words.slice(startIdx, endIdx).forEach(word => {
-    const span = document.createElement("span");
-    span.className = "word";
-    span.innerText = word.arabic;
-    line.appendChild(span);
-    line.appendChild(document.createTextNode(" "));
-  });
-  div.appendChild(line);
-
-  if (wordTranslationId.value) {
-    const langCode = translationLanguageMap[wordTranslationId.value];
-    try {
-      const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTranslationId.value}`);
-      const j = await r.json();
-      const wordsData = j.verse.words;
-      const wordTranslations = wordsData.map(w => w.translation?.text || "").slice(startIdx, endIdx);
-
-      const perKataDiv = document.createElement("div");
-      perKataDiv.className = "translation";
-      perKataDiv.textContent = wordTranslations.join(" ");
-      div.appendChild(perKataDiv);
-    } catch (e) {
-      console.error("Gagal ambil terjemah perkata:", e);
+    wordStart.innerHTML = "";
+    for (let i = 1; i <= words.length; i++) {
+      let option = new Option(`Word ${i}`, i);
+      wordStart.appendChild(option);
     }
-  }
+    wordStart.value = initialLoad ? 1 : Math.min(prevStart, words.length);
 
-  div.style.display = "block";
-  requestAnimationFrame(() => div.style.opacity = "1");
+    wordEnd.innerHTML = "";
+    for (let i = wordStart.value; i <= words.length; i++) {
+      let option = new Option(`To ${i}`, i);
+      wordEnd.appendChild(option);
+    }
+    wordEnd.value = initialLoad ? 1 : Math.min(prevEnd, words.length);
+
+    initialLoad = false;
+
+    const style = document.createElement("style");
+    style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
+    document.head.appendChild(style);
+
+    const div = document.createElement("div");
+    div.className = "page-container";
+    div.style.fontFamily = fontName;
+    container.appendChild(div);
+
+    await document.fonts.load(`1em ${fontName}`);
+
+    const startIdx = (+wordStart.value || 1) - 1;
+    const endIdx = (+wordEnd.value || startIdx + 1);
+
+    const line = document.createElement("div");
+    words.slice(startIdx, endIdx).forEach(word => {
+      const span = document.createElement("span");
+      span.className = "word";
+      span.innerText = word.arabic;
+      line.appendChild(span);
+      line.appendChild(document.createTextNode(" "));
+    });
+    div.appendChild(line);
+
+    if (wordTranslationId.value) {
+      const langCode = translationLanguageMap[wordTranslationId.value];
+      try {
+        const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTranslationId.value}`);
+        const j = await r.json();
+        const wordsData = j.verse.words;
+        const wordTranslations = wordsData.map(w => w.translation?.text || "").slice(startIdx, endIdx);
+
+        const perKataDiv = document.createElement("div");
+        perKataDiv.className = "translation";
+        perKataDiv.textContent = wordTranslations.join(" ");
+        div.appendChild(perKataDiv);
+      } catch (e) {
+        console.error("Gagal ambil terjemah perkata:", e);
+      }
+    }
+
+    div.style.display = "block";
+    requestAnimationFrame(() => div.style.opacity = "1");
+  } catch (e) {
+    alert("Gagal memuat ayat: " + e.message);
+  } finally {
+    hideLoader(); // 🔥 Hilangkan loader
+  }
 }
 
 surahSelect.value = 1;
 updateAyahDropdown();
 </script>
+
+<!-- 🔥 Loader Overlay -->
+<div id="loaderOverlay" style="
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  display: none;">
+  <div style="
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #4cafef;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;">
+  </div>
+</div>
+
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
+  
 </body>
 </html>
