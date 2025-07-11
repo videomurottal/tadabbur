@@ -193,7 +193,20 @@ button:hover {
 
 <div id="pages"></div>
 
+<!-- Baris Background -->
 <div class="controls">
+  <!-- Input URL di awal -->
+  <label>Link Gambar
+    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
+  </label>
+
+  <!-- Tombol/Slider Contrast -->
+  <label>Kontras Gambar
+    <button id="toggleContrast">⚙️ Atur Kontras</button>
+    <input type="range" id="contrastSlider" min="50" max="200" value="100"
+           style="display: none; margin-top: 0.5em; direction: ltr;">
+  </label>
+
   <!-- Dropdown Background -->
   <label>Gambar Latar
     <select id="backgroundSelect">
@@ -209,17 +222,6 @@ button:hover {
   <label>Upload Gambar
     <input type="file" id="backgroundUpload" accept="image/*">
   </label>
-
-  <!-- Input URL -->
-<label style="grid-column: span 2;">
-  Link Gambar
-  <div style="display: flex; gap: 0.5em;">
-    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg" style="flex: 1;">
-    <button id="applyUrlButton">OK</button>
-  </div>
-  <button type="button" id="toggleContrast">Contrast Gambar</button>
-  <input type="range" id="contrastSlider" min="0" max="200" value="100" style="display:none; margin-top: 0.5em;">
-</label>
 </div>
 
 
@@ -257,7 +259,10 @@ const backgroundUpload = document.getElementById("backgroundUpload");
 const backgroundUrl = document.getElementById("backgroundUrl");
 const pagesContainer = document.getElementById("pages");
 
-// Dropdown
+const contrastSlider = document.getElementById("contrastSlider");
+const toggleContrast = document.getElementById("toggleContrast");
+
+// Dropdown Gambar
 backgroundSelect.addEventListener("change", () => {
   const bg = backgroundSelect.value;
   if (bg) {
@@ -266,10 +271,10 @@ backgroundSelect.addEventListener("change", () => {
   } else {
     pagesContainer.style.backgroundImage = "none";
   }
-  saveHistory(); // hanya dropdown yang disimpan
+  saveHistory();
 });
 
-// Upload
+// Upload Gambar
 backgroundUpload.addEventListener("change", () => {
   const file = backgroundUpload.files[0];
   if (file) {
@@ -283,29 +288,35 @@ backgroundUpload.addEventListener("change", () => {
   }
 });
 
-// Input Link
-document.getElementById("setBackgroundFromUrl").addEventListener("click", () => {
-  const url = backgroundUrl.value.trim();
-  if (url) {
-    pagesContainer.style.backgroundImage = `url('${url}')`;
-    backgroundSelect.value = "";
+// Gambar dari URL (tekan Enter)
+backgroundUrl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const url = backgroundUrl.value.trim();
+    if (url) {
+      pagesContainer.style.backgroundImage = `url('${url}')`;
+      backgroundSelect.value = "";
+      saveHistory();
+    }
   }
 });
 
-  const contrastSlider = document.getElementById("contrastSlider");
-const toggleContrast = document.getElementById("toggleContrast");
-
-// Toggle slider tampil/sembunyi
+// Toggle kontras: muncul/sembunyi slider
 toggleContrast.addEventListener("click", () => {
-  contrastSlider.style.display = contrastSlider.style.display === "none" ? "block" : "none";
+  const isVisible = contrastSlider.style.display === "block";
+  contrastSlider.style.display = isVisible ? "none" : "block";
+  if (!isVisible) contrastSlider.value = 100; // reset ke normal saat muncul
+  pagesContainer.style.filter = `contrast(${contrastSlider.value / 100})`;
 });
 
+// Ubah kontras saat slider digeser
 contrastSlider.addEventListener("input", () => {
-  const value = contrastSlider.value;
-  const contrastValue = 2 - (value / 100); // 0.5 = gelap, 1 = normal, 2 = kontras tinggi
+  const contrastValue = contrastSlider.value / 100; // 1 = normal, <1 gelap, >1 terang
   pagesContainer.style.filter = `contrast(${contrastValue})`;
 });
 
+
+
+  
   
 function saveHistory() {
   const history = {
@@ -507,15 +518,5 @@ updateAyahDropdown().then(() => {
   
 </script>
 
-document.getElementById("applyUrlButton").addEventListener("click", () => {
-  const url = backgroundUrl.value.trim();
-  if (url) {
-    pagesContainer.style.backgroundImage = `url('${url}')`;
-    backgroundSelect.value = "";
-    saveHistory();
-    loadAyat(); // <- ini untuk memuat ulang teks Quran
-  }
-});
-  
 </body>
 </html>
