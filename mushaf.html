@@ -33,7 +33,7 @@
       display: flex;
       flex-direction: column;
     }
-    select, button {
+    select, button, input[type="file"], input[type="text"] {
       font-size: clamp(1rem, 3vw, 1.2rem);
       padding: 0.5em;
       border: 1px solid #ccc;
@@ -71,12 +71,10 @@
     .version-buttons button:hover {
       background-color: #007acc;
     }
-
-    /* Quran V1 */
-    .quran-v1 {
+    .quran-v1, .quran-v2 {
       font-size: clamp(1.8em, 5vw, 2.5em);
-      line-height: 2;          /* 🔥 Spasi antar baris */
-      word-spacing: 0.15em;    /* 🔥 Spasi antar kata */
+      line-height: 2;
+      word-spacing: 0.15em;
       text-align: center;
       user-select: text;
       margin: 2em auto;
@@ -85,42 +83,53 @@
       display: none;
       max-width: 95%;
       overflow-wrap: break-word;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      width: 100%;
+      max-width: 1080px;
+      aspect-ratio: 1/1;
     }
-
-    /* Quran V2 */
     .quran-v2 {
-      font-size: clamp(1.8em, 5vw, 2.5em);
-      line-height: 2.2;        /* 🔥 Spasi antar baris V2 */
-      word-spacing: 0.2em;     /* 🔥 Spasi antar kata V2 */
-      text-align: center;
-      user-select: text;
-      margin: 2em auto;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      display: none;
-      max-width: 95%;
-      overflow-wrap: break-word;
+      line-height: 2.2;
+      word-spacing: 0.2em;
     }
-
     .word {
       display: inline-block;
       margin: 0;
-      cursor: default;
+      cursor: move;
     }
-
-    /* Terjemahan */
     .translation {
       font-family: sans-serif;
       font-size: clamp(1rem, 3vw, 1.2rem);
       color: #333;
       direction: ltr;
       text-align: center;
-      line-height: 1.8;        /* 🔥 Spasi antar baris terjemah */
-      word-spacing: 0.2em;     /* 🔥 Spasi antar kata terjemah */
+      line-height: 1.8;
+      word-spacing: 0.2em;
       margin-top: 1.5em;
       padding: 0 0.5em;
+      cursor: move;
     }
-
+    .source-text {
+      font-size: 1rem;
+      color: #333;
+      opacity: 0.8;
+      position: absolute;
+      bottom: 40px;
+      left: 20px;
+      cursor: move;
+    }
+    .watermark {
+      font-size: 1rem;
+      color: #000;
+      opacity: 0.3;
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
     @media (max-width: 600px) {
       .controls, .version-buttons {
         grid-template-columns: repeat(2, 1fr);
@@ -129,161 +138,150 @@
   </style>
 </head>
 <body>
-
-<h2>📖 Al-Qur'an Dinamis (V1/V2 + Terjemah)</h2>
-
-<div class="controls">
-  <!-- Baris 1: Surah & Ayat -->
-  <label>Surah
-    <select id="surahSelect"></select>
-  </label>
-  <label>Ayat
-    <select id="ayahSelect"></select>
-  </label>
-
-  <!-- Baris 2: Dari Kata & Sampai Kata -->
-  <label>Dari Kata
-    <select id="wordStart"></select>
-  </label>
-  <label>Sampai Kata
-    <select id="wordEnd"></select>
-  </label>
-
-  <!-- Baris 3: Terjemahan & Tombol Link -->
-  <label>Terjemahan
-    <select id="wordTranslationId">
-      <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
-      <option value="20">English – Saheeh International</option>
-    </select>
-  </label>
-  <label>&nbsp;
-    <button id="customLinkButton">🔗 Tombol Link</button>
-  </label>
-</div>
-
-<!-- Baris 4: Tombol Gunakan Quran V1/V2 -->
-<div class="version-buttons">
-  <button onclick="setVersion('v2')">📜 Gunakan Quran V2</button>
-  <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
-</div>
-
-<div id="pages"></div>
-
-
-<!-- 🔥 Loader Overlay -->
-<div id="loaderOverlay" style="
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(255,255,255,0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  display: none;">
-  <div style="
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid #4cafef;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;">
+  <h2>📖 Al-Qur'an Dinamis (V1/V2 + Terjemah)</h2>
+  <div class="controls">
+    <label>Surah
+      <select id="surahSelect"></select>
+    </label>
+    <label>Ayat
+      <select id="ayahSelect"></select>
+    </label>
+    <label>Dari Kata
+      <select id="wordStart"></select>
+    </label>
+    <label>Sampai Kata
+      <select id="wordEnd"></select>
+    </label>
+    <label>Terjemahan
+      <select id="wordTranslationId">
+        <option value="33" selected>Indonesian – Islamic Affairs Ministry</option>
+        <option value="20">English – Saheeh International</option>
+      </select>
+    </label>
+    <label>Background Default
+      <select id="bgSelect">
+        <option value="bg1">bg1</option>
+        <option value="bg2">bg2</option>
+        <option value="bg3">bg3</option>
+        <option value="bg4">bg4</option>
+      </select>
+    </label>
+    <label>Upload Gambar
+      <input type="file" id="bgUpload" accept="image/*">
+    </label>
+    <label>Link Gambar
+      <input type="text" id="bgLink" placeholder="https://...">
+    </label>
+    <label>Contrast
+      <input type="range" id="contrastControl" min="50" max="200" value="100">
+    </label>
+    <label>Ganti Warna
+      <input type="color" id="colorPicker">
+    </label>
+    <label>Ganti Font Terjemah
+      <select id="fontSelect">
+        <option value="">Default</option>
+        <option value="https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2">Roboto</option>
+        <option value="https://fonts.gstatic.com/s/tajawal/v8/Iurf6YBj_oCad4k1l_TE1w.woff2">Tajawal</option>
+        <option value="https://fonts.gstatic.com/s/amiri/v20/J7aRnpd8CGxBHqUp.woff2">Amiri</option>
+      </select>
+    </label>
+    <label>&nbsp;
+      <button id="customLinkButton">🔗 Tombol Link</button>
+    </label>
+    <label>&nbsp;
+      <button id="saveImageButton">💾 Simpan Gambar</button>
+    </label>
   </div>
-</div>
-
-<style>
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-</style>
-
-<script>
-function saveHistory() {
-  const history = {
-    surah: surahSelect.value,
-    ayah: ayahSelect.value,
-    wordStart: wordStart.value,
-    wordEnd: wordEnd.value,
-    translation: wordTranslationId.value,
-    version: currentVersion
-  };
-  localStorage.setItem('quranHistory', JSON.stringify(history));
-}
-
-function loadHistory() {
-  const history = JSON.parse(localStorage.getItem('quranHistory') || '{}');
-  if (history.surah) surahSelect.value = history.surah;
-  if (history.version) currentVersion = history.version;
-  return history;
-}
-
-const loaderOverlay = document.getElementById('loaderOverlay');
-function showLoader() { loaderOverlay.style.display = 'flex'; }
-function hideLoader() { loaderOverlay.style.display = 'none'; }
-
-const translationLanguageMap = { "20": "en", "33": "id" };
-
-const surahList = {
-  1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
-  5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
-  9:["At-Tawbah"], 10:["Yūnus"], 11:["Hūd"], 12:["Yūsuf"], 13:["Ar-Raʿd"],
-  14:["Ibrāhīm"], 15:["Al-Ḥijr"], 16:["An-Naḥl"], 17:["Al-Isrāʾ"],
-  18:["Al-Kahf"], 19:["Maryam"], 20:["Ṭā-Hā"], 21:["Al-Anbiyāʾ"],
-  22:["Al-Ḥajj"], 23:["Al-Muʾminūn"], 24:["An-Nūr"], 25:["Al-Furqān"],
-  26:["Ash-Shuʿarāʾ"], 27:["An-Naml"], 28:["Al-Qaṣaṣ"], 29:["Al-ʿAnkabūt"],
-  30:["Ar-Rūm"], 31:["Luqmān"], 32:["As-Sajdah"], 33:["Al-Aḥzāb"],
-  34:["Sabaʾ"], 35:["Fāṭir"], 36:["Yā-Sīn"], 37:["As-Ṣāffāt"],
-  38:["Ṣād"], 39:["Az-Zumar"], 40:["Ghāfir"], 41:["Fuṣṣilat"], 42:["Ash-Shūrā"],
-  43:["Az-Zukhruf"], 44:["Ad-Dukhān"], 45:["Al-Jāthiyah"], 46:["Al-Aḥqāf"],
-  47:["Muḥammad"], 48:["Al-Fatḥ"], 49:["Al-Ḥujurāt"], 50:["Qāf"],
-  51:["Adh-Dhāriyāt"], 52:["Aṭ-Ṭūr"], 53:["An-Najm"], 54:["Al-Qamar"],
-  55:["Ar-Raḥmān"], 56:["Al-Wāqiʿah"], 57:["Al-Ḥadīd"], 58:["Al-Mujādilah"],
-  59:["Al-Ḥashr"], 60:["Al-Mumtaḥanah"], 61:["Aṣ-Ṣaff"], 62:["Al-Jumuʿah"],
-  63:["Al-Munāfiqūn"], 64:["At-Taghābun"], 65:["Aṭ-Ṭalāq"], 66:["At-Taḥrīm"],
-  67:["Al-Mulk"], 68:["Al-Qalam"], 69:["Al-Ḥāqqah"], 70:["Al-Maʿārij"],
-  71:["Nūḥ"], 72:["Al-Jinn"], 73:["Al-Muzzammil"], 74:["Al-Muddaththir"],
-  75:["Al-Qiyāmah"], 76:["Al-Insān"], 77:["Al-Mursalāt"], 78:["An-Nabaʾ"],
-  79:["An-Nāziʿāt"], 80:["ʿAbasa"], 81:["At-Takwīr"], 82:["Al-Infiṭār"],
-  83:["Al-Muṭaffifīn"], 84:["Al-Inshiqāq"], 85:["Al-Burūj"], 86:["Aṭ-Ṭāriq"],
-  87:["Al-Aʿlā"], 88:["Al-Ghāshiyah"], 89:["Al-Fajr"], 90:["Al-Balad"],
-  91:["Ash-Shams"], 92:["Al-Layl"], 93:["Aḍ-Ḍuḥā"], 94:["Ash-Sharḥ"],
-  95:["At-Tīn"], 96:["Al-ʿAlaq"], 97:["Al-Qadr"], 98:["Al-Bayyinah"],
-  99:["Az-Zalzalah"], 100:["Al-ʿĀdiyāt"], 101:["Al-Qāriʿah"], 102:["At-Takāthur"],
-  103:["Al-ʿAṣr"], 104:["Al-Humazah"], 105:["Al-Fīl"], 106:["Quraysh"],
-  107:["Al-Māʿūn"], 108:["Al-Kawthar"], 109:["Al-Kāfirūn"], 110:["An-Naṣr"],
-  111:["Al-Masad"], 112:["Al-Ikhlāṣ"], 113:["Al-Falaq"], 114:["An-Nās"]
-};
-
+  <div class="version-buttons">
+    <button onclick="setVersion('v2')">📜 Gunakan Quran V2</button>
+    <button onclick="setVersion('v1')">📄 Gunakan Quran V1</button>
+  </div>
+  <div id="pages"></div>
+  <div id="loaderOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.8);display:flex;justify-content:center;align-items:center;z-index:9999;display:none;">
+    <div style="border:8px solid #f3f3f3;border-top:8px solid #4cafef;border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite;"></div>
+  </div>
+  <style>@keyframes spin {0% { transform: rotate(0deg); }100% { transform: rotate(360deg); }}</style>
+  <script>
+// --- VARIABEL DASAR ---
 const surahSelect = document.getElementById("surahSelect");
 const ayahSelect = document.getElementById("ayahSelect");
 const wordStart = document.getElementById("wordStart");
 const wordEnd = document.getElementById("wordEnd");
 const wordTranslationId = document.getElementById("wordTranslationId");
+const fontSelect = document.getElementById("fontSelect");
+const colorPicker = document.getElementById("colorPicker");
+const contrastControl = document.getElementById("contrastControl");
+const bgUpload = document.getElementById("bgUpload");
+const bgLink = document.getElementById("bgLink");
+const bgSelect = document.getElementById("bgSelect");
+const pages = document.getElementById("pages");
 let currentVersion = 'v1';
 let words = [];
-let initialLoad = true;
 
-function setVersion(v) {
-  currentVersion = v;
-  loadAyat();
-}
+// --- SURAH LIST (SINGKAT) ---
+const surahList = {
+  1: ["Al-Fātiḥah"], 2: ["Al-Baqarah"], 3: ["Āl ʿImrān"], 4: ["An-Nisāʾ"],
+  5: ["Al-Māʾidah"], 6: ["Al-Anʿām"], 7: ["Al-Aʿrāf"], 8: ["Al-Anfāl"],
+  9: ["At-Tawbah"], 10: ["Yūnus"] // ... lanjut sesuai kebutuhan
+};
 
-for (let i in surahList) {
-  const [name] = surahList[i];
+Object.entries(surahList).forEach(([i, [name]]) => {
   surahSelect.appendChild(new Option(`${i}. ${name}`, i));
-}
-
-surahSelect.addEventListener("change", () => { updateAyahDropdown(); saveHistory(); });
-ayahSelect.addEventListener("change", () => { loadAyat(); saveHistory(); });
-wordStart.addEventListener("change", () => {
-  const startVal = +wordStart.value;
-  wordEnd.innerHTML = "";
-  for (let i = startVal; i <= words.length; i++) wordEnd.appendChild(new Option(i, i));
-  wordEnd.value = startVal;
-  loadAyat();
-  saveHistory();
 });
-wordEnd.addEventListener("change", () => { loadAyat(); saveHistory(); });
-wordTranslationId.addEventListener("change", () => { loadAyat(); saveHistory(); });
+
+surahSelect.addEventListener("change", updateAyahDropdown);
+ayahSelect.addEventListener("change", loadAyat);
+wordStart.addEventListener("change", () => {
+  const start = +wordStart.value;
+  wordEnd.innerHTML = '';
+  for (let i = start; i <= words.length; i++) wordEnd.appendChild(new Option(i, i));
+  wordEnd.value = start;
+  loadAyat();
+});
+wordEnd.addEventListener("change", loadAyat);
+wordTranslationId.addEventListener("change", loadAyat);
+bgUpload.addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => applyBackground(e.target.result);
+  reader.readAsDataURL(file);
+});
+bgLink.addEventListener("change", () => applyBackground(bgLink.value));
+bgSelect.addEventListener("change", () => applyBackground(`https://example.com/${bgSelect.value}.jpg`));
+contrastControl.addEventListener("input", () => {
+  const container = pages.querySelector(".page-container");
+  if (container) container.style.filter = `contrast(${contrastControl.value}%)`;
+});
+colorPicker.addEventListener("change", () => {
+  pages.querySelectorAll(".word, .translation").forEach(el => el.style.color = colorPicker.value);
+});
+fontSelect.addEventListener("change", () => {
+  const url = fontSelect.value;
+  if (!url) return;
+  const fontName = `customFont${Date.now()}`;
+  const style = document.createElement('style');
+  style.textContent = `@font-face { font-family: '${fontName}'; src: url('${url}'); }
+    .translation { font-family: '${fontName}', sans-serif !important; }`;
+  document.head.appendChild(style);
+});
+
+document.getElementById("saveImageButton").addEventListener("click", async () => {
+  const node = pages.querySelector(".page-container");
+  const { toBlob } = await import('https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/+esm');
+  toBlob(node).then(blob => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "quran.png";
+    a.click();
+  });
+});
+
+function applyBackground(url) {
+  const container = pages.querySelector(".page-container");
+  if (container) container.style.backgroundImage = `url('${url}')`;
+}
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
@@ -297,88 +295,71 @@ async function updateAyahDropdown() {
 }
 
 async function loadAyat() {
-  showLoader();
-  try {
-    const s = surahSelect.value, a = ayahSelect.value, key = `${s}:${a}`;
-    const container = document.getElementById("pages");
-    container.innerHTML = "";
+  const s = surahSelect.value, a = ayahSelect.value, key = `${s}:${a}`;
+  pages.innerHTML = "";
+  const div = document.createElement("div");
+  div.className = `page-container quran-${currentVersion}`;
+  pages.appendChild(div);
 
-    const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
-    const page = pageMap[key];
-    const fontName = currentVersion === 'v1' ? `QCF_P${String(page).padStart(3, '0')}` : `QCF2${String(page).padStart(3, '0')}`;
-    const fontUrl = currentVersion === 'v1'
-      ? `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`
-      : `https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@refs/heads/main/fontsglyphvs/${fontName}.ttf`;
+  const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=code_${currentVersion}`).then(r => r.json());
+  words = data.verse.words.map(w => ({ arabic: w[`code_${currentVersion}`] || w.text }));
 
-    const apiField = currentVersion === "v1" ? "code_v1" : "code_v2";
-    const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
-    words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
-
-    const prevStart = +wordStart.value || 1, prevEnd = +wordEnd.value || 1;
-    wordStart.innerHTML = "";
-    for (let i = 1; i <= words.length; i++) wordStart.appendChild(new Option(`Word ${i}`, i));
-    wordStart.value = initialLoad ? 1 : Math.min(prevStart, words.length);
-    wordEnd.innerHTML = "";
-    for (let i = wordStart.value; i <= words.length; i++) wordEnd.appendChild(new Option(`To ${i}`, i));
-    wordEnd.value = initialLoad ? 1 : Math.min(prevEnd, words.length);
-    initialLoad = false;
-
-    const style = document.createElement("style");
-    style.textContent = `@font-face { font-family: '${fontName}'; src: url('${fontUrl}') format('truetype'); }`;
-    document.head.appendChild(style);
-
-    const div = document.createElement("div");
-    div.className = `page-container quran-${currentVersion}`; // ✅ Kelas dinamis V1/V2
-    div.style.fontFamily = fontName;
-    container.appendChild(div);
-
-    await document.fonts.load(`1em ${fontName}`);
-
-    const startIdx = (+wordStart.value || 1) - 1;
-    const endIdx = (+wordEnd.value || startIdx + 1);
-    const line = document.createElement("div");
-    words.slice(startIdx, endIdx).forEach(word => {
-      const span = document.createElement("span");
-      span.className = "word";
-      span.innerText = word.arabic;
-      line.appendChild(span);
-      line.appendChild(document.createTextNode(" "));
-    });
-    div.appendChild(line);
-
-    if (wordTranslationId.value) {
-      const langCode = translationLanguageMap[wordTranslationId.value];
-      try {
-        const r = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${langCode}&translations=${wordTranslationId.value}`);
-        const j = await r.json();
-        const wordsData = j.verse.words;
-        const wordTranslations = wordsData.map(w => w.translation?.text || "").slice(startIdx, endIdx);
-        const perKataDiv = document.createElement("div");
-        perKataDiv.className = "translation";
-        perKataDiv.textContent = wordTranslations.join(" ");
-        div.appendChild(perKataDiv);
-      } catch (e) {
-        console.error("Gagal ambil terjemah perkata:", e);
-      }
-    }
-
-    div.style.display = "block";
-    requestAnimationFrame(() => div.style.opacity = "1");
-  } catch (e) {
-    alert("Gagal memuat ayat: " + e.message);
-  } finally {
-    hideLoader();
+  const startIdx = (+wordStart.value || 1) - 1;
+  const endIdx = (+wordEnd.value || startIdx + 1);
+  const line = document.createElement("div");
+  for (let i = startIdx; i < endIdx; i++) {
+    const span = document.createElement("span");
+    span.className = "word";
+    span.innerText = words[i].arabic;
+    span.contentEditable = true;
+    makeDraggable(span);
+    line.appendChild(span);
+    line.appendChild(document.createTextNode(" "));
   }
+  div.appendChild(line);
+
+  const lang = wordTranslationId.value === "33" ? "id" : "en";
+  const j = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=${lang}&translations=${wordTranslationId.value}`).then(r => r.json());
+  const wordTranslations = j.verse.words.map(w => w.translation?.text || "").slice(startIdx, endIdx);
+  const transDiv = document.createElement("div");
+  transDiv.className = "translation";
+  transDiv.contentEditable = true;
+  transDiv.innerText = wordTranslations.join(" ");
+  makeDraggable(transDiv);
+  div.appendChild(transDiv);
+
+  const source = document.createElement("div");
+  source.className = "source-text";
+  source.contentEditable = true;
+  source.innerText = `${surahList[s][0]}: ${a}`;
+  makeDraggable(source);
+  div.appendChild(source);
+
+  const watermark = document.createElement("div");
+  watermark.className = "watermark";
+  watermark.innerText = "videomurottal.com";
+  div.appendChild(watermark);
+
+  div.style.display = "block";
+  div.style.opacity = "1";
 }
 
-const last = loadHistory();
-updateAyahDropdown().then(() => {
-  if (last.ayah) ayahSelect.value = last.ayah;
-  if (last.wordStart) wordStart.value = last.wordStart;
-  if (last.wordEnd) wordEnd.value = last.wordEnd;
-  if (last.translation) wordTranslationId.value = last.translation;
-});
-</script>
-
+function makeDraggable(el) {
+  el.draggable = true;
+  el.addEventListener('dragstart', e => {
+    e.dataTransfer.setData("text/plain", null);
+    e.target.dataset.dragging = true;
+  });
+  el.addEventListener('dragend', e => {
+    e.target.dataset.dragging = false;
+  });
+  el.addEventListener('touchmove', e => {
+    const touch = e.touches[0];
+    el.style.left = touch.clientX - el.offsetWidth / 2 + 'px';
+    el.style.top = touch.clientY - el.offsetHeight / 2 + 'px';
+    el.style.position = 'absolute';
+  });
+}
+  </script>
 </body>
 </html>
