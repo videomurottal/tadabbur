@@ -79,20 +79,6 @@ button:hover {
   direction: ltr;
 }
 
-.brand-watermark {
-  font-size: 0.4em;
-  font-family: sans-serif;
-  color: #999;
-  position: absolute;     /* ⬅️ Supaya tidak mendorong kotak */
-  bottom: 0.5em;           /* ⬅️ Turunkan ke bawah */
-  left: 50%;              
-  transform: translateX(-50%); /* ⬅️ Tengahkan secara horizontal */
-  text-align: center;
-  font-style: italic;
-  direction: ltr;
-  user-select: none;
-}
-
 .controls {
   direction: ltr;
   max-width: 800px;
@@ -162,6 +148,22 @@ button:hover {
   padding: 0 0.5em;
 }
 
+    .brand-watermark {
+  position: absolute;
+  bottom: 1em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+  font-family: sans-serif;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  direction: ltr;
+  user-select: none;
+  z-index: 10;
+  pointer-events: none;
+}
+
     .button-wrapper {
   display: flex;
   align-items: flex-end;
@@ -176,7 +178,7 @@ button:hover {
 </head>
 <body>
 
-<h3>Poster Quran</h3>
+<h2>Poster Quran</h2>
   
 <div class="controls">
   <!-- Baris 1: Surah & Ayat -->
@@ -569,15 +571,15 @@ async function loadAyat() {
         referenceDiv.textContent = `${surahName}: ${a}`;
         div.appendChild(referenceDiv);
 
-        // Atur font size langsung sesuai slider
-        div.style.fontSize = document.getElementById("fontSizeAyat").value + "px";
-        perKataDiv.style.fontSize = document.getElementById("fontSizeTerjemah").value + "px";
-        referenceDiv.style.fontSize = document.getElementById("fontSizeInfo").value + "px";
-
         const brandDiv = document.createElement("div");
         brandDiv.className = "brand-watermark";
         brandDiv.textContent = "videomurottal.com";
         div.appendChild(brandDiv);
+        
+        // Atur font size langsung sesuai slider
+        div.style.fontSize = document.getElementById("fontSizeAyat").value + "px";
+        perKataDiv.style.fontSize = document.getElementById("fontSizeTerjemah").value + "px";
+        referenceDiv.style.fontSize = document.getElementById("fontSizeInfo").value + "px";
 
         
       } catch (e) {
