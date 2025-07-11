@@ -149,18 +149,21 @@ button:hover {
 }
 
     .brand-watermark {
-  font-size: 0.4em;
+  position: absolute;
+  bottom: 0.5em;                 /* 🔽 posisinya makin ke bawah */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
   font-family: sans-serif;
-  color: #999;
-  position: absolute;     /* ⬅️ Supaya tidak mendorong kotak */
-  bottom: 0.5em;           /* ⬅️ Turunkan ke bawah */
-  left: 50%;              
-  transform: translateX(-50%); /* ⬅️ Tengahkan secara horizontal */
-  text-align: center;
   font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
   direction: ltr;
   user-select: none;
+  z-index: 10;
+  pointer-events: none;
 }
+
 
     .button-wrapper {
   display: flex;
