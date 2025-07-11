@@ -73,17 +73,17 @@ button:hover {
 }
 
 .brand-watermark {
-  font-size: 0.7em;
+  font-size: 0.8em;
   font-family: sans-serif;
   color: #999;
+  position: absolute;     /* ⬅️ Supaya tidak mendorong kotak */
+  bottom: 0.5em;           /* ⬅️ Turunkan ke bawah */
+  left: 50%;              
+  transform: translateX(-50%); /* ⬅️ Tengahkan secara horizontal */
   text-align: center;
   font-style: italic;
   direction: ltr;
-
-  position: absolute;
-  bottom: 8px;
-  left: 0;
-  right: 0;
+  user-select: none;
 }
 
 .controls {
