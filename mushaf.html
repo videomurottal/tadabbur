@@ -225,8 +225,10 @@ button:hover {
   </label>
 
   <!-- Upload File -->
-  <label><input type="file" id="backgroundUpload" accept="image/*">
-  </label>
+  <label for="backgroundUpload" style="display: inline-block;">
+  <button type="button">Upload Gambar</button>
+</label>
+<input type="file" id="backgroundUpload" accept="image/*" style="display: none;">
 
 <label>
   <select id="imageSizeSelect">
@@ -242,9 +244,9 @@ button:hover {
 
 <label>
   <select id="colorTarget">
-    <option value="quran-text">Ayat</option>
-    <option value="translation">Terjemah</option>
-    <option value="surah-info">Info Surah</option>
+    <option value="quran-text">Warna Ayat</option>
+    <option value="translation">Warna Terjemah</option>
+    <option value="surah-info">Warna Info Surah</option>
   </select>
 </label>
 
@@ -253,7 +255,7 @@ button:hover {
 </label>
 
 <div class="button-wrapper">
-  <button id="applyColor">Ubah Warna</button>
+  <button id="applyColor">Konfirmasi Warna</button>
 </div>
 
 
