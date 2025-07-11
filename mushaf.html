@@ -160,12 +160,14 @@
     max-width:600px; width:90%; box-shadow:0 0 25px rgba(0,0,0,0.3);">
     <h3 style="margin-top:0;">🔍 Cari Ayat</h3>
     <input id="searchInput" type="text" placeholder="Ketik kata Arab/ID/EN..." style="width:100%;padding:0.6em; margin-bottom:0.8em; border:1px solid #ccc; border-radius:6px;">
-    <div id="searchResults" style="max-height:300px; overflow-y:auto; border-top:1px solid #ddd; padding-top:0.5em;"></div>
-    <div style="text-align:right; margin-top:1em;">
+    <div style="text-align:right;">
+      <button id="searchButton" style="background:#4caf50; color:white; border:none; border-radius:4px; padding:0.6em 1.2em;">🔍 Search</button>
       <button onclick="closeSearchModal()" style="background:#f44336; color:white; border:none; border-radius:4px; padding:0.6em 1.2em;">❌ Tutup</button>
     </div>
+    <div id="searchResults" style="max-height:300px; overflow-y:auto; border-top:1px solid #ddd; margin-top:1em; padding-top:0.5em;"></div>
   </div>
 </div>
+
 
 <!-- 🔥 Loader Overlay -->
 <div id="loaderOverlay" style="
@@ -529,6 +531,68 @@ function gotoAyat(surah, ayah) {
   loadAyat();
   closeSearchModal();
 }
+</script>
+
+<script>
+// ✅ Tombol Link Buka Modal
+document.getElementById('customLinkButton').addEventListener('click', () => {
+  document.getElementById('searchModal').style.display = 'flex';
+  document.body.classList.add('modal-open');
+});
+
+// ✅ Tutup Modal
+function closeSearchModal() {
+  document.getElementById('searchModal').style.display = 'none';
+  document.body.classList.remove('modal-open');
+}
+
+// ✅ Fungsi Cek XML
+async function checkXMLFiles() {
+  const arab = await idbKeyval.get('arab');
+  const id = await idbKeyval.get('id');
+  const en = await idbKeyval.get('en');
+  console.log("📦 Cek IndexedDB:", {
+    'quran.xml': !!arab,
+    'TerjemahID.xml': !!id,
+    'terjemahEN.xml': !!en
+  });
+  return arab && id && en;
+}
+
+// ✅ Tombol Search Klik
+document.getElementById('searchButton').addEventListener('click', async () => {
+  const q = document.getElementById('searchInput').value.trim();
+  const resultsDiv = document.getElementById('searchResults');
+  resultsDiv.innerHTML = "⏳ Memeriksa storage...";
+  if (!q) {
+    resultsDiv.innerHTML = "❗ Masukkan kata kunci.";
+    return;
+  }
+
+  const allFilesExist = await checkXMLFiles();
+  if (!allFilesExist) {
+    resultsDiv.innerHTML = "❌ Data XML belum ada di storage. Sedang download, coba lagi sebentar...";
+    await cacheXMLFiles();
+    return;
+  }
+
+  resultsDiv.innerHTML = "🔍 Searching...";
+  const found = await searchAyat(q);
+  if (found.length === 0) {
+    resultsDiv.innerHTML = "❌ Tidak ditemukan.";
+    return;
+  }
+
+  resultsDiv.innerHTML = found.map(r => `
+    <div style="margin-bottom:1em; padding:0.5em; border-bottom:1px solid #ddd;">
+      <b>📖 Surah ${r.surah}:${r.ayah}</b><br>
+      <div dir="rtl" style="font-size:1.5em; margin:0.5em 0;">${r.arab}</div>
+      <div><i>${r.id}</i></div>
+      <div><i>${r.en}</i></div>
+      <button onclick="gotoAyat(${r.surah}, ${r.ayah})" style="margin-top:0.5em; padding:0.3em 0.6em; background:#4cafef; color:white; border:none; border-radius:4px;">📖 Buka Ayat Ini</button>
+    </div>
+  `).join('');
+});
 </script>
   
 </body>
