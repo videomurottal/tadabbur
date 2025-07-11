@@ -399,6 +399,90 @@ updateAyahDropdown().then(() => {
   // 🟢 Tidak perlu panggil loadAyat() lagi di sini karena sudah dipanggil di updateAyahDropdown()
 });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/idb-keyval.iife.min.js"></script>
+<script>
+    async function cacheXMLFiles() {
+  const files = {
+    arab: "https://raw.githubusercontent.com/tafsirnetlifyapp/quran/refs/heads/main/quran.xml",
+    id: "https://raw.githubusercontent.com/tafsirnetlifyapp/quran/refs/heads/main/TerjemahID.xml",
+    en: "https://raw.githubusercontent.com/tafsirnetlifyapp/quran/refs/heads/main/terjemahEN.xml"
+  };
+
+  for (const [key, url] of Object.entries(files)) {
+    if (!await idbKeyval.get(key)) {
+      console.log(`⬇️ Downloading ${key}...`);
+      const res = await fetch(url);
+      const text = await res.text();
+      await idbKeyval.set(key, text);
+      console.log(`✅ ${key} saved to IndexedDB`);
+    } else {
+      console.log(`⚡ ${key} already cached`);
+    }
+  }
+}
+
+cacheXMLFiles();
+
+    async function searchAyat(query) {
+  const arabXML = await idbKeyval.get('arab');
+  const idXML = await idbKeyval.get('id');
+  const enXML = await idbKeyval.get('en');
+
+  const parser = new DOMParser();
+  const arabDoc = parser.parseFromString(arabXML, "text/xml");
+  const idDoc = parser.parseFromString(idXML, "text/xml");
+  const enDoc = parser.parseFromString(enXML, "text/xml");
+
+  const results = [];
+
+  arabDoc.querySelectorAll('aya').forEach(aya => {
+    const arabText = aya.getAttribute('text');
+    const surahIndex = aya.parentNode.getAttribute('index');
+    const ayahIndex = aya.getAttribute('index');
+
+    const idVerse = idDoc.querySelector(`Chapter[ChapterID="${surahIndex}"] Verse[VerseID="${ayahIndex}"]`);
+    const enVerse = enDoc.querySelector(`Chapter[ChapterID="${surahIndex}"] Verse[VerseID="${ayahIndex}"]`);
+
+    const idText = idVerse ? idVerse.textContent : '';
+    const enText = enVerse ? enVerse.textContent : '';
+
+    if (arabText.includes(query) || idText.toLowerCase().includes(query.toLowerCase()) || enText.toLowerCase().includes(query.toLowerCase())) {
+      results.push({
+        surah: surahIndex,
+        ayah: ayahIndex,
+        arab: arabText,
+        id: idText,
+        en: enText
+      });
+    }
+  });
+
+  return results;
+}
+
+searchInput.addEventListener('input', async () => {
+  const q = searchInput.value.trim();
+  searchResults.innerHTML = q ? "🔍 Searching..." : "";
+  if (!q) return;
+
+  const found = await searchAyat(q);
+  if (found.length === 0) {
+    searchResults.innerHTML = "❌ Tidak ditemukan.";
+    return;
+  }
+
+  searchResults.innerHTML = found.map(r => `
+    <div style="margin-bottom:1em; padding:0.5em; border-bottom:1px solid #ddd;">
+      <b>📖 Surah ${r.surah}:${r.ayah}</b><br>
+      <div dir="rtl" style="font-size:1.5em; margin:0.5em 0;">${r.arab}</div>
+      <div><i>${r.id}</i></div>
+      <div><i>${r.en}</i></div>
+      <button onclick="gotoAyat(${r.surah}, ${r.ayah})" style="margin-top:0.5em; padding:0.3em 0.6em; background:#4cafef; color:white; border:none; border-radius:4px;">📖 Buka Ayat Ini</button>
+    </div>
+  `).join('');
+});
+  </script>
   
 </body>
 </html>
