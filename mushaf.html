@@ -19,25 +19,6 @@ h2 {
   margin-bottom: 1rem;
 }
 
-    .input-with-button {
-  position: relative;
-}
-
-.input-with-button input {
-  padding-right: 2.5em;
-}
-
-.input-with-button button {
-  position: absolute;
-  right: 0.3em;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  font-size: 1.2em;
-  cursor: pointer;
-}
-
 #pages {
   /* ... (sudah ada background properties) */
   filter: contrast(1); /* Default */
@@ -220,23 +201,17 @@ button:hover {
 <!-- Baris Background -->
 <div class="controls">
   <!-- Input URL di awal -->
-  <label>Link Gambar
-  <div style="display: flex; gap: 0.5em; align-items: center;">
-    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg" style="flex: 1;">
-    <button id="setBackgroundFromUrl" title="Gunakan link ini" style="padding: 0.2em 0.5em; font-size: 1rem;">✅</button>
-  </div>
-</label>
+  <label><input type="url" id="backgroundUrl" placeholder="Enter Link">
+  </label>
 
   <!-- Tombol/Slider Contrast -->
-  <label>Kontras Gambar
-  <button id="toggleContrast">⚙️ Atur Kontras</button>
+  <label><button id="toggleContrast">⚙️ Atur Kontras</button>
   <input type="range" id="contrastSlider" min="0" max="200" value="100" style="display:none; width: 100%;">
 </label>
 
   <!-- Dropdown Background -->
-  <label>Gambar Latar
-    <select id="backgroundSelect">
-      <option value="">Putih Polos</option>
+  <label><select id="backgroundSelect">
+      <option value="">Pilih Gambar</option>
       <option value="https://i.imgur.com/tSvrYQz.jpg">Biru Langit</option>
       <option value="https://i.imgur.com/gHxGzZk.jpg">Gradasi Hijau</option>
       <option value="https://i.imgur.com/w1kXIbq.jpg">Cahaya Ilahi</option>
@@ -245,8 +220,7 @@ button:hover {
   </label>
 
   <!-- Upload File -->
-  <label>Upload Gambar
-    <input type="file" id="backgroundUpload" accept="image/*">
+  <label><input type="file" id="backgroundUpload" accept="image/*">
   </label>
 </div>
 
@@ -541,18 +515,6 @@ updateAyahDropdown().then(() => {
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
 });
-
-const setBackgroundFromUrlBtn = document.getElementById("setBackgroundFromUrl");
-if (setBackgroundFromUrlBtn) {
-  setBackgroundFromUrlBtn.addEventListener("click", () => {
-    const url = backgroundUrl.value.trim();
-    if (url) {
-      pagesContainer.style.backgroundImage = `url('${url}')`;
-      backgroundSelect.value = "";
-      saveHistory();
-    }
-  });
-}
   
 </script>
 
