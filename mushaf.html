@@ -17,6 +17,9 @@
       font-size: clamp(1.5rem, 4vw, 2.5rem);
       margin-bottom: 1rem;
     }
+    .modal-open {
+      overflow: hidden;
+    }
     .controls {
       direction: ltr;
       max-width: 800px;
@@ -148,15 +151,19 @@
 
 <!-- 🔎 Modal Search Ayat -->
 <div id="searchModal" style="
-  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-  background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+  display:none;
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,0.6); z-index:9999;
+  justify-content:center; align-items:center;">
   <div style="
-    background:white; padding:1em; max-width:600px; width:90%;
-    border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.3);">
+    background:white; padding:1.5em; border-radius:8px;
+    max-width:600px; width:90%; box-shadow:0 0 25px rgba(0,0,0,0.3);">
     <h3 style="margin-top:0;">🔍 Cari Ayat</h3>
-    <input id="searchInput" placeholder="Ketik kata Arab/ID/EN..." style="width:100%;padding:0.5em; margin-bottom:0.5em;"/>
-    <div id="searchResults" style="max-height:300px; overflow-y:auto;"></div>
-    <button onclick="closeSearch()" style="margin-top:0.5em; padding:0.5em 1em; background:#f44336; color:white; border:none; border-radius:4px;">❌ Tutup</button>
+    <input id="searchInput" type="text" placeholder="Ketik kata Arab/ID/EN..." style="width:100%;padding:0.6em; margin-bottom:0.8em; border:1px solid #ccc; border-radius:6px;">
+    <div id="searchResults" style="max-height:300px; overflow-y:auto; border-top:1px solid #ddd; padding-top:0.5em;"></div>
+    <div style="text-align:right; margin-top:1em;">
+      <button onclick="closeSearchModal()" style="background:#f44336; color:white; border:none; border-radius:4px; padding:0.6em 1.2em;">❌ Tutup</button>
+    </div>
   </div>
 </div>
 
@@ -415,7 +422,8 @@ updateAyahDropdown().then(() => {
 
 <script src="https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/idb-keyval.iife.min.js"></script>
 <script>
-    async function cacheXMLFiles() {
+// 🔥 Cache XML ke IndexedDB
+async function cacheXMLFiles() {
   const files = {
     arab: "https://raw.githubusercontent.com/tafsirnetlifyapp/quran/refs/heads/main/quran.xml",
     id: "https://raw.githubusercontent.com/tafsirnetlifyapp/quran/refs/heads/main/TerjemahID.xml",
@@ -434,10 +442,10 @@ updateAyahDropdown().then(() => {
     }
   }
 }
-
 cacheXMLFiles();
 
-    async function searchAyat(query) {
+// 🔥 Search Function
+async function searchAyat(query) {
   const arabXML = await idbKeyval.get('arab');
   const idXML = await idbKeyval.get('id');
   const enXML = await idbKeyval.get('en');
@@ -460,7 +468,11 @@ cacheXMLFiles();
     const idText = idVerse ? idVerse.textContent : '';
     const enText = enVerse ? enVerse.textContent : '';
 
-    if (arabText.includes(query) || idText.toLowerCase().includes(query.toLowerCase()) || enText.toLowerCase().includes(query.toLowerCase())) {
+    if (
+      arabText.includes(query) ||
+      idText.toLowerCase().includes(query.toLowerCase()) ||
+      enText.toLowerCase().includes(query.toLowerCase())
+    ) {
       results.push({
         surah: surahIndex,
         ayah: ayahIndex,
@@ -474,18 +486,20 @@ cacheXMLFiles();
   return results;
 }
 
-searchInput.addEventListener('input', async () => {
-  const q = searchInput.value.trim();
-  searchResults.innerHTML = q ? "🔍 Searching..." : "";
+// 🔥 Event untuk Input Search
+document.getElementById('searchInput').addEventListener('input', async () => {
+  const q = document.getElementById('searchInput').value.trim();
+  const resultsDiv = document.getElementById('searchResults');
+  resultsDiv.innerHTML = q ? "🔍 Searching..." : "";
   if (!q) return;
 
   const found = await searchAyat(q);
   if (found.length === 0) {
-    searchResults.innerHTML = "❌ Tidak ditemukan.";
+    resultsDiv.innerHTML = "❌ Tidak ditemukan.";
     return;
   }
 
-  searchResults.innerHTML = found.map(r => `
+  resultsDiv.innerHTML = found.map(r => `
     <div style="margin-bottom:1em; padding:0.5em; border-bottom:1px solid #ddd;">
       <b>📖 Surah ${r.surah}:${r.ayah}</b><br>
       <div dir="rtl" style="font-size:1.5em; margin:0.5em 0;">${r.arab}</div>
@@ -496,21 +510,26 @@ searchInput.addEventListener('input', async () => {
   `).join('');
 });
 
-  document.getElementById('customLinkButton').addEventListener('click', () => {
+// 🔥 Tombol Link Buka Modal
+document.getElementById('customLinkButton').addEventListener('click', () => {
   document.getElementById('searchModal').style.display = 'flex';
+  document.body.classList.add('modal-open');
 });
 
-function closeSearch() {
+// 🔥 Tutup Modal
+function closeSearchModal() {
   document.getElementById('searchModal').style.display = 'none';
+  document.body.classList.remove('modal-open');
 }
 
-  function gotoAyat(surah, ayah) {
+// 🔥 Buka Ayat dari Hasil Search
+function gotoAyat(surah, ayah) {
   surahSelect.value = surah;
   ayahSelect.value = ayah;
   loadAyat();
-  closeSearch();
+  closeSearchModal();
 }
-  </script>
+</script>
   
 </body>
 </html>
