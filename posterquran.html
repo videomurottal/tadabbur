@@ -408,10 +408,17 @@ function saveHistory() {
 
 function loadHistory() {
   const history = JSON.parse(localStorage.getItem('quranHistory') || '{}');
+
   if (history.surah) surahSelect.value = history.surah;
   if (history.version) currentVersion = history.version;
-  if (history.background) backgroundSelect.value = history.background;
-  document.getElementById("pages").style.backgroundImage = history.background ? `url('${history.background}')` : "none";
+
+  // ✅ Default wallpaper jika belum ada data background
+  const defaultBg = "https://images.pexels.com/photos/1819662/pexels-photo-1819662.jpeg";
+  const bgToUse = history.background || defaultBg;
+
+  backgroundSelect.value = bgToUse;
+  pagesContainer.style.backgroundImage = `url('${bgToUse}')`;
+
   return history;
 }
 
