@@ -19,6 +19,11 @@ h2 {
   margin-bottom: 1rem;
 }
 
+#pages {
+  filter: contrast(1);
+  transition: filter 0.3s ease;
+}
+    
 input[type="file"],
 input[type="url"],
 select,
@@ -211,8 +216,14 @@ button:hover {
 
   <!-- Input URL -->
   <label>Link Gambar
-    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
-  </label>
+  <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
+  <button type="button" id="setBackgroundFromUrl">OK</button>
+</label>
+  <label style="position: relative;">
+  <button type="button" id="toggleContrast">Contrast Gambar</button>
+  <input type="range" id="contrastSlider" min="50" max="200" value="100"
+         style="position: absolute; bottom: 2.5em; left: 50%; transform: translateX(-50%) rotate(-90deg); display: none; width: 120px;">
+</label>
 </div>
 
 
@@ -277,7 +288,7 @@ backgroundUpload.addEventListener("change", () => {
 });
 
 // Input Link
-backgroundUrl.addEventListener("change", () => {
+document.getElementById("setBackgroundFromUrl").addEventListener("click", () => {
   const url = backgroundUrl.value.trim();
   if (url) {
     pagesContainer.style.backgroundImage = `url('${url}')`;
@@ -483,6 +494,21 @@ updateAyahDropdown().then(() => {
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
 });
+
+const contrastSlider = document.getElementById("contrastSlider");
+const toggleContrastBtn = document.getElementById("toggleContrast");
+
+// Toggle tampilkan slider
+toggleContrastBtn.addEventListener("click", () => {
+  contrastSlider.style.display = contrastSlider.style.display === "none" ? "block" : "none";
+});
+
+// Saat slider berubah, ubah kontras
+contrastSlider.addEventListener("input", () => {
+  const contrastValue = contrastSlider.value;
+  pagesContainer.style.filter = `contrast(${contrastValue}%)`;
+});
+  
 </script>
 
 </body>
