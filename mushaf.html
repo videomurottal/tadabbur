@@ -216,11 +216,14 @@ button:hover {
   </label>
 
   <!-- Input URL -->
-<label>Link Gambar
-  <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
-  <button type="button" id="setBackgroundFromUrl">OK</button>
+<label style="display: flex; flex-direction: column;">
+  Link Gambar
+  <div style="display: flex; flex-direction: row-reverse; gap: 0.5em; align-items: center;">
+    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg" style="flex: 1;">
+    <button type="button" id="urlOkButton">OK</button>
+  </div>
   <button type="button" id="toggleContrast">Contrast Gambar</button>
-  <input type="range" id="contrastSlider" min="50" max="200" value="100" style="display:none; margin-top: 0.5em;">
+  <input type="range" id="contrastSlider" min="0" max="200" value="100" style="display:none; margin-top: 0.5em;">
 </label>
 </div>
 
@@ -302,10 +305,10 @@ toggleContrast.addEventListener("click", () => {
   contrastSlider.style.display = contrastSlider.style.display === "none" ? "block" : "none";
 });
 
-// Saat slider digeser, ubah filter contrast
 contrastSlider.addEventListener("input", () => {
   const value = contrastSlider.value;
-  pagesContainer.style.filter = `contrast(${value}%)`;
+  const contrastValue = value / 100; // 0.5 = gelap, 1 = normal, 2 = kontras tinggi
+  pagesContainer.style.filter = `contrast(${contrastValue})`;
 });
 
   
@@ -505,6 +508,15 @@ updateAyahDropdown().then(() => {
   if (last.wordStart) wordStart.value = last.wordStart;
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
+});
+
+const urlOkButton = document.getElementById("urlOkButton");
+urlOkButton.addEventListener("click", () => {
+  const url = backgroundUrl.value.trim();
+  if (url) {
+    pagesContainer.style.backgroundImage = `url('${url}')`;
+    backgroundSelect.value = "";
+  }
 });
   
 </script>
