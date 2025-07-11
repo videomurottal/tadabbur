@@ -116,7 +116,7 @@ button:hover {
   opacity: 0;
   transition: opacity 0.3s ease;
   display: none;
-  max-width: 70%;
+  max-width: 75%;
   overflow-wrap: break-word;
 }
 
@@ -132,7 +132,7 @@ button:hover {
   opacity: 0;
   transition: opacity 0.3s ease;
   display: none;
-  max-width: 70%;
+  max-width: 75%;
   overflow-wrap: break-word;
 }
 
@@ -149,7 +149,7 @@ button:hover {
   color: #ffffff;
   direction: ltr;
   text-align: center;
-  line-height: 1.5;
+  line-height: 1.4;
   word-spacing: 0.2em;
   margin-top: 0.5em;
   padding: 0 0.5em;
@@ -218,9 +218,9 @@ button:hover {
   <!-- Dropdown Background -->
   <label><select id="backgroundSelect">
       <option value="https://images.pexels.com/photos/1819662/pexels-photo-1819662.jpeg">bg1</option>
-      <option value="https://i.imgur.com/gHxGzZk.jpg">Gradasi Hijau</option>
-      <option value="https://i.imgur.com/w1kXIbq.jpg">Cahaya Ilahi</option>
-      <option value="https://i.imgur.com/1LJ3FcC.jpg">Abstrak Emas</option>
+      <option value="https://images.pexels.com/photos/13861001/pexels-photo-13861001.jpeg">bg2</option>
+      <option value="https://images.pexels.com/photos/28883533/pexels-photo-28883533.jpeg">bg3</option>
+      <option value="https://images.pexels.com/photos/18945829/pexels-photo-18945829.jpeg">bg4</option>
     </select>
   </label>
 
@@ -490,7 +490,7 @@ async function loadAyat() {
         const surahName = surahList[s][0];
         const referenceDiv = document.createElement("div");
         referenceDiv.className = "surah-info";
-        referenceDiv.textContent = `${surahName}:${a}`;
+        referenceDiv.textContent = `${surahName}: ${a}`;
         div.appendChild(referenceDiv);
 
         const brandDiv = document.createElement("div");
