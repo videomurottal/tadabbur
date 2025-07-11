@@ -13,49 +13,28 @@
   margin: 0;
 }
 
+.draggable-editable {
+  border: 1px dashed transparent;
+  padding: 0.3em;
+  cursor: move;
+  resize: both;
+  overflow: auto;
+  min-width: 50px;
+  min-height: 30px;
+}
+
+.draggable-editable:focus {
+  border-color: #007acc;
+  outline: none;
+}
+
+    
 h2 {
   text-align: center;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   margin-bottom: 1rem;
 }
 
-.editable-draggable {
-  position: absolute;
-  cursor: move;
-  padding: 0.3em 0.6em;
-  min-width: 100px;
-  max-width: 90%;
-  word-break: break-word;
-  line-height: 1.5;
-  user-select: text;
-  resize: none;
-  z-index: 10;
-}
-
-.editable-draggable:focus {
-  outline: 2px dashed #007acc;
-  background-color: rgba(255,255,255,0.6);
-}
-.font-controls {
-  position: absolute;
-  top: -30px;
-  left: 0;
-  display: flex;
-  gap: 4px;
-}
-.font-controls button {
-  font-size: 14px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: none;
-  background: #4cafef;
-  color: white;
-  cursor: pointer;
-}
-.font-controls button:hover {
-  background: #007acc;
-}
-    
 #pages {
   /* ... (sudah ada background properties) */
   filter: contrast(1); /* Default */
@@ -110,7 +89,7 @@ button:hover {
 }
 
 .brand-watermark {
-  font-size: 0.3em;
+  font-size: 0.4em;
   font-family: sans-serif;
   color: #999;
   position: absolute;     /* ⬅️ Supaya tidak mendorong kotak */
@@ -493,9 +472,8 @@ async function loadAyat() {
     document.head.appendChild(style);
 
     const div = document.createElement("div");
-    div.className = `page-container quran-${currentVersion}`; 
+    div.className = `page-container quran-${currentVersion}`; // ✅ Kelas dinamis V1/V2
     div.style.fontFamily = fontName;
-    div.style.position = "relative";
     container.appendChild(div);
 
     await document.fonts.load(`1em ${fontName}`);
@@ -509,15 +487,9 @@ async function loadAyat() {
       span.innerText = word.arabic;
       line.appendChild(span);
       line.appendChild(document.createTextNode(" "));
-      line.classList.add("editable-draggable");
-      line.contentEditable = true;
-      line.style.top = "50px";
-      line.style.left = "50px";
-      makeDraggable(line);
-      addFontControls(line);
     });
+    makeDraggableResizable(line); // ✅ Tambahkan ini
     div.appendChild(line);
-    
 
     if (wordTranslationId.value) {
       const langCode = translationLanguageMap[wordTranslationId.value];
@@ -529,25 +501,16 @@ async function loadAyat() {
         const perKataDiv = document.createElement("div");
         perKataDiv.className = "translation";
         perKataDiv.textContent = wordTranslations.join(" ");
-        perKataDiv.classList.add("editable-draggable");
-        perKataDiv.contentEditable = true;
-        perKataDiv.style.top = "140px";
-        perKataDiv.style.left = "50px";
-        makeDraggable(perKataDiv);
-        addFontControls(perKataDiv);
+        makeDraggableResizable(perKataDiv); // ✅ Tambahkan ini
         div.appendChild(perKataDiv);
+
 
         const surahName = surahList[s][0];
         const referenceDiv = document.createElement("div");
-        referenceDiv.className = "surah-info";
-        referenceDiv.textContent = `${surahName}:${a}`;
-        referenceDiv.classList.add("editable-draggable");
-        referenceDiv.contentEditable = true;
-        referenceDiv.style.top = "220px";
-        referenceDiv.style.left = "50px";
-        makeDraggable(referenceDiv);
-        addFontControls(referenceDiv);
-        div.appendChild(referenceDiv);
+        brandDiv.className = "brand-watermark";
+        brandDiv.textContent = "videomurottal.com";
+        makeDraggableResizable(brandDiv); // ✅ Tambahkan ini
+        div.appendChild(brandDiv);
 
         const brandDiv = document.createElement("div");
         brandDiv.className = "brand-watermark";
@@ -576,60 +539,40 @@ updateAyahDropdown().then(() => {
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
 });
+
+function makeDraggableResizable(el) {
+  el.classList.add("draggable-editable");
+  el.setAttribute("contenteditable", "true");
+  el.setAttribute("draggable", "true");
+
+  el.addEventListener("dragstart", (e) => {
+    e.dataTransfer.setData("text/plain", null);
+    e.dataTransfer.setDragImage(new Image(), 0, 0);
+    el.dataset.dragging = "true";
+    el.dataset.startX = e.clientX - el.offsetLeft;
+    el.dataset.startY = e.clientY - el.offsetTop;
+  });
+
+  document.addEventListener("dragover", (e) => {
+    if (el.dataset.dragging === "true") {
+      e.preventDefault();
+      const x = e.clientX - el.dataset.startX;
+      const y = e.clientY - el.dataset.startY;
+      el.style.position = "absolute";
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+    }
+  });
+
+  document.addEventListener("drop", (e) => {
+    if (el.dataset.dragging === "true") {
+      e.preventDefault();
+      el.dataset.dragging = "false";
+    }
+  });
+}
   
 </script>
 
-<script>
-// Bikin draggable semua elemen dengan class ini
-function makeDraggable(el) {
-  el.onmousedown = function(e) {
-    e.preventDefault();
-    let shiftX = e.clientX - el.getBoundingClientRect().left;
-    let shiftY = e.clientY - el.getBoundingClientRect().top;
-
-    function moveAt(pageX, pageY) {
-      el.style.left = pageX - shiftX + 'px';
-      el.style.top = pageY - shiftY + 'px';
-    }
-
-    function onMouseMove(e) {
-      moveAt(e.pageX, e.pageY);
-    }
-
-    document.addEventListener('mousemove', onMouseMove);
-
-    el.onmouseup = function() {
-      document.removeEventListener('mousemove', onMouseMove);
-      el.onmouseup = null;
-    };
-  };
-  el.ondragstart = () => false;
-}
-
-// Tambahkan tombol kontrol font
-function addFontControls(el) {
-  const controls = document.createElement("div");
-  controls.className = "font-controls";
-
-  const increaseBtn = document.createElement("button");
-  increaseBtn.innerText = "+";
-  increaseBtn.onclick = () => {
-    const fs = parseFloat(getComputedStyle(el).fontSize);
-    el.style.fontSize = (fs + 2) + "px";
-  };
-
-  const decreaseBtn = document.createElement("button");
-  decreaseBtn.innerText = "–";
-  decreaseBtn.onclick = () => {
-    const fs = parseFloat(getComputedStyle(el).fontSize);
-    el.style.fontSize = Math.max(8, fs - 2) + "px";
-  };
-
-  controls.appendChild(increaseBtn);
-  controls.appendChild(decreaseBtn);
-  el.appendChild(controls);
-}
-</script>
-  
 </body>
 </html>
