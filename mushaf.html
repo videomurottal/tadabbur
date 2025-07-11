@@ -71,33 +71,56 @@
     .version-buttons button:hover {
       background-color: #007acc;
     }
-    .page-container {
+
+    /* Quran V1 */
+    .quran-v1 {
       font-size: clamp(1.8em, 5vw, 2.5em);
-      line-height: 1.8;
+      line-height: 2;          /* 🔥 Spasi antar baris */
+      word-spacing: 0.15em;    /* 🔥 Spasi antar kata */
       text-align: center;
       user-select: text;
       margin: 2em auto;
       opacity: 0;
       transition: opacity 0.3s ease;
       display: none;
-      word-spacing: -0.08em;
       max-width: 95%;
       overflow-wrap: break-word;
     }
+
+    /* Quran V2 */
+    .quran-v2 {
+      font-size: clamp(1.8em, 5vw, 2.5em);
+      line-height: 2.2;        /* 🔥 Spasi antar baris V2 */
+      word-spacing: 0.2em;     /* 🔥 Spasi antar kata V2 */
+      text-align: center;
+      user-select: text;
+      margin: 2em auto;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: none;
+      max-width: 95%;
+      overflow-wrap: break-word;
+    }
+
     .word {
       display: inline-block;
       margin: 0;
       cursor: default;
     }
+
+    /* Terjemahan */
     .translation {
       font-family: sans-serif;
       font-size: clamp(1rem, 3vw, 1.2rem);
       color: #333;
       direction: ltr;
       text-align: center;
-      margin-top: 1em;
+      line-height: 1.8;        /* 🔥 Spasi antar baris terjemah */
+      word-spacing: 0.2em;     /* 🔥 Spasi antar kata terjemah */
+      margin-top: 1.5em;
       padding: 0 0.5em;
     }
+
     @media (max-width: 600px) {
       .controls, .version-buttons {
         grid-template-columns: repeat(2, 1fr);
@@ -171,11 +194,9 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
 </style>
 
 <script>
-
 function saveHistory() {
   const history = {
     surah: surahSelect.value,
@@ -196,19 +217,12 @@ function loadHistory() {
 }
 
 const loaderOverlay = document.getElementById('loaderOverlay');
+function showLoader() { loaderOverlay.style.display = 'flex'; }
+function hideLoader() { loaderOverlay.style.display = 'none'; }
 
-function showLoader() {
-  loaderOverlay.style.display = 'flex';
-}
-function hideLoader() {
-  loaderOverlay.style.display = 'none';
-}
-  
-const translationLanguageMap = {
-  "20": "en", "33": "id"
-};
+const translationLanguageMap = { "20": "en", "33": "id" };
 
-  const surahList = {
+const surahList = {
   1:["Al-Fātiḥah"], 2:["Al-Baqarah"], 3:["Āl ʿImrān"], 4:["An-Nisāʾ"],
   5:["Al-Māʾidah"], 6:["Al-Anʿām"], 7:["Al-Aʿrāf"], 8:["Al-Anfāl"],
   9:["At-Tawbah"], 10:["Yūnus"], 11:["Hūd"], 12:["Yūsuf"], 13:["Ar-Raʿd"],
@@ -245,7 +259,7 @@ const wordStart = document.getElementById("wordStart");
 const wordEnd = document.getElementById("wordEnd");
 const wordTranslationId = document.getElementById("wordTranslationId");
 let currentVersion = 'v1';
-let words = []; // Global
+let words = [];
 let initialLoad = true;
 
 function setVersion(v) {
@@ -258,35 +272,18 @@ for (let i in surahList) {
   surahSelect.appendChild(new Option(`${i}. ${name}`, i));
 }
 
-surahSelect.addEventListener("change", () => {
-  updateAyahDropdown();
-  saveHistory();
-});
-ayahSelect.addEventListener("change", () => {
-  loadAyat();
-  saveHistory();
-});
-
+surahSelect.addEventListener("change", () => { updateAyahDropdown(); saveHistory(); });
+ayahSelect.addEventListener("change", () => { loadAyat(); saveHistory(); });
 wordStart.addEventListener("change", () => {
   const startVal = +wordStart.value;
   wordEnd.innerHTML = "";
-  for (let i = startVal; i <= words.length; i++) {
-    wordEnd.appendChild(new Option(i, i));
-  }
+  for (let i = startVal; i <= words.length; i++) wordEnd.appendChild(new Option(i, i));
   wordEnd.value = startVal;
   loadAyat();
-  saveHistory(); // ✅ Simpan histori setiap ganti
+  saveHistory();
 });
-
-wordEnd.addEventListener("change", () => {
-  loadAyat();
-  saveHistory(); // ✅ Simpan histori setiap ganti
-});
-
-wordTranslationId.addEventListener("change", () => {
-  loadAyat();
-  saveHistory(); // ✅ Simpan histori setiap ganti
-});
+wordEnd.addEventListener("change", () => { loadAyat(); saveHistory(); });
+wordTranslationId.addEventListener("change", () => { loadAyat(); saveHistory(); });
 
 async function updateAyahDropdown() {
   const s = surahSelect.value;
@@ -294,26 +291,22 @@ async function updateAyahDropdown() {
   const json = await res.json();
   const max = json.chapter.verses_count;
   ayahSelect.innerHTML = "";
-  for (let i = 1; i <= max; i++) {
-    ayahSelect.appendChild(new Option(`Ayat ${i}`, i));
-  }
+  for (let i = 1; i <= max; i++) ayahSelect.appendChild(new Option(`Ayat ${i}`, i));
   ayahSelect.value = 1;
   loadAyat();
 }
 
 async function loadAyat() {
-  showLoader(); // 🔥 Munculkan loader
+  showLoader();
   try {
-    const s = surahSelect.value;
-    const a = ayahSelect.value;
-    const key = `${s}:${a}`;
+    const s = surahSelect.value, a = ayahSelect.value, key = `${s}:${a}`;
     const container = document.getElementById("pages");
     container.innerHTML = "";
 
     const pageMap = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/ayah_page_map.json").then(r => r.json());
     const page = pageMap[key];
     const fontName = currentVersion === 'v1' ? `QCF_P${String(page).padStart(3, '0')}` : `QCF2${String(page).padStart(3, '0')}`;
-    const fontUrl = currentVersion === "v1"
+    const fontUrl = currentVersion === 'v1'
       ? `https://cdn.jsdelivr.net/gh/dickymiswardi/quran/fonts/${fontName}.TTF`
       : `https://cdn.jsdelivr.net/gh/tafsirnetlifyapp/quran@refs/heads/main/fontsglyphvs/${fontName}.ttf`;
 
@@ -321,23 +314,13 @@ async function loadAyat() {
     const data = await fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&word_fields=${apiField}`).then(r => r.json());
     words = data.verse.words.map(w => ({ arabic: w[apiField] || w.text, id: w.id }));
 
-    const prevStart = +wordStart.value || 1;
-    const prevEnd = +wordEnd.value || 1;
-
+    const prevStart = +wordStart.value || 1, prevEnd = +wordEnd.value || 1;
     wordStart.innerHTML = "";
-    for (let i = 1; i <= words.length; i++) {
-      let option = new Option(`Word ${i}`, i);
-      wordStart.appendChild(option);
-    }
+    for (let i = 1; i <= words.length; i++) wordStart.appendChild(new Option(`Word ${i}`, i));
     wordStart.value = initialLoad ? 1 : Math.min(prevStart, words.length);
-
     wordEnd.innerHTML = "";
-    for (let i = wordStart.value; i <= words.length; i++) {
-      let option = new Option(`To ${i}`, i);
-      wordEnd.appendChild(option);
-    }
+    for (let i = wordStart.value; i <= words.length; i++) wordEnd.appendChild(new Option(`To ${i}`, i));
     wordEnd.value = initialLoad ? 1 : Math.min(prevEnd, words.length);
-
     initialLoad = false;
 
     const style = document.createElement("style");
@@ -345,7 +328,7 @@ async function loadAyat() {
     document.head.appendChild(style);
 
     const div = document.createElement("div");
-    div.className = "page-container";
+    div.className = `page-container quran-${currentVersion}`; // ✅ Kelas dinamis V1/V2
     div.style.fontFamily = fontName;
     container.appendChild(div);
 
@@ -353,7 +336,6 @@ async function loadAyat() {
 
     const startIdx = (+wordStart.value || 1) - 1;
     const endIdx = (+wordEnd.value || startIdx + 1);
-
     const line = document.createElement("div");
     words.slice(startIdx, endIdx).forEach(word => {
       const span = document.createElement("span");
@@ -371,7 +353,6 @@ async function loadAyat() {
         const j = await r.json();
         const wordsData = j.verse.words;
         const wordTranslations = wordsData.map(w => w.translation?.text || "").slice(startIdx, endIdx);
-
         const perKataDiv = document.createElement("div");
         perKataDiv.className = "translation";
         perKataDiv.textContent = wordTranslations.join(" ");
@@ -386,7 +367,7 @@ async function loadAyat() {
   } catch (e) {
     alert("Gagal memuat ayat: " + e.message);
   } finally {
-    hideLoader(); // 🔥 Hilangkan loader
+    hideLoader();
   }
 }
 
@@ -396,9 +377,8 @@ updateAyahDropdown().then(() => {
   if (last.wordStart) wordStart.value = last.wordStart;
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
-  // 🟢 Tidak perlu panggil loadAyat() lagi di sini karena sudah dipanggil di updateAyahDropdown()
 });
 </script>
-  
+
 </body>
 </html>
