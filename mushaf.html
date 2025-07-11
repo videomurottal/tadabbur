@@ -296,13 +296,6 @@ backgroundUrl.addEventListener("change", () => {
   }
 });
   
-const backgroundSelect = document.getElementById("backgroundSelect");
-backgroundSelect.addEventListener("change", () => {
-  const bg = backgroundSelect.value;
-  const container = document.getElementById("pages");
-  container.style.backgroundImage = bg ? `url('${bg}')` : "none";
-});
-  
 function saveHistory() {
   const history = {
     surah: surahSelect.value,
