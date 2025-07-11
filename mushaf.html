@@ -17,6 +17,15 @@
       font-size: clamp(1.5rem, 4vw, 2.5rem);
       margin-bottom: 1rem;
     }
+
+    .surah-info {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 0.5em;
+      text-align: center;
+      direction: ltr;
+    }
+
     .controls {
       direction: ltr;
       max-width: 800px;
@@ -357,6 +366,13 @@ async function loadAyat() {
         perKataDiv.className = "translation";
         perKataDiv.textContent = wordTranslations.join(" ");
         div.appendChild(perKataDiv);
+
+        const surahName = surahList[s][0];
+        const referenceDiv = document.createElement("div");
+        referenceDiv.className = "surah-info";
+        referenceDiv.textContent = `${surahName}:${a}`;
+        div.appendChild(referenceDiv);
+        
       } catch (e) {
         console.error("Gagal ambil terjemah perkata:", e);
       }
