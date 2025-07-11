@@ -5,199 +5,162 @@
   <title>Mushaf Dinamis V1/V2 + Terjemah</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
-  body {
-    background: #fefcf8;
-    padding: 1em;
-    font-family: sans-serif;
-    direction: rtl;
-    margin: 0;
-  }
-
-  h2 {
-    text-align: center;
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-    margin-bottom: 1rem;
-  }
-
-  .controls {
-    direction: ltr;
-    max-width: 800px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.8em;
-    justify-content: center;
-    align-items: start;
-    padding: 0.5em;
-  }
-
-  .controls label {
-    font-size: clamp(0.85rem, 2.5vw, 1rem);
-    display: flex;
-    flex-direction: column;
-  }
-
-  select, button, input[type="url"], input[type="file"] {
-    font-size: clamp(1rem, 3vw, 1.2rem);
-    padding: 0.5em;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  button {
-    background-color: #4cafef;
-    color: #fff;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-
-  button:hover {
-    background-color: #007acc;
-  }
-
-  .version-buttons {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.8em;
-    margin-top: 1em;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .version-buttons button {
-    padding: 0.8em;
-    border-radius: 8px;
-    background-color: #4cafef;
-    color: #fff;
-    border: none;
-    font-size: clamp(1rem, 2.5vw, 1.1rem);
-    cursor: pointer;
-  }
-
-  .version-buttons button:hover {
-    background-color: #007acc;
-  }
-
-  .quran-v1,
-  .quran-v2 {
-    font-size: clamp(1.8em, 5vw, 2.5em);
-    line-height: 2.2;
-    word-spacing: 0.2em;
-    text-align: center;
-    user-select: text;
-    margin: 2em auto;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    display: none;
-    max-width: 95%;
-    overflow-wrap: break-word;
-  }
-
-  .quran-v1 {
-    line-height: 2;
-    word-spacing: 0.15em;
-  }
-
-  .word {
-    display: inline-block;
-    margin: 0;
-    cursor: default;
-  }
-
-  .translation {
-    font-family: sans-serif;
-    font-size: clamp(1rem, 3vw, 1.2rem);
-    color: #333;
-    direction: ltr;
-    text-align: center;
-    line-height: 1.8;
-    word-spacing: 0.2em;
-    margin-top: 1.5em;
-    padding: 0 0.5em;
-  }
-
-  .surah-info {
-    font-size: 0.5em;
-    font-family: sans-serif;
-    color: #666;
-    margin-top: 0.5em;
-    text-align: center;
-    direction: ltr;
-  }
-
-  .brand-watermark {
-    font-size: 0.85em;
-    font-family: sans-serif;
-    color: #999;
-    margin-top: 0.3em;
-    text-align: center;
-    font-style: italic;
-    direction: ltr;
-  }
-
-  #pages {
-    width: 1080px;
-    height: 1080px;
-    transform: scale(0.6);
-    transform-origin: top center;
-    margin: 2em auto;
-    position: relative;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-
-  .background-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1em;
-    justify-content: center;
-    margin: 1.5em auto;
-    max-width: 800px;
-  }
-
-  .background-controls label {
-    flex: 1 1 240px;
-    display: flex;
-    flex-direction: column;
-    font-size: clamp(0.85rem, 2.5vw, 1rem);
-  }
-
-  .background-controls select,
-  .background-controls input[type="url"],
-  .background-controls input[type="file"] {
-    padding: 0.5em;
-    font-size: clamp(1rem, 3vw, 1.2rem);
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  @media (max-width: 600px) {
-    .controls,
-    .version-buttons {
-      grid-template-columns: repeat(2, 1fr);
+    body {
+      background: #fefcf8;
+      padding: 1em;
+      font-family: sans-serif;
+      direction: rtl;
+      margin: 0;
     }
+    h2 {
+      text-align: center;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      margin-bottom: 1rem;
+    }
+    .controls {
+      direction: ltr;
+      max-width: 800px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.8em;
+      justify-content: center;
+      align-items: center;
+      padding: 0.5em;
+    }
+    .controls label {
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      display: flex;
+      flex-direction: column;
+    }
+    select, button {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      padding: 0.5em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4cafef;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #007acc;
+    }
+    .version-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.8em;
+      margin-top: 1em;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .version-buttons button {
+      padding: 0.8em;
+      border-radius: 8px;
+      background-color: #4cafef;
+      color: #fff;
+      border: none;
+      font-size: clamp(1rem, 2.5vw, 1.1rem);
+      cursor: pointer;
+    }
+    .version-buttons button:hover {
+      background-color: #007acc;
+    }
+
+    /* Quran V1 */
+    .quran-v1 {
+      font-size: clamp(1.8em, 5vw, 2.5em);
+      line-height: 2;          /* 🔥 Spasi antar baris */
+      word-spacing: 0.15em;    /* 🔥 Spasi antar kata */
+      text-align: center;
+      user-select: text;
+      margin: 2em auto;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: none;
+      max-width: 95%;
+      overflow-wrap: break-word;
+    }
+
+    /* Quran V2 */
+    .quran-v2 {
+      font-size: clamp(1.8em, 5vw, 2.5em);
+      line-height: 2.2;        /* 🔥 Spasi antar baris V2 */
+      word-spacing: 0.2em;     /* 🔥 Spasi antar kata V2 */
+      text-align: center;
+      user-select: text;
+      margin: 2em auto;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: none;
+      max-width: 95%;
+      overflow-wrap: break-word;
+    }
+
+    .word {
+      display: inline-block;
+      margin: 0;
+      cursor: default;
+    }
+
+    /* Terjemahan */
+    .translation {
+      font-family: sans-serif;
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      color: #333;
+      direction: ltr;
+      text-align: center;
+      line-height: 1.8;        /* 🔥 Spasi antar baris terjemah */
+      word-spacing: 0.2em;     /* 🔥 Spasi antar kata terjemah */
+      margin-top: 1.5em;
+      padding: 0 0.5em;
+    }
+
+    .surah-info {
+      font-size: 0.9em;
+      font-family: sans-serif;
+      color: #666;
+      margin-top: 0.5em;
+      text-align: center;
+      direction: ltr;
+  }
+      .brand-watermark {
+        font-size: 0.85em;
+        font-family: sans-serif;
+        color: #999;
+        margin-top: 0.3em;
+        text-align: center;
+        font-style: italic;
+        direction: ltr;
+  }
 
     #pages {
-      transform: scale(0.42);
-      margin-top: 1em;
+      width: 648px;
+      height: 648px;
+      margin: 2em auto;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
     }
 
-    .background-controls label {
-      flex: 1 1 100%;
-    }
-  }
-</style>
 
+
+    @media (max-width: 600px) {
+      .controls, .version-buttons {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -240,29 +203,31 @@
 
 <div id="pages"></div>
 
-<div class="background-controls">
-  <label>
-    Pilih Latar Belakang
+  <div class="controls" style="margin-top: 1em;">
+  <!-- Dropdown Background -->
+  <label>Gambar Latar
     <select id="backgroundSelect">
       <option value="">Putih Polos</option>
-      <option value="https://i.imgur.com/tSvrYQz.jpg">Langit Biru</option>
+      <option value="https://i.imgur.com/tSvrYQz.jpg">Biru Langit</option>
       <option value="https://i.imgur.com/gHxGzZk.jpg">Gradasi Hijau</option>
       <option value="https://i.imgur.com/w1kXIbq.jpg">Cahaya Ilahi</option>
+      <option value="https://i.imgur.com/1LJ3FcC.jpg">Abstrak Emas</option>
     </select>
   </label>
-  <label>
-    Upload Gambar
+
+  <!-- Upload File -->
+  <label>Upload Background
     <input type="file" id="backgroundUpload" accept="image/*">
   </label>
-  <label>
-    Masukkan Link Gambar
-    <input type="url" id="backgroundUrl" placeholder="https://...">
+
+  <!-- Input URL -->
+  <label>Link Background
+    <input type="url" id="backgroundUrl" placeholder="https://contoh.com/gambar.jpg">
   </label>
 </div>
 
 
 
-  
 <!-- 🔥 Loader Overlay -->
 <div id="loaderOverlay" style="
   position: fixed;
@@ -290,46 +255,6 @@
 </style>
 
 <script>
-
-const backgroundSelect = document.getElementById("backgroundSelect");
-const backgroundUpload = document.getElementById("backgroundUpload");
-const backgroundUrl = document.getElementById("backgroundUrl");
-const pagesContainer = document.getElementById("pages");
-
-// Dropdown
-backgroundSelect.addEventListener("change", () => {
-  const bg = backgroundSelect.value;
-  if (bg) {
-    pagesContainer.style.backgroundImage = `url('${bg}')`;
-    backgroundUrl.value = "";
-  } else {
-    pagesContainer.style.backgroundImage = "none";
-  }
-  saveHistory(); // hanya dropdown yang disimpan
-});
-
-// Upload
-backgroundUpload.addEventListener("change", () => {
-  const file = backgroundUpload.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      pagesContainer.style.backgroundImage = `url('${e.target.result}')`;
-      backgroundSelect.value = "";
-      backgroundUrl.value = "";
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-// Input Link
-backgroundUrl.addEventListener("change", () => {
-  const url = backgroundUrl.value.trim();
-  if (url) {
-    pagesContainer.style.backgroundImage = `url('${url}')`;
-    backgroundSelect.value = "";
-  }
-});
   
 function saveHistory() {
   const history = {
@@ -495,16 +420,18 @@ async function loadAyat() {
         perKataDiv.textContent = wordTranslations.join(" ");
         div.appendChild(perKataDiv);
 
-        const surahName = surahList[s][0];
-        const referenceDiv = document.createElement("div");
-        referenceDiv.className = "surah-info";
-        referenceDiv.textContent = `${surahName}:${a}`;
-        div.appendChild(referenceDiv);
+        // Tambahkan info Surah:Ayat
+      const surahName = surahList[s][0];
+      const referenceDiv = document.createElement("div");
+      referenceDiv.className = "surah-info";
+      referenceDiv.textContent = `${surahName}:${a}`;
+      div.appendChild(referenceDiv);
 
-        const brandDiv = document.createElement("div");
-        brandDiv.className = "brand-watermark";
-        brandDiv.textContent = "videomurottal.com";
-        div.appendChild(brandDiv);
+      const brandDiv = document.createElement("div");
+      brandDiv.className = "brand-watermark";
+      brandDiv.textContent = "videomurottal.com";
+      div.appendChild(brandDiv);
+
         
       } catch (e) {
         console.error("Gagal ambil terjemah perkata:", e);
@@ -527,6 +454,47 @@ updateAyahDropdown().then(() => {
   if (last.wordEnd) wordEnd.value = last.wordEnd;
   if (last.translation) wordTranslationId.value = last.translation;
 });
+
+const backgroundSelect = document.getElementById("backgroundSelect");
+const backgroundUpload = document.getElementById("backgroundUpload");
+const backgroundUrl = document.getElementById("backgroundUrl");
+const pagesContainer = document.getElementById("pages");
+
+// Dropdown
+backgroundSelect.addEventListener("change", () => {
+  const bg = backgroundSelect.value;
+  if (bg) {
+    pagesContainer.style.backgroundImage = `url('${bg}')`;
+    backgroundUrl.value = "";
+  } else {
+    pagesContainer.style.backgroundImage = "none";
+  }
+  saveHistory(); // hanya dropdown yang disimpan
+});
+
+// Upload
+backgroundUpload.addEventListener("change", () => {
+  const file = backgroundUpload.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      pagesContainer.style.backgroundImage = `url('${e.target.result}')`;
+      backgroundSelect.value = "";
+      backgroundUrl.value = "";
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Input Link
+backgroundUrl.addEventListener("change", () => {
+  const url = backgroundUrl.value.trim();
+  if (url) {
+    pagesContainer.style.backgroundImage = `url('${url}')`;
+    backgroundSelect.value = "";
+  }
+});
+  
 </script>
 
 </body>
