@@ -149,6 +149,11 @@ button:hover {
   padding: 0 0.5em;
 }
 
+    .button-wrapper {
+  display: flex;
+  align-items: flex-end;
+}
+
 @media (max-width: 600px) {
   .controls {
     grid-template-columns: repeat(2, 1fr);
@@ -179,15 +184,15 @@ button:hover {
       <option value="20">English – Saheeh International</option>
     </select>
   </label>
-  <label>&nbsp;
-    <button id="customLinkButton">Tombol Link</button>
-  </label>
-  <label>&nbsp;
-    <button onclick="setVersion('v2')">Quran V2</button>
-  </label>
-  <label>&nbsp;
-    <button onclick="setVersion('v1')">Quran V1</button>
-  </label>
+  <div class="button-wrapper">
+  <button id="customLinkButton">Tombol Link</button>
+</div>
+<div class="button-wrapper">
+  <button onclick="setVersion('v2')">Quran V2</button>
+</div>
+<div class="button-wrapper">
+  <button onclick="setVersion('v1')">Quran V1</button>
+</div>
 </div>
 
 
@@ -310,7 +315,7 @@ toggleContrast.addEventListener("click", () => {
 
 // Ubah kontras saat slider digeser
 contrastSlider.addEventListener("input", () => {
-  const contrastValue = contrastSlider.value / 100; // 1 = normal, <1 gelap, >1 terang
+  const contrastValue = 1 + ((contrastSlider.value - 100) / 100); 
   pagesContainer.style.filter = `contrast(${contrastValue})`;
 });
 
