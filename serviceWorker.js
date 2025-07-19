@@ -7,6 +7,7 @@ saya juga membuat serviceWorker.js isinya: self.addEventListener('install', even
         './quran_uthmani_quran_com.json',
         './terjemah_wbw_77429.json',
         './terjemah/indonesian_complex.xml',
+        './terjemah/english_rwwad.xml',
         './quran.xml',
         './id.jalalayn.xml',
         './madina.woff2',
@@ -38,6 +39,7 @@ self.addEventListener('fetch', event => {
     './quran_uthmani_quran_com.json',
     './terjemah_wbw_77429.json',
     './terjemah/indonesian_complex.xml',
+    './terjemah/english_rwwad.xml',
     './quran.xml',
     './id.jalalayn.xml'
   ];
