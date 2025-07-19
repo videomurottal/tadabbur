@@ -2384,7 +2384,7 @@ fetch('quran.xml')
   });
 
 function fetchTerjemah() {
-  fetch('indonesian_complex.xml')
+  fetch('indonesian_complex_v1.0.xml')
     .then(res => res.text())
     .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
     .then(xml => {
