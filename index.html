@@ -2497,6 +2497,19 @@ document.getElementById('clear-cache-btn').onclick = async function() {
 };
 </script>
 
+  <script>
+    if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./serviceWorker.js');
+
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data.type === 'SW_UPDATED') {
+      console.log('Versi baru tersedia, refresh halaman untuk update.');
+      // Optional: otomatis refresh
+      // location.reload();
+    }
+  });
+}
+  </script>
   
 </body>
 </html>
