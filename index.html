@@ -953,6 +953,13 @@ document.querySelectorAll(".clickable-word").forEach(span => {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
+
+window.addEventListener('load', () => {
+  fetchIndonesianComplex();
+});
+
+  
+
       // Buat peta footnoteNumber ke posisi Surah & Ayat
 const footnoteMap = {};
 const ayatNodes = xmlDoc.querySelectorAll("aya");
@@ -2280,15 +2287,19 @@ function highlight(text, keyword) {
 }
 
 function doSearch() {
-  const input = document.getElementById("searchInput").value.trim();
+  const input = document.getElementById("searchInput").value.trim().toLowerCase();
   const container = document.getElementById("searchResults");
   document.getElementById("searchCount").innerText = "";
   container.innerHTML = "";
   if (!input) return;
 
-  const isAr = isArabic(input);
+  const isAr = /[\u0600-\u06FF]/.test(input);
+
   const results = searchData.filter(item => {
-    return isAr ? matchAwalKataArab(item.arab, input) : item.terjemah.toLowerCase().includes(input.toLowerCase());
+    return isAr
+      ? item.arab.includes(input)
+      : (item.terjemah.toLowerCase().includes(input) ||
+         complexTranslations[`${item.surah}:${item.ayah}`]?.translation.toLowerCase().includes(input));
   });
 
   if (results.length === 0) {
@@ -2297,31 +2308,36 @@ function doSearch() {
   }
 
   document.getElementById("searchCount").innerText = `Hasil pencarian: ${results.length}`;
-  container.innerHTML = results.map(r => `
-    <div style="margin-bottom:1rem; padding:1rem; background:#f1f1f1; border-radius:8px;">
-      <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:5px;">
-        <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" class="meta" style="text-decoration:none; color:inherit; font-weight:bold;">
-          Surah ${r.surah} (${r.nama}) • Ayat ${r.ayah}
-        </a>
-        <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" style="
-          padding: 0.3rem 0.8rem;
-          font-size: 0.85rem;
-          background-color: #28a745;
-          color: white;
-          border-radius: 6px;
-          text-decoration: none;
-        ">Lihat</a>
+  container.innerHTML = results.map(r => {
+    const complex = complexTranslations[`${r.surah}:${r.ayah}`] || {};
+    return `
+      <div style="margin-bottom:1rem; padding:1rem; background:#f1f1f1; border-radius:8px;">
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:5px;">
+          <a href="?surah=${r.surah}&ayat=${r.ayah}" class="meta" style="text-decoration:none; color:inherit; font-weight:bold;">
+            Surah ${r.surah} (${r.nama}) • Ayat ${r.ayah}
+          </a>
+          <a href="?surah=${r.surah}&ayat=${r.ayah}" style="
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85rem;
+            background-color: #28a745;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+          ">Lihat</a>
+        </div>
+        ${isAr ? `
+          <div style="font-size:1.2rem; direction:rtl; text-align:right;">${highlight(r.arab, input)}</div>
+          <div style="font-size:1rem; margin-top:0.3rem;">${r.terjemah}</div>
+        ` : `
+          <div style="font-size:1rem;">${highlight(r.terjemah, input)}</div>
+          <div style="font-size:1.2rem; direction:rtl; text-align:right; margin-top:0.3rem;">${r.arab}</div>
+        `}
+        ${complex.footnotes ? `<div style="font-size:0.9rem; color:#555; margin-top:0.3rem;"><em>Catatan: ${complex.footnotes}</em></div>` : ''}
       </div>
-      ${isAr ? `
-        <div style="font-size:1.2rem; direction:rtl; text-align:right;">${highlight(r.arab, input)}</div>
-        <div style="font-size:1rem; margin-top:0.3rem;">${r.terjemah}</div>
-      ` : `
-        <div style="font-size:1rem;">${highlight(r.terjemah, input)}</div>
-        <div style="font-size:1.2rem; direction:rtl; text-align:right; margin-top:0.3rem;">${r.arab}</div>
-      `}
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
+
 
 function closeSearch() {
   document.getElementById("searchOverlay").style.display = "none";
@@ -2368,17 +2384,16 @@ fetch('quran.xml')
   });
 
 function fetchTerjemah() {
-  fetch('indonesian_complex.xml')
+  fetch('TerjemahID.xml')
     .then(res => res.text())
     .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
     .then(xml => {
       const map = {};
-      Array.from(xml.querySelectorAll('sura')).forEach(sura => {
-        const surah = parseInt(sura.getAttribute('number'));
-        Array.from(sura.querySelectorAll('aya')).forEach(aya => {
-          const ayah = parseInt(aya.getAttribute('number'));
-          const translation = aya.querySelector('translation')?.textContent.trim();
-          map[`${surah}:${ayah}`] = translation || '(terjemahan tidak ditemukan)';
+      Array.from(xml.querySelectorAll('Chapter')).forEach(ch => {
+        const surah = parseInt(ch.getAttribute('ChapterID'));
+        Array.from(ch.querySelectorAll('Verse')).forEach(v => {
+          const ayah = parseInt(v.getAttribute('VerseID'));
+          map[`${surah}:${ayah}`] = v.textContent.trim();
         });
       });
       // Gabungkan terjemah ke searchData
@@ -2388,7 +2403,7 @@ function fetchTerjemah() {
       });
     });
 }
-
+</script>
 
   <!-- Overlay Notifikasi -->
 <div id="install-notif">
@@ -2497,19 +2512,30 @@ document.getElementById('clear-cache-btn').onclick = async function() {
 };
 </script>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./serviceWorker.js');
 
-  navigator.serviceWorker.addEventListener('message', event => {
-    if (event.data.type === 'SW_UPDATED') {
-      console.log('Versi baru tersedia, refresh halaman untuk update.');
-      // Optional: otomatis refresh
-      // location.reload();
-    }
-  });
+<script>
+  let complexTranslations = {};
+
+function fetchIndonesianComplex() {
+  fetch('indonesian_complex.xml')
+    .then(res => res.text())
+    .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
+    .then(xml => {
+      Array.from(xml.querySelectorAll('sura')).forEach(sura => {
+        const surah = parseInt(sura.getAttribute('number'));
+        Array.from(sura.querySelectorAll('aya')).forEach(aya => {
+          const ayah = parseInt(aya.getAttribute('number'));
+          const translation = aya.querySelector('translation')?.textContent.trim();
+          const footnotes = aya.querySelector('footnotes')?.textContent.trim();
+          complexTranslations[`${surah}:${ayah}`] = {
+            translation: translation || '(terjemahan tidak ditemukan)',
+            footnotes: footnotes || ''
+          };
+        });
+    });
+  }).catch(err => console.error("Gagal load indonesian_complex.xml:", err));
 }
-  </script>
+</script>
   
 </body>
 </html>
