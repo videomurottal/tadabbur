@@ -39,7 +39,6 @@ self.addEventListener('fetch', event => {
     './terjemah_wbw_77429.json',
     './indonesian_complex_v1.0.xml',
     './quran.xml',
-    './TerjemahID.xml',
     './id.jalalayn.xml'
   ];
 
