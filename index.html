@@ -891,7 +891,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
     Promise.all([
   fetch("quran_uthmani_quran_com.json").then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text()),
+  fetch("terjemah/indonesian_complex.xml").then(res => res.text()),
   fetch("terjemah_wbw_77429.json").then(res => res.json())
 ])
 .then(([quranData, xmlText, wbwData]) => {
@@ -992,7 +992,7 @@ ayatNodes.forEach(aya => {
 const tafsirSources = {
   jalalayn: {
     name: "Al-Jalalayn Indonesia",
-    path: "id.jalalayn.xml",
+    path: "terjemah/id.jalalayn.xml",
     query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
   },
     Kemenag: {
@@ -1003,7 +1003,7 @@ const tafsirSources = {
   },
   al_muyassar: {
   name: "Al-Muyassar Arabic",
-  path: "ar.muyassar.txt",
+  path: "terjemah/ar.muyassar.txt",
   query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
 },
   As_Saadi: {
@@ -2349,7 +2349,7 @@ function closeSearch() {
 <script>
 let searchData = [];
 
-fetch('quran.xml')
+fetch('terjemah/quran_text.xml')
   .then(res => res.text())
   .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
   .then(xml => {
@@ -2368,7 +2368,7 @@ fetch('quran.xml')
   });
 
 function fetchTerjemah() {
-  fetch('indonesian_complex_v1.0.xml')
+  fetch('terjemah/indonesian_complex.xml')
     .then(res => res.text())
     .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
     .then(xml => {
