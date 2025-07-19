@@ -1,4 +1,4 @@
-self.addEventListener('install', event => {
+saya juga membuat serviceWorker.js isinya: self.addEventListener('install', event => {
   event.waitUntil(
     caches.open('tadabbur-cache').then(cache => {
       return cache.addAll([
@@ -8,6 +8,7 @@ self.addEventListener('install', event => {
         './terjemah_wbw_77429.json',
         './indonesian_complex_v1.0.xml',
         './quran.xml',
+        './TerjemahID.xml',
         './id.jalalayn.xml',
         './madina.woff2',
         './manifest.json'
@@ -17,51 +18,50 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-  const requestPath = new URL(event.request.url).pathname;
-
-  // Cache-first untuk navigasi
   if (event.request.mode === 'navigate') {
+    // Cache first untuk navigasi, update di belakang layar
     event.respondWith(
       caches.match('./index.html').then(cachedResponse => {
-        return fetch('./index.html').then(networkResponse => {
+        const fetchPromise = fetch('./index.html').then(networkResponse => {
           caches.open('tadabbur-cache').then(cache => {
             cache.put('./index.html', networkResponse.clone());
           });
-          // Notify clients
-          self.clients.matchAll().then(clients => {
-            clients.forEach(client => client.postMessage({ type: 'SW_UPDATED' }));
-          });
           return networkResponse;
-        }).catch(() => cachedResponse);
+        }).catch(() => cachedResponse); // Fallback kalau fetch gagal
+
+        return cachedResponse || fetchPromise;
       })
     );
     return;
   }
 
   const dataFiles = [
-    '/quran_uthmani_quran_com.json',
-    '/terjemah_wbw_77429.json',
-    '/indonesian_complex_v1.0.xml',
-    '/quran.xml',
-    '/id.jalalayn.xml'
+    './quran_uthmani_quran_com.json',
+    './terjemah_wbw_77429.json',
+    './indonesian_complex_v1.0.xml',
+    './quran.xml',
+    './TerjemahID.xml',
+    './id.jalalayn.xml'
   ];
 
-  if (dataFiles.includes(requestPath)) {
-    // Cache-first untuk data files
+  if (dataFiles.includes(new URL(event.request.url).pathname.replace(location.pathname.replace(/\/$/, ''), '.'))) {
+    // Cache first, update belakang layar
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
-        return fetch(event.request).then(networkResponse => {
+        const fetchPromise = fetch(event.request).then(networkResponse => {
           caches.open('tadabbur-cache').then(cache => {
             cache.put(event.request, networkResponse.clone());
           });
           return networkResponse;
         }).catch(() => cachedResponse);
+
+        return cachedResponse || fetchPromise;
       })
     );
     return;
   }
 
-  // Default: cache-first
+  // Default: cache first
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       return cachedResponse || fetch(event.request).then(networkResponse => {
@@ -69,10 +69,13 @@ self.addEventListener('fetch', event => {
           cache.put(event.request, networkResponse.clone());
         });
         return networkResponse;
-      }).catch(() => new Response("Konten tidak tersedia offline.", {
-        status: 503,
-        statusText: "Offline"
-      }));
+      }).catch(() => {
+        // Opsional fallback jika mau
+        return new Response("Konten tidak tersedia offline.", {
+          status: 503,
+          statusText: "Offline"
+        });
+      });
     })
   );
 });
