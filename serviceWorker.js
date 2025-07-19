@@ -6,10 +6,9 @@ saya juga membuat serviceWorker.js isinya: self.addEventListener('install', even
         './index.html',
         './quran_uthmani_quran_com.json',
         './terjemah_wbw_77429.json',
-        './indonesian_complex_v1.0.xml',
-        './quran.xml',
-        './terjemah/eng.xml',
-        './id.jalalayn.xml',
+        './terjemah/indonesian_complex.xml',
+        './terjemah/quran_text.xml',
+        './terjemah/id.jalalayn.xml',
         './madina.woff2',
         './manifest.json'
       ]);
@@ -38,10 +37,9 @@ self.addEventListener('fetch', event => {
   const dataFiles = [
     './quran_uthmani_quran_com.json',
     './terjemah_wbw_77429.json',
-    './indonesian_complex_v1.0.xml',
-    './quran.xml',
-    './terjemah/eng.xml',
-    './id.jalalayn.xml'
+    './terjemah/indonesian_complex.xml',
+    './terjemah/quran_text.xml',
+    './terjemah/id.jalalayn.xml'
   ];
 
   if (dataFiles.includes(new URL(event.request.url).pathname.replace(location.pathname.replace(/\/$/, ''), '.'))) {
