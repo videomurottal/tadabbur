@@ -8,7 +8,6 @@ saya juga membuat serviceWorker.js isinya: self.addEventListener('install', even
         './terjemah_wbw_77429.json',
         './indonesian_complex_v1.0.xml',
         './quran.xml',
-        './TerjemahID.xml',
         './id.jalalayn.xml',
         './madina.woff2',
         './manifest.json'
