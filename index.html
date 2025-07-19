@@ -2368,16 +2368,17 @@ fetch('quran.xml')
   });
 
 function fetchTerjemah() {
-  fetch('TerjemahID.xml')
+  fetch('indonesian_complex.xml')
     .then(res => res.text())
     .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
     .then(xml => {
       const map = {};
-      Array.from(xml.querySelectorAll('Chapter')).forEach(ch => {
-        const surah = parseInt(ch.getAttribute('ChapterID'));
-        Array.from(ch.querySelectorAll('Verse')).forEach(v => {
-          const ayah = parseInt(v.getAttribute('VerseID'));
-          map[`${surah}:${ayah}`] = v.textContent.trim();
+      Array.from(xml.querySelectorAll('sura')).forEach(sura => {
+        const surah = parseInt(sura.getAttribute('number'));
+        Array.from(sura.querySelectorAll('aya')).forEach(aya => {
+          const ayah = parseInt(aya.getAttribute('number'));
+          const translation = aya.querySelector('translation')?.textContent.trim();
+          map[`${surah}:${ayah}`] = translation || '(terjemahan tidak ditemukan)';
         });
       });
       // Gabungkan terjemah ke searchData
@@ -2387,7 +2388,7 @@ function fetchTerjemah() {
       });
     });
 }
-</script>
+
 
   <!-- Overlay Notifikasi -->
 <div id="install-notif">
