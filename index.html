@@ -992,7 +992,7 @@ ayatNodes.forEach(aya => {
 const tafsirSources = {
   jalalayn: {
     name: "Al-Jalalayn Indonesia",
-    path: "terjemah/id.jalalayn.xml",
+    path: "id.jalalayn.xml",
     query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
   },
     Kemenag: {
@@ -1003,7 +1003,7 @@ const tafsirSources = {
   },
   al_muyassar: {
   name: "Al-Muyassar Arabic",
-  path: "terjemah/ar.muyassar.txt",
+  path: "ar.muyassar.txt",
   query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
 },
   As_Saadi: {
@@ -2349,7 +2349,7 @@ function closeSearch() {
 <script>
 let searchData = [];
 
-fetch('terjemah/quran_text.xml')
+fetch('quran.xml')
   .then(res => res.text())
   .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
   .then(xml => {
