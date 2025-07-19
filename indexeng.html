@@ -891,7 +891,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
     Promise.all([
   fetch("quran_uthmani_quran_com.json").then(res => res.json()),
-  fetch("terjemah/eng.xml").then(res => res.text()),
+  fetch("terjemah/english_rwwad.xml").then(res => res.text()),
   fetch("terjemah_wbw_77429.json").then(res => res.json())
 ])
 .then(([quranData, xmlText, wbwData]) => {
@@ -2368,7 +2368,7 @@ fetch('quran.xml')
   });
 
 function fetchTerjemah() {
-  fetch('terjemah/eng.xml')
+  fetch('terjemah/english_rwwad.xml')
     .then(res => res.text())
     .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
     .then(xml => {
