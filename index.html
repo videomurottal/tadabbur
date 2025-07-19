@@ -2368,19 +2368,23 @@ fetch('quran.xml')
   });
 
 function fetchTerjemah() {
-  fetch('TerjemahID.xml')
+  fetch('indonesian_complex_v1.0.xml')
     .then(res => res.text())
     .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
     .then(xml => {
       const map = {};
-      Array.from(xml.querySelectorAll('Chapter')).forEach(ch => {
-        const surah = parseInt(ch.getAttribute('ChapterID'));
-        Array.from(ch.querySelectorAll('Verse')).forEach(v => {
-          const ayah = parseInt(v.getAttribute('VerseID'));
-          map[`${surah}:${ayah}`] = v.textContent.trim();
+      const suraList = xml.querySelectorAll('sura_list > sura');
+      suraList.forEach(sura => {
+        const surah = parseInt(sura.getAttribute('number'));
+        const ayaList = sura.querySelectorAll('aya');
+        ayaList.forEach(aya => {
+          const ayah = parseInt(aya.getAttribute('number'));
+          const text = aya.querySelector('translation')?.textContent.trim() || '';
+          map[`${surah}:${ayah}`] = text;
         });
       });
-      // Gabungkan terjemah ke searchData
+
+      // Gabungkan ke searchData
       searchData = searchData.map(item => {
         const key = `${item.surah}:${item.ayah}`;
         return { ...item, terjemah: map[key] || '(terjemahan tidak ditemukan)' };
