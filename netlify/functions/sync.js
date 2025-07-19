@@ -9,8 +9,8 @@ exports.handler = async function (event) {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
-  const owner = "tafsirnetlifyapp"; // Ganti sesuai akunmu ya
-  const repo = "quran";       // Ganti sesuai repo
+  const owner = "videomurottal"; // Ganti sesuai akunmu ya
+  const repo = "tadabbur";       // Ganti sesuai repo
   const path = `data/${username}.json`;
 
   const content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64"); // Mantap
