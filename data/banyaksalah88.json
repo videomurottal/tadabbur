@@ -1,6 +1,14 @@
 {
-  "bookmark": [],
-  "notes": {},
+  "bookmark": [
+    {
+      "surah": 18,
+      "ayat": 1,
+      "timestamp": "25 Juli 2025 00.14"
+    }
+  ],
+  "notes": {
+    "note-18-1": "Ya Allah, ampunilah aku..."
+  },
   "log": [
     "2025-07-19",
     "2025-07-20",
