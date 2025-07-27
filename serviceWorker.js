@@ -1,4 +1,4 @@
-saya juga membuat serviceWorker.js isinya: self.addEventListener('install', event => {
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open('tadabbur-cache').then(cache => {
       return cache.addAll([
